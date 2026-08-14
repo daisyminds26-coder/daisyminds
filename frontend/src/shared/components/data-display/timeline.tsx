@@ -11,7 +11,7 @@ export interface TimelineEntry {
   icon?: ComponentType<{ className?: string }>
 }
 
-/** Vertical activity/audit-style timeline (e.g. an enrollment history or audit log detail view). */
+/** Vertical activity/audit-style timeline (e.g. an Enrollllment history or audit log detail view). */
 export function Timeline({ entries }: { entries: readonly TimelineEntry[] }) {
   return (
     <ol className="flex flex-col">

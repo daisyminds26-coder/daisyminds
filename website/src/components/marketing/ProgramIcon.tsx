@@ -3,6 +3,7 @@ import {
   BrainCircuit,
   Cloud,
   Code2,
+  GraduationCap,
   LineChart,
   Megaphone,
   ShieldCheck,
@@ -11,9 +12,15 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 
-import type { ProgramIconName } from '@/types/program'
-
-const ICON_MAP: Record<ProgramIconName, LucideIcon> = {
+/**
+ * Course Management has no icon field — this is purely cosmetic, so it's
+ * kept client-side rather than inventing a backend field for it. Keyed by
+ * `slug` (today's 9 real programs happen to use exactly these slugs);
+ * `DEFAULT_ICON` covers any future program added via Admin whose slug isn't
+ * in this curated map, so a newly-published course never renders a missing
+ * icon.
+ */
+const ICON_MAP: Record<string, LucideIcon> = {
   'web-development': Code2,
   'android-development': Smartphone,
   cybersecurity: ShieldCheck,
@@ -25,13 +32,14 @@ const ICON_MAP: Record<ProgramIconName, LucideIcon> = {
   'digital-marketing': Megaphone,
 }
 
+const DEFAULT_ICON: LucideIcon = GraduationCap
+
 interface ProgramIconProps {
-  name: ProgramIconName
+  slug: string
   className?: string
 }
 
-/** Resolves a serializable `ProgramIconName` (from `data/programs.ts`) to its `lucide-react` component — keeps program data JSON/API-shaped, with no React component references baked into the data layer. */
-export function ProgramIcon({ name, className }: ProgramIconProps) {
-  const Icon = ICON_MAP[name]
+export function ProgramIcon({ slug, className }: ProgramIconProps) {
+  const Icon = ICON_MAP[slug] ?? DEFAULT_ICON
   return <Icon className={className} aria-hidden="true" />
 }

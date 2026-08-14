@@ -40,15 +40,17 @@ src/
 ├── app/            # App shell + router
 ├── components/
 │   ├── ui/          # Button, Container, Section, Badge, Accordion, Input, ResponsiveImage…
-│   ├── layout/       # Navbar (+ ServicesMegaMenu), Footer, SiteChrome
-│   ├── marketing/    # ProgramCard, PlanCard, ProgramIcon, TrainerCard, TestimonialCard…
+│   ├── layout/       # Navbar (+ ProgramsMegaMenu), Footer, SiteChrome
+│   ├── marketing/    # ProgramCard, ProgramImageFallback, ProgramCardSkeleton, PlanCard, ProgramIcon, TrainerCard, TestimonialCard…
+│   ├── error/        # ProgramsErrorBoundary — catches a rejected programs-API promise thrown by use()
 │   ├── apply/        # The /apply stepper: StepperNav, ApplicationSummaryCard, steps/*, PaymentSuccessScreen
 │   ├── seo/          # <Seo>, <JsonLd>
 │   └── motion/       # Reveal, Stagger, FloatingCard, shared variants
-├── data/             # Static content + async "repository" functions —
-│                       shaped like the eventual GET /api/v1/public/* endpoints
-│                       so swapping in a real fetch later needs no call-site change
-├── services/         # auth-service.ts — the one place that calls a real backend endpoint
+├── data/             # Static content only — services.ts (client services), plans.ts, trainers.ts,
+│                       testimonials.ts, batches.ts (homepage teaser), why-daisy-minds.ts…
+├── services/         # auth-service.ts (real LMS login call) and public-programs-service.ts
+│                       (real LMS public-programs API call) — the two places this app talks to a
+│                       real backend
 ├── hooks/            # useApplicationState (apply-flow selection persistence), usePrefersReducedMotion…
 ├── pages/            # Route-level components
 ├── sections/         # Homepage narrative sections (one concern each)
@@ -57,29 +59,49 @@ src/
 └── utils/
 ```
 
-## Programs architecture
+## Programs architecture — dynamic, sourced from LMS Course Management
 
-`types/program.ts` defines `Program` — shaped like the eventual `GET /api/v1/public/programs` /
-`GET /api/v1/public/programs/:slug` response. `data/programs.ts` holds the nine current programs
-(Web Development, Android Development, Cybersecurity, Artificial Intelligence, Data Science, Data
-Analytics, DevOps, Cloud Computing, Digital Marketing) and exposes only async accessors
-(`getPrograms`, `getProgramBySlug`, `getFeaturedPrograms`, `getProgramCategories`) — components
-never import the raw array, so swapping in a real fetch later is a one-file change.
+Training programs are **no longer static content in this repo.** Admin Course Management
+(`../backend/`) is the single source of truth; this site reads it through a deliberately narrow,
+unauthenticated public API:
 
-Content rules baked into every program's copy: no invented exact module/lesson counts (see
-`curriculumHighlights`, which describes learning _areas_, not a lesson-by-lesson syllabus), no
-unsupported certification/hacking claims (Cybersecurity in particular), no salary guarantees
-(`careerOpportunities`), and "Placement Assistance" — never "100% placement" or "guaranteed job."
+```
+Admin Course Management  →  GET /api/v1/public/programs(/:slug)  →  services/public-programs-service.ts  →  ProgramsPage / ProgramDetailPage / FeaturedPrograms / ProgramsMegaMenu
+```
 
-`icon` is a serializable `ProgramIconName` string, resolved to a real `lucide-react` icon only at
-render time via `components/marketing/ProgramIcon.tsx` — keeps the data layer free of React
-component references.
+- `services/public-programs-service.ts` — the only place this concern is fetched. Mirrors
+  `auth-service.ts`'s pattern (raw `fetch`, a typed `*ApiError` class, `{data: T}` body-unwrap) and
+  reads the same `VITE_API_BASE_URL`. Exports `getPrograms(filters?)`, `getProgramBySlug(slug)`,
+  `getFeaturedPrograms(limit?)`, `getProgramCategories()` — a short in-module cache (~60s TTL,
+  matching the backend's own `Cache-Control: max-age=60`) also de-dupes in-flight requests, so
+  `Navbar`/`ProgramsMegaMenu`/`ProgramsPage` calling `getPrograms()` independently share one
+  request instead of each firing their own.
+- `types/program.ts` — `Program`/`ProgramListItem` mirror the backend's public DTO
+  (`backend/src/services/public-programs-dto.ts`) field-for-field. Fields the old static content
+  had that Course Management doesn't (FAQ, career opportunities, tools, projects, mentor-support
+  copy, curriculum "highlights") are gone, not faked — a real `courseMarketing` schema addition
+  could bring these back later if wanted, deliberately not built this pass.
+- **No hardcoded fallback data.** A backend outage in dev renders the real loading/error UI
+  (`ProgramCardSkeleton`, `ProgramsErrorBoundary` with retry) — never silently stale static
+  content standing in as if it were live.
+- **Curriculum preview and upcoming batches are real**, not marketing copy: `ProgramDetailPage`
+  renders the course's actual published modules/lessons and real upcoming batches (with a derived
+  `AVAILABLE`/`LIMITED`/`FULL` badge, never a fabricated seat count).
 
-**Canonical route:** `/services/:slug` (reusable `ProgramDetailPage`, 11 sections: Hero, Overview,
-What You Will Learn, Curriculum Highlights, Tools & Technologies, Hands-on Learning, Career
-Opportunities, Why Learn at Daisy Minds, Choose Your Learning Path, FAQ, Final CTA). The old
-`/programs` and `/programs/:slug` URLs still work — `App.tsx` redirects them to `/services` and
-`/services/:slug` respectively, so no old link or bookmark breaks.
+**Canonical route:** `/programs/:slug` (`ProgramDetailPage`). `/services/:slug` — a training-URL
+artifact from an earlier, incorrect Services/Programs merge — redirects to `/programs/:slug` so no
+old link 404s. See "Services vs. Programs" below for the current, correct route split.
+
+## Services vs. Programs
+
+Two different concepts, deliberately kept apart:
+
+- **`/programs`** — student training, dynamically sourced from LMS Course Management (above).
+- **`/services`** — Daisy Minds' own client-facing technology services (Web Development, Mobile
+  App Development, Custom Software, AI Solutions, Data Analytics & BI, Cloud Solutions, DevOps,
+  Cybersecurity, Digital Marketing). A single static listing page (`data/services.ts`,
+  `pages/ServicesPage.tsx`) — no per-service detail routes, no CMS, no Course Management
+  involvement. If a Services CMS is ever wanted, that's a separate, future decision.
 
 ## Plans architecture
 
@@ -90,14 +112,14 @@ for pricing and features; never hardcode a price anywhere else. `getPlans()`/`ge
 one place INR formatting happens.
 
 Plans are a commercial/depth tier independent of any single program's own `duration`/`level`
-fields — the same three plans apply across all nine programs.
+fields — the same three plans apply across every published program.
 
 ## Application flow (`/apply`)
 
 A four-step stepper (Program → Plan → Account → Payment), built in `components/apply/`:
 
 1. **Program** — shows the program carried over via `?program=slug` (changeable), or prompts a
-   selection from all nine if none was provided.
+   selection from every published program if none was provided.
 2. **Plan** — select one of the three plans (carries over via `?plan=slug` too).
 3. **Account** — **Login** calls the real, existing LMS backend endpoint directly. **Register** is
    an honest, clearly-labeled placeholder (see [Authentication Handoff](#authentication-handoff)).
@@ -143,8 +165,8 @@ unused scaffolding (no routes, no controller, no service, no gateway SDK in
 
 Given that, `components/apply/steps/PaymentStep.tsx` is the honest stopping point: it shows the
 full application summary and states plainly, "Payment integration will be connected in the Fees &
-Payments phase." It never simulates a successful payment, never fabricates an order/enrollment
-reference, and never marks anyone enrolled.
+Payments phase." It never simulates a successful payment, never fabricates an order/Enrollllment
+reference, and never marks anyone Enrolllled.
 
 `components/apply/PaymentSuccessScreen.tsx` is built and ready for that future phase but is
 **intentionally not wired into any reachable code path** — nothing in `ApplyPage.tsx` can render
@@ -152,7 +174,7 @@ it today. The future architecture it assumes:
 
 ```
 Application → Order → Payment Gateway → Server-side Payment Verification
-  → Successful Payment → Enrollment → Receipt → LMS Access
+  → Successful Payment → Enrollllment → Receipt → LMS Access
 ```
 
 Payment success must eventually be verified server-side — never trust a client-only
@@ -162,11 +184,11 @@ exists.
 ## Program ↔ LMS course mapping strategy
 
 A public "program" (marketing/catalog copy) is not the same entity as an LMS "Course" (the real
-academic entity with curriculum, batches, enrollments). `Program` has one optional field,
+academic entity with curriculum, batches, Enrollllments). `Program` has one optional field,
 `courseId?: string`, left `undefined` until an admin links a program to a real course — no second
 academic course system, no duplicated curriculum data. The full mapping the Application → LMS flow
 will eventually need: `programSlug → courseId`, `planId → commercial offering`,
-`userId → student/user account`, `payment → enrollment`. The website never writes an enrollment
+`userId → student/user account`, `payment → Enrollllment`. The website never writes an Enrollllment
 record directly — that happens server-side, after verified payment.
 
 ## Image strategy
@@ -190,28 +212,60 @@ Every image ships with specific, real alt text — never empty, never generic "p
 
 ## SEO
 
-Every route renders a `<Seo>` (title/description/canonical/Open Graph/Twitter) and, where
+Every route renders a `<Seo>` (title/description/keywords/canonical/Open Graph/Twitter) and, where
 relevant, a `<JsonLd>` block built from `utils/structured-data.ts` (`EducationalOrganization`,
 `Course`, `BreadcrumbList`, `FAQPage`). Structured data only ever reflects real content from
-`data/*.ts` — nothing fabricated. `/apply` is `noIndex` (a checkout flow, not content). Plans
-intentionally do **not** use `Product` schema — that would misrepresent a service as a physical
-product.
+`data/*.ts` — nothing fabricated. `/apply` is `noIndex` (a checkout flow, not content) and excluded
+from the sitemap and `robots.txt`. Plans intentionally do **not** use `Product` schema — that would
+misrepresent a service as a physical product. `keywords` is a short, page-specific list, not a
+stuffed one — modern search engines give the tag essentially no ranking weight; it's included
+because it was asked for, not because it moves rankings. `index.html`'s own meta/OG/Twitter tags
+are a static fallback for crawlers/link-unfurlers that never run JS — `<Seo>` overwrites all of
+them once React mounts; keep the two in sync if the homepage's copy changes.
+
+### Sitemap & robots.txt
+
+`public/robots.txt` is static (allows everything except `/apply`, points to `/sitemap.xml`).
+`sitemap.xml` **cannot** be static, though — Programs are live data from Course Management, not
+content this repo owns. `scripts/generate-sitemap.ts` runs as a `postbuild` step (`npm run build`
+→ `vite build` → this script): it combines the known static routes and Services (`data/services.ts`)
+with every currently-published program, paginating through `GET /api/v1/public/programs` (never
+assumes the catalog fits one page), and writes `dist/sitemap.xml`. If the backend is unreachable at
+build time, it logs a warning and still writes the sitemap with just the static/Services routes —
+a build never fails because the API happened to be down. Run `npm run sitemap` to regenerate it
+standalone (e.g. against a local backend) without a full rebuild.
+
+**Known limitation, not silently glossed over:** this only refreshes on a website _build_/deploy —
+a program published on the LMS between deploys won't appear in the sitemap until the next one.
+True real-time freshness would need the sitemap served dynamically (e.g. from the backend itself),
+which is a separate infra decision (a new backend route, Nginx routing) not made here.
 
 ## Environment
 
-| Variable            | Purpose                                                                                                 |
-| ------------------- | ------------------------------------------------------------------------------------------------------- |
-| `VITE_LMS_URL`      | Base URL of `../frontend/` — "Student Login" and the post-payment "Go to Student Portal" CTA route here |
-| `VITE_SITE_URL`     | This site's own canonical URL, used to build absolute OG/canonical links                                |
-| `VITE_API_BASE_URL` | Base URL of the LMS backend API — used only by `services/auth-service.ts`'s real Login call             |
+| Variable            | Purpose                                                                                                                                                      |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `VITE_LMS_URL`      | Base URL of `../frontend/` — "Student Login" and the post-payment "Go to Student Portal" CTA route here                                                      |
+| `VITE_SITE_URL`     | This site's own canonical URL, used to build absolute OG/canonical links                                                                                     |
+| `VITE_API_BASE_URL` | Base URL of the LMS backend API — used by `services/auth-service.ts`'s real Login call **and** `services/public-programs-service.ts`'s program-catalog calls |
 
 See `.env.example`. All three fall back to local dev defaults if unset.
 
+## Known gap: `App.test.tsx`
+
+The existing integration test suite (`src/app/__tests__/App.test.tsx`) predates the dynamic-programs
+migration and asserts against the old static routing/nav (`/services` as the training-programs
+route, category filter values like `"Design"`, etc.). Per this task's own scope (no test-suite work
+this pass — see the task's Testing Policy), it was not run or updated here; it will need a rewrite
+similar in spirit to the routing/nav test updates from the earlier Services/Programs redesign
+before it's trustworthy again.
+
 ## Data layer
 
-Nothing here calls an authenticated LMS admin endpoint (the one exception, by design, is the real
-`/auth/login` call described above). Every function in `data/*.ts` returns a `Promise` shaped like
-the eventual public API (`/api/v1/public/programs`, `/api/v1/public/plans`,
-`/api/v1/public/trainers`, `/api/v1/public/batches`) — today they resolve static content instead
-of making a network call. Pages consume them with React 19's `use()` inside a `<Suspense>`
-boundary, not manual loading-state effects.
+Two services call a real LMS backend endpoint: `auth-service.ts` (the `/apply` flow's real Login
+call) and `public-programs-service.ts` (the entire training-programs catalog — see "Programs
+architecture" above). Everything else in `data/*.ts` is static content this repo owns directly
+(Plans, Services, Trainers, Testimonials, the homepage's batch teaser, FAQ) and stays that way
+until/unless a future phase gives it a real backend module of its own. Pages consume both static
+and dynamic data the same way — React 19's `use()` inside a `<Suspense>` boundary, not manual
+loading-state effects; the dynamic ones additionally wrap that `<Suspense>` in a
+`ProgramsErrorBoundary` so a real API failure shows a retry UI, never a blank page.

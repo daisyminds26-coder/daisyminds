@@ -251,7 +251,7 @@ registry.registerPath({
   tags: TAGS,
   summary: 'Soft-delete a student (soft-deletes the linked user account)',
   description:
-    "The student profile document's own `isDeleted` stays false — only the linked user account is soft-deleted — so historical enrollment/attendance/grade references never dangle.",
+    "The student profile document's own `isDeleted` stays false — only the linked user account is soft-deleted — so historical Enrollllment/attendance/grade references never dangle.",
   security,
   request: idParam,
   responses: {

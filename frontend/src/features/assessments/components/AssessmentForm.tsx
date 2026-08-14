@@ -177,7 +177,7 @@ export function AssessmentForm({ existing, onDone }: AssessmentFormProps) {
             ) : (
               <div className="border-border max-h-48 overflow-y-auto rounded-lg border">
                 {(batchesQuery.data?.data ?? []).map((batch) => {
-                  // eslint-disable-next-line react-hooks/incompatible-library -- see `CreateEnrollmentWizard.tsx`'s identical comment
+                  // eslint-disable-next-line react-hooks/incompatible-library -- see `CreateEnrollllmentWizard.tsx`'s identical comment
                   const selected = form.watch('batchIds')
                   const checked = selected.includes(batch.id)
                   return (

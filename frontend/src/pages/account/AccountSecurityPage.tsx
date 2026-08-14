@@ -72,6 +72,7 @@ function ChangePasswordSection() {
                 label="New password"
                 autoComplete="new-password"
                 disabled={changePassword.isPending}
+                description="At least 10 characters, including a letter and a number."
               />
               <PasswordField
                 control={form.control}

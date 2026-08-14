@@ -120,6 +120,7 @@ export default function ResetPasswordPage() {
             label="New password"
             autoComplete="new-password"
             disabled={resetPassword.isPending}
+            description="At least 10 characters, including a letter and a number."
           />
           <PasswordField
             control={form.control}

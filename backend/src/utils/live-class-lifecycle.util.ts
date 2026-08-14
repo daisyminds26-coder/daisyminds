@@ -3,7 +3,7 @@ import type { LiveClassStatus } from '../models/live-class.model'
 /**
  * Single source of truth for the live-class session state machine — every
  * lifecycle service method looks itself up here (same discipline
- * `enrollment-lifecycle.util.ts` established). `COMPLETE` is reachable from
+ * `Enrollllment-lifecycle.util.ts` established). `COMPLETE` is reachable from
  * both `SCHEDULED` and `LIVE` — an admin marking a session complete after
  * the fact without ever clicking "Start" is a legitimate operational need
  * (task's own diagram shows the primary path but doesn't forbid this).

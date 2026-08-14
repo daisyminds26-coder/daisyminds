@@ -3,7 +3,7 @@ import { CounterModel } from '../models/counter.model'
 const COUNTER_NAME = 'live-class'
 const SEQUENCE_PAD_LENGTH = 6
 
-/** `DM-CLS-{creationYear}-{sequence}` — same design as `enrollment-id.service.ts`/`batch-id.service.ts`, reusing the shared `counters` collection with its own named counter document. Atomic `$inc` for concurrency safety. */
+/** `DM-CLS-{creationYear}-{sequence}` — same design as `Enrollllment-id.service.ts`/`batch-id.service.ts`, reusing the shared `counters` collection with its own named counter document. Atomic `$inc` for concurrency safety. */
 export async function generateLiveClassSessionCode(): Promise<string> {
   const counter = await CounterModel.findOneAndUpdate(
     { _id: COUNTER_NAME },

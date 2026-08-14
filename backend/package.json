@@ -21,7 +21,8 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "audit": "npm audit --audit-level=high",
-    "seed:roles": "tsx scripts/seed-roles.ts"
+    "seed:roles": "tsx scripts/seed-roles.ts",
+    "seed:demo-fullstack": "tsx scripts/seed-fullstack-demo.ts"
   },
   "dependencies": {
     "@asteasolutions/zod-to-openapi": "^9.1.0",

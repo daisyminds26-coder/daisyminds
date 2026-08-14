@@ -34,7 +34,7 @@ Concrete rules implementing CLAUDE.md's architecture principles (SOLID, DRY, KIS
 
 ## 4. Error Handling
 
-- Backend: domain/business errors `throw` a typed `ApiError` (`utils/api-error.ts` — a base class with static factory methods like `ApiError.notFound()`, `ApiError.forbidden()`, `ApiError.validation()`, plus room for domain-specific subclasses like `DuplicateEnrollmentError`) — caught once, globally, by the final Express error-handling middleware that produces the API-STANDARDS.md error envelope. No controller/service catches an error just to swallow it or `console.log` and continue; Express 5's router forwards a rejected promise from an `async` handler to that middleware automatically, so no manual try/catch-and-forward boilerplate is needed per route (an explicit `asyncHandler` wrapper is still provided in `utils/` for readability/consistency and defense-in-depth).
+- Backend: domain/business errors `throw` a typed `ApiError` (`utils/api-error.ts` — a base class with static factory methods like `ApiError.notFound()`, `ApiError.forbidden()`, `ApiError.validation()`, plus room for domain-specific subclasses like `DuplicateEnrollllmentError`) — caught once, globally, by the final Express error-handling middleware that produces the API-STANDARDS.md error envelope. No controller/service catches an error just to swallow it or `console.log` and continue; Express 5's router forwards a rejected promise from an `async` handler to that middleware automatically, so no manual try/catch-and-forward boilerplate is needed per route (an explicit `asyncHandler` wrapper is still provided in `utils/` for readability/consistency and defense-in-depth).
 - Frontend: TanStack Query's error state drives UI error display (UI-DESIGN-SYSTEM.md §8) — no silent `.catch(() => {})`.
 - Never ignore a caught error without an explicit, commented reason (per CLAUDE.md: "never ignore errors").
 
@@ -48,7 +48,7 @@ Concrete rules implementing CLAUDE.md's architecture principles (SOLID, DRY, KIS
 
 - Every module ships with unit tests (services — business logic), integration tests (controller + service + in-memory/test DB), permission tests (role/ownership guards actually deny what they should), and API tests (request/response contract) — per CLAUDE.md, "no module is complete until tests pass."
 - Test files: `*.spec.ts` colocated with the file under test (backend), `*.test.tsx` colocated with components (frontend).
-- Edge cases are explicitly covered, not just the happy path — especially around the business rules still marked ⚠ pending in other docs; once those rules are confirmed, their edge cases (e.g., "enrollment at exact batch capacity," "payment webhook received twice") are mandatory test cases, not optional ones.
+- Edge cases are explicitly covered, not just the happy path — especially around the business rules still marked ⚠ pending in other docs; once those rules are confirmed, their edge cases (e.g., "Enrollllment at exact batch capacity," "payment webhook received twice") are mandatory test cases, not optional ones.
 
 ## 7. Git
 

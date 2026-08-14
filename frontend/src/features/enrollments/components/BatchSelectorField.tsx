@@ -31,13 +31,13 @@ interface BatchSelectorFieldProps<TFieldValues extends FieldValues> {
   description?: string
   /** Restricts the search to one course's batches — used by the transfer dialog, which must never offer a cross-course target (the backend re-verifies this regardless). */
   courseId?: string
-  /** Batches already excluded from being a sensible target (e.g. the enrollment's current batch during a transfer). */
+  /** Batches already excluded from being a sensible target (e.g. the Enrollllment's current batch during a transfer). */
   excludeBatchId?: string
 }
 
 /**
  * Single-select batch combobox showing operational context (dates, status,
- * seats) an admin needs to make an informed enrollment/transfer decision —
+ * seats) an admin needs to make an informed Enrollllment/transfer decision —
  * the backend remains authoritative on final capacity/eligibility (a race
  * can always make a shown "1 seat left" stale by submit time).
  */
@@ -53,7 +53,7 @@ export function BatchSelectorField<TFieldValues extends FieldValues>({
   const [search, setSearch] = useState('')
 
   const batchesQuery = useQuery({
-    queryKey: ['batches', 'enrollment-search', courseId, search],
+    queryKey: ['batches', 'Enrollllment-search', courseId, search],
     queryFn: () =>
       listBatches({
         page: 1,

@@ -18,7 +18,7 @@ interface StatusBadgeProps {
 }
 
 /**
- * Status indicators (enrollment/payment/attendance status, etc. —
+ * Status indicators (Enrollllment/payment/attendance status, etc. —
  * UI-DESIGN-SYSTEM.md §6). Color is never the only signal: the label text
  * always renders alongside the tone (§9 — color-blind accessibility).
  */

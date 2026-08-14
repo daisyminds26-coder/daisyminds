@@ -105,7 +105,9 @@ describe('App', () => {
     render(<App />)
 
     await screen.findByRole('heading', { level: 3, name: 'Web Development' })
-    expect(screen.getByRole('heading', { level: 3, name: 'Android Development' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { level: 3, name: 'Android Development' }),
+    ).toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: 'Security' }))
 
@@ -124,7 +126,7 @@ describe('App', () => {
     render(<App />)
 
     const question = await screen.findByRole('button', {
-      name: /do i need prior experience to enroll/i,
+      name: /do i need prior experience to Enrollll/i,
     })
     expect(question).toHaveAttribute('aria-expanded', 'false')
 

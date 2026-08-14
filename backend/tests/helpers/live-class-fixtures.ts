@@ -75,7 +75,7 @@ export async function createLoggedInTrainer(): Promise<LoggedInActor & { trainer
 /**
  * A `BatchModel` document with a real weekly-schedule template + date range
  * — direct model creation (bypasses `batch-management.service.ts`, same
- * precedent as `enrollment-fixtures.ts#createBatchFixture`), but this one
+ * precedent as `Enrollllment-fixtures.ts#createBatchFixture`), but this one
  * carries `weeklySchedule`/`startDate`/`endDate` since live-class
  * generation-from-timetable tests need a real template to project from.
  */

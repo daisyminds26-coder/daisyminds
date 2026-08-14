@@ -8,10 +8,7 @@ import { ErrorState } from '@/shared/components/feedback/error-state'
 import { useCurrentUser } from '@/features/auth/hooks/use-current-user'
 import { useAdminDashboard } from '@/features/dashboard/hooks/use-admin-dashboard'
 import { PeriodSelector } from '@/features/dashboard/components/PeriodSelector'
-import {
-  DashboardSecondaryStats,
-  DashboardStatCards,
-} from '@/features/dashboard/components/DashboardStatCards'
+import { DashboardStatCards } from '@/features/dashboard/components/DashboardStatCards'
 import { DistributionCard } from '@/features/dashboard/components/DistributionCard'
 import { RecentPeopleCard } from '@/features/dashboard/components/RecentPeopleCard'
 import { RecentActivityCard } from '@/features/dashboard/components/RecentActivityCard'
@@ -131,7 +128,8 @@ export default function AdminDashboardPage() {
         <>
           <DashboardStatCards summary={data?.summary} range={range} isLoading={isInitialLoading} />
 
-          {data && <DashboardSecondaryStats summary={data.summary} />}
+          {/* DashboardSecondaryStats (locked/suspended accounts, incomplete profiles,
+              published courses) hidden for now — re-add the import and this line to bring it back. */}
 
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
             <DistributionCard

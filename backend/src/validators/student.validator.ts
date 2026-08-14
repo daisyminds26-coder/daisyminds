@@ -93,6 +93,13 @@ const tagSchema = z.string().trim().min(1).max(40)
  * Shared by create/update. `email`/`password`/`role`/`studentId`/audit
  * fields are deliberately absent — mass assignment of auth-identity or
  * system-generated fields is never accepted here (SECURITY.md).
+ *
+ * Deliberately **no** `.default()` on `guardianAddressSameAsStudent`/
+ * `educationRecords`/`tags` here — this object also feeds `updateStudentSchema`
+ * via `.partial()`. Same empirically-verified rule `question.validator.ts`/
+ * `batch.validator.ts` document (SECURITY.md §4): a defaulted field here
+ * would silently wipe it on any update that didn't resend it. Defaults are
+ * applied only on `createStudentSchema` below, via `.extend()`.
  */
 const studentProfileSchema = z
   .object({
@@ -115,14 +122,14 @@ const studentProfileSchema = z
     guardianEmail: z.email().optional(),
     guardianRelationship: z.string().trim().max(60).optional(),
     guardianOccupation: z.string().trim().max(150).optional(),
-    guardianAddressSameAsStudent: z.boolean().default(false),
+    guardianAddressSameAsStudent: z.boolean().optional(),
     guardianAddress: addressSchema.optional(),
-    educationRecords: z.array(educationRecordSchema).max(20).default([]),
+    educationRecords: z.array(educationRecordSchema).max(20).optional(),
     admissionDate: admissionDateSchema.optional(),
     source: z.enum(STUDENT_SOURCES).optional(),
     counsellorId: objectIdSchema.optional(),
     notes: z.string().trim().max(2000).optional(),
-    tags: z.array(tagSchema).max(20).default([]),
+    tags: z.array(tagSchema).max(20).optional(),
   })
   .strict()
 
@@ -130,6 +137,9 @@ export const createStudentSchema = studentProfileSchema
   .extend({
     email: z.email(),
     password: passwordSchema,
+    guardianAddressSameAsStudent: z.boolean().default(false),
+    educationRecords: z.array(educationRecordSchema).max(20).default([]),
+    tags: z.array(tagSchema).max(20).default([]),
     /** Mirrors `users`' `sendVerificationEmail` semantics exactly — same underlying flow, different field name for this module's own copy/UI. */
     sendInvitation: z.boolean().default(true),
   })

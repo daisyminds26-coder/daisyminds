@@ -24,7 +24,7 @@ export function DataGrid({ toolbar, pagination, children }: DataGridProps) {
   return (
     <div className="flex flex-col gap-4">
       {toolbar && (
-        <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
+        <div className="border-border bg-card flex flex-col items-start justify-between gap-3 rounded-xl border p-4 sm:flex-row sm:items-center">
           {toolbar}
         </div>
       )}

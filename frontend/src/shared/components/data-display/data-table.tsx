@@ -55,7 +55,7 @@ export function DataTable<TRow>({
   className,
 }: DataTableProps<TRow>) {
   return (
-    <div className={cn('border-border overflow-x-auto rounded-xl border', className)}>
+    <div className={cn('border-border bg-card overflow-x-auto rounded-xl border', className)}>
       <Table>
         <TableHeader>
           <TableRow>

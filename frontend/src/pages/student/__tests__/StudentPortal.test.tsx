@@ -64,7 +64,7 @@ describe('Student dashboard', () => {
 })
 
 describe('My Courses', () => {
-  it('renders every enrolled course as a card', async () => {
+  it('renders every Enrolllled course as a card', async () => {
     await renderAsStudent(<MyCoursesPage />, '/student/courses')
 
     expect(await screen.findByText('Full-Stack Web Development')).toBeInTheDocument()

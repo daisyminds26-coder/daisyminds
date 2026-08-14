@@ -15,6 +15,12 @@ export default function FaqPage() {
         title="Frequently Asked Questions"
         description="Answers to common questions about Daisy Minds programs, schedules, batches, and applications."
         path="/faq"
+        keywords={[
+          'Daisy Minds FAQ',
+          'admissions questions',
+          'batch schedule',
+          'program questions',
+        ]}
       />
       <JsonLd data={buildFaqSchema(FAQS)} />
 

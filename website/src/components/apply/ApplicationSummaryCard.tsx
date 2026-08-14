@@ -1,10 +1,10 @@
-import type { Program } from '@/types/program'
+import type { ProgramListItem } from '@/types/program'
 import type { Plan } from '@/types/plan'
 import { formatPlanPrice } from '@/data/plans'
 import { cn } from '@/utils/cn'
 
 interface ApplicationSummaryCardProps {
-  program?: Program
+  program?: ProgramListItem
   plan?: Plan
   className?: string
 }

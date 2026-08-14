@@ -56,6 +56,13 @@ export default function PlansPage() {
         title="Plans"
         description="Choose the learning path that fits your goal — Short Term Foundation Modules, Specialized & Mid Level Training, or Advanced Job-Ready Bootcamps."
         path="/plans"
+        keywords={[
+          'learning plans',
+          'course pricing',
+          'bootcamp pricing',
+          'foundation modules',
+          'job-ready bootcamp',
+        ]}
       />
       <JsonLd
         data={buildBreadcrumbSchema([

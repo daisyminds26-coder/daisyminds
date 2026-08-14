@@ -50,10 +50,10 @@ export interface StudentAssignmentDetailDto extends StudentAssignmentDto {
 }
 
 /**
- * A student may only ever be enrolled in **one** batch of a given course
- * (existing enrollment-uniqueness rule) — so "the batch" for an assignment
+ * A student may only ever be Enrolllled in **one** batch of a given course
+ * (existing Enrollllment-uniqueness rule) — so "the batch" for an assignment
  * targeting several batches of that course is unambiguous: whichever of
- * `assignment.batchIds` matches this student's own enrolled batch.
+ * `assignment.batchIds` matches this student's own Enrolllled batch.
  */
 export function toStudentAssignmentDto(
   assignment: AssignmentDocument,

@@ -21,8 +21,6 @@ interface UsersFilterBarProps {
   onStatusChange: (value: AccountStatus | undefined) => void
   roleId: string | undefined
   onRoleIdChange: (value: string | undefined) => void
-  includeDeleted: boolean
-  onIncludeDeletedChange: (value: boolean) => void
   sort: `${SortField}:${SortDirection}`
   onSortChange: (value: `${SortField}:${SortDirection}`) => void
 }
@@ -34,8 +32,6 @@ export function UsersFilterBar({
   onStatusChange,
   roleId,
   onRoleIdChange,
-  includeDeleted,
-  onIncludeDeletedChange,
   sort,
   onSortChange,
 }: UsersFilterBarProps) {
@@ -69,28 +65,18 @@ export function UsersFilterBar({
     },
   ]
 
-  const hasActiveFilters = status !== undefined || roleId !== undefined || includeDeleted
+  const hasActiveFilters = status !== undefined || roleId !== undefined
 
   return (
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <SearchBox
         value={search}
         onChange={onSearchChange}
         placeholder="Search by email…"
-        className="sm:max-w-xs"
+        className="sm:max-w-md sm:flex-1"
       />
       <div className="flex flex-wrap items-center gap-2">
         <FilterBar filters={filters} />
-        <Button
-          type="button"
-          variant={includeDeleted ? 'secondary' : 'outline'}
-          size="sm"
-          onClick={() => {
-            onIncludeDeletedChange(!includeDeleted)
-          }}
-        >
-          {includeDeleted ? 'Showing deleted' : 'Show deleted'}
-        </Button>
         {hasActiveFilters && (
           <Button
             type="button"
@@ -99,7 +85,6 @@ export function UsersFilterBar({
             onClick={() => {
               onStatusChange(undefined)
               onRoleIdChange(undefined)
-              onIncludeDeletedChange(false)
             }}
           >
             Clear all

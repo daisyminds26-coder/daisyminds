@@ -1,4 +1,5 @@
 import type { Program } from '@/types/program'
+import { formatEnumLabel } from '@/types/program'
 import type { FaqEntry } from '@/types/faq'
 import { SITE_URL } from '@/utils/env'
 
@@ -31,7 +32,7 @@ export function buildCourseSchema(program: Program): Record<string, unknown> {
       url: SITE_URL,
     },
     url: `${SITE_URL}/programs/${program.slug}`,
-    educationalLevel: program.level,
+    educationalLevel: formatEnumLabel(program.level),
   }
 }
 

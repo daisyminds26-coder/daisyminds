@@ -53,6 +53,13 @@ export async function archiveQuestion(req: Request, res: Response): Promise<void
   sendSuccess(res, { message: 'Question archived', data })
 }
 
+export async function activateQuestion(req: Request, res: Response): Promise<void> {
+  const actor = requireUser(req)
+  const { id } = req.validated?.params as QuestionIdParam
+  const data = await questionService.activateQuestion(id, actor, getRequestContext(req))
+  sendSuccess(res, { message: 'Question activated', data })
+}
+
 export async function duplicateQuestion(req: Request, res: Response): Promise<void> {
   const actor = requireUser(req)
   const { id } = req.validated?.params as QuestionIdParam

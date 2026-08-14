@@ -54,7 +54,6 @@ export default function UsersPage() {
   const [search, setSearch] = useState('')
   const [status, setStatus] = useState<AccountStatus | undefined>(initialStatus)
   const [roleId, setRoleId] = useState<string | undefined>(undefined)
-  const [includeDeleted, setIncludeDeleted] = useState(false)
   const [sort, setSort] = useState<`${SortField}:${SortDirection}`>('createdAt:desc')
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
 
@@ -64,8 +63,8 @@ export default function UsersPage() {
   const [pendingConfirmation, setPendingConfirmation] = useState<PendingConfirmation>(null)
 
   const params: ListUsersParams = useMemo(
-    () => ({ page, limit: 20, sort, status, roleId, search: search || undefined, includeDeleted }),
-    [page, sort, status, roleId, search, includeDeleted],
+    () => ({ page, limit: 20, sort, status, roleId, search: search || undefined }),
+    [page, sort, status, roleId, search],
   )
 
   const usersQuery = useUsersList(params)
@@ -132,7 +131,7 @@ export default function UsersPage() {
             className="gap-1.5"
             disabled={exportUsers.isPending}
             onClick={() => {
-              exportUsers.mutate({ status, roleId, search: search || undefined, includeDeleted })
+              exportUsers.mutate({ status, roleId, search: search || undefined })
             }}
           >
             <Download className="size-4" />
@@ -169,11 +168,6 @@ export default function UsersPage() {
             roleId={roleId}
             onRoleIdChange={(value) => {
               setRoleId(value)
-              setPage(1)
-            }}
-            includeDeleted={includeDeleted}
-            onIncludeDeletedChange={(value) => {
-              setIncludeDeleted(value)
               setPage(1)
             }}
             sort={sort}

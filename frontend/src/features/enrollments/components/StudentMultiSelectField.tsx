@@ -33,7 +33,7 @@ interface StudentMultiSelectFieldProps<TFieldValues extends FieldValues> {
   maxSelectable?: number
 }
 
-/** Multi-select combobox for bulk enrolment — direct template `AssistantTrainersField`, applied to `listStudents`. Selected chips stay visible so an admin can review the full roster before submitting. */
+/** Multi-select combobox for bulk Enrollment — direct template `AssistantTrainersField`, applied to `listStudents`. Selected chips stay visible so an admin can review the full roster before submitting. */
 export function StudentMultiSelectField<TFieldValues extends FieldValues>({
   control,
   name,

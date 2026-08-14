@@ -23,7 +23,7 @@ interface ConfirmDialogProps {
   isConfirming?: boolean
 }
 
-/** Blocking confirmation for destructive/irreversible actions (revoke session, delete record, withdraw enrollment). */
+/** Blocking confirmation for destructive/irreversible actions (revoke session, delete record, withdraw Enrollllment). */
 export function ConfirmDialog({
   open,
   onOpenChange,

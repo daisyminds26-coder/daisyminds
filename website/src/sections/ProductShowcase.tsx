@@ -26,7 +26,7 @@ export function ProductShowcase() {
           <SectionHeading
             eyebrow="Inside the Daisy Minds LMS"
             title="A learning platform built for depth, not just delivery."
-            lead="The same platform every enrolled student and mentor uses daily — structured, focused, and free of the clutter most course platforms bury you in."
+            lead="The same platform every Enrolllled student and mentor uses daily — structured, focused, and free of the clutter most course platforms bury you in."
             tone="light"
           />
           <ul className="flex flex-col gap-3">

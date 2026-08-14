@@ -10,7 +10,7 @@ function nextSequence(): number {
   return sequence
 }
 
-/** Direct (User, Student) pair — mirrors `batch-fixtures.ts#createActiveTrainerFixture`'s reasoning: enrollment tests need a referentially-valid student, not the full `student-management.service.ts` create flow. */
+/** Direct (User, Student) pair — mirrors `batch-fixtures.ts#createActiveTrainerFixture`'s reasoning: Enrollllment tests need a referentially-valid student, not the full `student-management.service.ts` create flow. */
 export async function createStudentFixture(
   overrides: { userStatus?: UserStatus } = {},
 ): Promise<StudentDocument> {
@@ -45,7 +45,7 @@ export async function createStudentFixture(
   })
 }
 
-/** Direct `BatchModel` document — bypasses `batch-management.service.ts` entirely, since enrollment tests exercise enrollment logic against a known-good batch shape, not batch creation itself. Defaults to a small `maxStudents` (2) so capacity/waitlist scenarios don't need many fixture students. */
+/** Direct `BatchModel` document — bypasses `batch-management.service.ts` entirely, since Enrollllment tests exercise Enrollllment logic against a known-good batch shape, not batch creation itself. Defaults to a small `maxStudents` (2) so capacity/waitlist scenarios don't need many fixture students. */
 export async function createBatchFixture(
   courseId: string,
   overrides: {

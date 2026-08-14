@@ -5,11 +5,56 @@
     <link rel="icon" type="image/png" href="/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#FFFCF5" />
+
     <title>Daisy Minds — Mentor-Led Career Programs</title>
     <meta
       name="description"
       content="Daisy Minds pairs a project-first curriculum with mentors who review your actual work — programs in software development, data, design, and infrastructure."
     />
+    <meta
+      name="keywords"
+      content="Daisy Minds, career programs, mentor-led training, software development courses, data science training, coding bootcamp, project-based learning"
+    />
+    <meta name="robots" content="index, follow" />
+    <!--
+      The production URL is hardcoded through this file rather than using
+      Vite's HTML-env-variable substitution (the VITE_SITE_URL placeholder
+      syntax is deliberately not spelled out here — Vite's scanner matches
+      it as plain text even inside a comment, which is exactly the false
+      warning this note used to trigger on every dev/build run). That
+      substitution has no fallback (unlike `utils/env.ts`'s
+      `import.meta.env.X || 'default'` pattern used everywhere else) and
+      would silently ship the literal placeholder string into these tags if
+      the env var isn't set at build time. Matches `public/robots.txt`,
+      which is static for the same reason. Update this file's URLs together
+      with robots.txt's Sitemap: line if the production domain ever changes.
+    -->
+    <link rel="canonical" href="https://daisyminds.com/" />
+
+    <!--
+      Static defaults for the homepage — `components/seo/Seo.tsx` overwrites
+      all of these per-route once React mounts (see its own doc comment).
+      These exist so a crawler or link-unfurler that never executes JS still
+      sees correct tags instead of nothing, not because the two are meant to
+      diverge.
+    -->
+    <meta property="og:title" content="Daisy Minds — Mentor-Led Career Programs" />
+    <meta
+      property="og:description"
+      content="Daisy Minds pairs a project-first curriculum with mentors who review your actual work — programs in software development, data, design, and infrastructure."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://daisyminds.com/" />
+    <meta property="og:site_name" content="Daisy Minds" />
+    <meta property="og:image" content="https://daisyminds.com/og-cover.png" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Daisy Minds — Mentor-Led Career Programs" />
+    <meta
+      name="twitter:description"
+      content="Daisy Minds pairs a project-first curriculum with mentors who review your actual work — programs in software development, data, design, and infrastructure."
+    />
+    <meta name="twitter:image" content="https://daisyminds.com/og-cover.png" />
   </head>
   <body>
     <div id="root"></div>

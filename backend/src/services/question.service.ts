@@ -192,6 +192,35 @@ export const questionService = {
     return dto
   },
 
+  /**
+   * DRAFT/ARCHIVED -> ACTIVE. Without this, a question can never reach the
+   * `ACTIVE` status `assessment.service.ts#computeReadinessBlockers`
+   * requires of every referenced question before an assessment can be
+   * published — no code path previously set a question to ACTIVE, which
+   * silently blocked every quiz/exam in the product from ever publishing.
+   */
+  async activateQuestion(
+    id: string,
+    actor: AuthenticatedUser,
+    context: RequestContext,
+  ): Promise<AdminQuestionDto> {
+    const question = await questionRepository.findById(id)
+    if (!question) throw ApiError.notFound('Question not found')
+    if (question.status === 'ACTIVE') throw ApiError.conflict('This question is already active')
+
+    const updated = await questionRepository.updateById(id, {
+      status: 'ACTIVE',
+      updatedBy: actor.id,
+    })
+    if (!updated) throw ApiError.notFound('Question not found')
+
+    await recordAudit(id, 'question.activated', actor, context)
+
+    const [dto] = await buildDtos([updated])
+    if (!dto) throw ApiError.notFound('Question not found')
+    return dto
+  },
+
   /** A fresh `DRAFT` copy, same content, new `questionCode` — never shares identity with the source (an edit to the copy must never affect the original, or any attempt snapshot that already references the original). */
   async duplicateQuestion(
     id: string,

@@ -62,15 +62,24 @@ export const createLessonSchema = z
   })
 export type CreateLessonInput = z.infer<typeof createLessonSchema>
 
+/**
+ * Deliberately **no** `.default()` on `isPreview`/`isMandatory`/
+ * `prerequisiteLessonIds` here — this object only ever feeds
+ * `updateLessonSchema` via `.partial()`. Same empirically-verified rule
+ * `question.validator.ts`/`batch.validator.ts` document (SECURITY.md §4):
+ * a defaulted field here would silently reset on any update that didn't
+ * resend it (e.g. clearing a lesson's prerequisites on an unrelated title
+ * edit). `createLessonSchema` above carries its own, separate defaults.
+ */
 const lessonBaseSchema = z
   .object({
     title: z.string().trim().min(1, 'Title is required').max(200),
     shortDescription: z.string().trim().max(500).optional(),
     lessonType: z.enum(LESSON_TYPES),
     estimatedDurationMinutes: z.coerce.number().int().positive().max(100_000).optional(),
-    isPreview: z.boolean().default(false),
-    isMandatory: z.boolean().default(true),
-    prerequisiteLessonIds: z.array(objectIdSchema).max(50).default([]),
+    isPreview: z.boolean().optional(),
+    isMandatory: z.boolean().optional(),
+    prerequisiteLessonIds: z.array(objectIdSchema).max(50).optional(),
   })
   .strict()
 

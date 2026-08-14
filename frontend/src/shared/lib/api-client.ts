@@ -1,7 +1,7 @@
 import type { AxiosError } from 'axios'
 import axios, { type AxiosRequestConfig, type InternalAxiosRequestConfig } from 'axios'
 
-import { ApiClientError, type ApiErrorDetail } from '@/shared/lib/api-error'
+import { ApiClientError, isApiClientError, type ApiErrorDetail } from '@/shared/lib/api-error'
 import { useAuthSessionStore } from '@/shared/lib/auth-session-store'
 import { broadcastAuthEvent } from '@/shared/lib/multi-tab-sync'
 
@@ -132,15 +132,29 @@ apiClient.interceptors.response.use(
         const newToken = await getOrCreateRefreshPromise()
         config.headers.set('Authorization', `Bearer ${newToken}`)
         return await apiClient(config)
-      } catch {
-        useAuthSessionStore.getState().reset()
-        broadcastAuthEvent('SESSION_INVALIDATED')
+      } catch (refreshError) {
+        // Only a genuine 401 from /auth/refresh means the session itself is
+        // actually gone (expired/revoked) — that's the one case logging the
+        // user out is correct. Anything else (429 rate-limited, a 5xx, a
+        // network blip) is a transient failure to *check* the session, not
+        // proof it's invalid: tearing down a perfectly good session because
+        // refresh got rate-limited was the actual bug here (a data-heavy
+        // admin SPA with a few tabs open can legitimately burn through a
+        // shared request budget). Reject with the refresh's own error and
+        // leave the session alone so the next request can just try again.
+        if (isApiClientError(refreshError) && refreshError.statusCode === 401) {
+          useAuthSessionStore.getState().reset()
+          broadcastAuthEvent('SESSION_INVALIDATED')
+          return Promise.reject(
+            new ApiClientError({
+              message: 'Your session has expired. Please log in again.',
+              code: 'SESSION_EXPIRED',
+              statusCode: 401,
+            }),
+          )
+        }
         return Promise.reject(
-          new ApiClientError({
-            message: 'Your session has expired. Please log in again.',
-            code: 'SESSION_EXPIRED',
-            statusCode: 401,
-          }),
+          refreshError instanceof Error ? refreshError : new Error(String(refreshError)),
         )
       }
     }

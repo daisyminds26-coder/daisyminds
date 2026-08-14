@@ -37,6 +37,7 @@ import { assessmentRouter } from './routes/assessment.routes'
 import { studentAssessmentRouter } from './routes/student-assessment.routes'
 import { trainerAssessmentRouter } from './routes/trainer-assessment.routes'
 import { userRouter } from './routes/user.routes'
+import { publicProgramsRouter } from './routes/public-programs.routes'
 
 import './docs'
 
@@ -98,6 +99,9 @@ export function createApp(): Express {
   app.use(`${env.API_PREFIX}/assessments`, assessmentRouter)
   app.use(`${env.API_PREFIX}/student`, studentAssessmentRouter)
   app.use(`${env.API_PREFIX}/trainer`, trainerAssessmentRouter)
+  // Unauthenticated — matches `healthRouter` (app.ts's only other no-auth
+  // mount). Still behind helmet/cors/compression/globalRateLimiter above.
+  app.use(`${env.API_PREFIX}/public/programs`, publicProgramsRouter)
 
   app.use(notFoundHandler)
   app.use(errorHandler)

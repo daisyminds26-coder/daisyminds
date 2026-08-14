@@ -1,7 +1,6 @@
 import { Menu } from 'lucide-react'
 
 import { Button } from '@/shared/components/ui/button'
-import { GlobalSearch } from '@/shared/components/layout/global-search'
 import { NotificationBell } from '@/shared/components/layout/notification-bell'
 import { UserDropdown } from '@/shared/components/layout/user-dropdown'
 import { PageBreadcrumb } from '@/shared/components/layout/page-breadcrumb'
@@ -33,9 +32,6 @@ export function Header({ user, onSignOut }: HeaderProps) {
       </div>
 
       <div className="ml-auto flex items-center gap-2 md:gap-3">
-        <div className="hidden md:block">
-          <GlobalSearch />
-        </div>
         <NotificationBell />
         <UserDropdown user={user} onSignOut={onSignOut} />
       </div>

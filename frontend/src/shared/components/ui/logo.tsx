@@ -1,5 +1,5 @@
 import logoMarkSrc from '@/shared/assets/daisy-minds-logo-mark.png'
-import logoLockupSrc from '@/shared/assets/daisy-minds-logo-lockup.png'
+import logoLockupSrc from '@/shared/assets/DiasyMindsLogo.png'
 
 import { cn } from '@/shared/lib/utils'
 
@@ -17,7 +17,7 @@ export function LogoMark({ className }: { className?: string }) {
       alt=""
       width={500}
       height={577}
-      className={cn('block h-8 w-auto object-contain', className)}
+      className={cn('block h-16 w-auto object-contain', className)}
     />
   )
 }
@@ -38,9 +38,9 @@ export function Logo({ className, alt = '' }: { className?: string; alt?: string
     <img
       src={logoLockupSrc}
       alt={alt}
-      width={1872}
-      height={577}
-      className={cn('block h-8 w-auto object-contain', className)}
+      width={1971}
+      height={798}
+      className={cn('block h-16 w-auto object-contain', className)}
     />
   )
 }

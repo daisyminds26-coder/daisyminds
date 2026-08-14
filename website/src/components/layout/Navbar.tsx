@@ -6,10 +6,12 @@ import { ChevronDown, Menu, X } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Container } from '@/components/ui/Container'
 import { Logo } from '@/components/ui/Logo'
+import { ProgramsMegaMenu } from '@/components/layout/ProgramsMegaMenu'
 import { ServicesMegaMenu } from '@/components/layout/ServicesMegaMenu'
 import { PRIMARY_NAV } from '@/data/nav'
-import { getPrograms } from '@/data/programs'
-import type { Program } from '@/types/program'
+import { SERVICES } from '@/data/services'
+import { getPrograms } from '@/services/public-programs-service'
+import type { ProgramListItem } from '@/types/program'
 import { lmsRoute } from '@/utils/env'
 import { useScrolled } from '@/hooks/useScrolled'
 import { cn } from '@/utils/cn'
@@ -17,7 +19,7 @@ import { cn } from '@/utils/cn'
 function NavbarLogo() {
   return (
     <Link to="/" aria-label="Daisy Minds home">
-      <Logo className="h-9" />
+      <Logo className="h-14 rounded-lg" />
     </Link>
   )
 }
@@ -25,15 +27,23 @@ function NavbarLogo() {
 export function Navbar() {
   const scrolled = useScrolled(12)
   const [menuOpen, setMenuOpen] = useState(false)
-  const [mobileServicesOpen, setMobileServicesOpen] = useState(false)
-  const [mobilePrograms, setMobilePrograms] = useState<Program[]>([])
+  // Which mega-menu item's mobile disclosure is open, keyed by its `href`
+  // (`/services` or `/programs`) — independent state per item, since both
+  // are mega menus now and must expand/collapse separately.
+  const [openMobileMega, setOpenMobileMega] = useState<string | null>(null)
+  const [mobilePrograms, setMobilePrograms] = useState<ProgramListItem[]>([])
   const location = useLocation()
 
   useEffect(() => {
     let active = true
-    void getPrograms().then((data) => {
-      if (active) setMobilePrograms(data)
-    })
+    getPrograms()
+      .then((data) => {
+        if (active) setMobilePrograms(data)
+      })
+      .catch(() => {
+        // Silent, matching ProgramsMegaMenu — the mobile menu simply shows
+        // no programs; ProgramsPage.tsx has the real error UI for this data.
+      })
     return () => {
       active = false
     }
@@ -70,10 +80,14 @@ export function Navbar() {
           <NavbarLogo />
 
           <nav className="hidden items-center gap-8 lg:flex" aria-label="Primary">
-            {PRIMARY_NAV.map((item) =>
-              item.megaMenu ? (
-                <ServicesMegaMenu key={item.href} />
-              ) : (
+            {PRIMARY_NAV.map((item) => {
+              if (item.href === '/services' && item.megaMenu) {
+                return <ServicesMegaMenu key={item.href} />
+              }
+              if (item.href === '/programs' && item.megaMenu) {
+                return <ProgramsMegaMenu key={item.href} />
+              }
+              return (
                 <Link
                   key={item.href}
                   to={item.href}
@@ -81,8 +95,8 @@ export function Navbar() {
                 >
                   {item.label}
                 </Link>
-              ),
-            )}
+              )
+            })}
           </nav>
 
           <div className="hidden items-center gap-3 lg:flex">
@@ -120,31 +134,47 @@ export function Navbar() {
             className="border-border-soft bg-background overflow-hidden border-b lg:hidden"
           >
             <Container className="flex flex-col gap-1 py-4">
-              {PRIMARY_NAV.map((item) =>
-                item.megaMenu ? (
+              {PRIMARY_NAV.map((item) => {
+                if (!item.megaMenu) {
+                  return (
+                    <Link
+                      key={item.href}
+                      to={item.href}
+                      className="text-ink hover:bg-surface-raised rounded-lg px-3 py-3 text-base font-medium"
+                    >
+                      {item.label}
+                    </Link>
+                  )
+                }
+
+                const isProgramsMenu = item.href === '/programs'
+                const isOpen = openMobileMega === item.href
+                const listId = `mobile-${item.href.slice(1)}-list`
+
+                return (
                   <div key={item.href} className="flex flex-col">
                     <button
                       type="button"
                       className="text-ink hover:bg-surface-raised flex items-center justify-between rounded-lg px-3 py-3 text-base font-medium"
-                      aria-expanded={mobileServicesOpen}
-                      aria-controls="mobile-services-list"
+                      aria-expanded={isOpen}
+                      aria-controls={listId}
                       onClick={() => {
-                        setMobileServicesOpen((open) => !open)
+                        setOpenMobileMega((current) => (current === item.href ? null : item.href))
                       }}
                     >
                       {item.label}
                       <ChevronDown
                         className={cn(
                           'size-4 transition-transform duration-200',
-                          mobileServicesOpen && 'rotate-180',
+                          isOpen && 'rotate-180',
                         )}
                         aria-hidden="true"
                       />
                     </button>
                     <AnimatePresence>
-                      {mobileServicesOpen && (
+                      {isOpen && (
                         <motion.div
-                          id="mobile-services-list"
+                          id={listId}
                           initial={{ height: 0, opacity: 0 }}
                           animate={{ height: 'auto', opacity: 1 }}
                           exit={{ height: 0, opacity: 0 }}
@@ -152,22 +182,33 @@ export function Navbar() {
                           className="overflow-hidden"
                         >
                           <ul className="flex flex-col gap-0.5 py-1 pl-3">
-                            {mobilePrograms.map((program) => (
-                              <li key={program.slug}>
-                                <Link
-                                  to={`/services/${program.slug}`}
-                                  className="text-ink-muted hover:text-ink block rounded-lg px-3 py-2 text-sm"
-                                >
-                                  {program.shortTitle}
-                                </Link>
-                              </li>
-                            ))}
+                            {isProgramsMenu
+                              ? mobilePrograms.map((program) => (
+                                  <li key={program.slug}>
+                                    <Link
+                                      to={`/programs/${program.slug}`}
+                                      className="text-ink-muted hover:text-ink block rounded-lg px-3 py-2 text-sm"
+                                    >
+                                      {program.title}
+                                    </Link>
+                                  </li>
+                                ))
+                              : SERVICES.map((service) => (
+                                  <li key={service.slug}>
+                                    <Link
+                                      to={`/services/${service.slug}`}
+                                      className="text-ink-muted hover:text-ink block rounded-lg px-3 py-2 text-sm"
+                                    >
+                                      {service.title}
+                                    </Link>
+                                  </li>
+                                ))}
                             <li>
                               <Link
-                                to="/services"
+                                to={item.href}
                                 className="text-primary-dark block rounded-lg px-3 py-2 text-sm font-semibold"
                               >
-                                View all programs →
+                                View all {isProgramsMenu ? 'programs' : 'services'} →
                               </Link>
                             </li>
                           </ul>
@@ -175,16 +216,8 @@ export function Navbar() {
                       )}
                     </AnimatePresence>
                   </div>
-                ) : (
-                  <Link
-                    key={item.href}
-                    to={item.href}
-                    className="text-ink hover:bg-surface-raised rounded-lg px-3 py-3 text-base font-medium"
-                  >
-                    {item.label}
-                  </Link>
-                ),
-              )}
+                )
+              })}
               <div className="border-border-soft mt-3 flex flex-col gap-2 border-t pt-4">
                 <Button href={lmsRoute('/login')} external variant="ghost" className="w-full">
                   Student Login

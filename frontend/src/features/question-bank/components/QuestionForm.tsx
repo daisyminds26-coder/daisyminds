@@ -120,9 +120,9 @@ export function QuestionForm({ existing }: QuestionFormProps) {
       acceptedAnswers:
         questionType === 'FILL_IN_THE_BLANK'
           ? values.acceptedAnswers
-              .split(',')
-              .map((item) => item.trim())
-              .filter(Boolean)
+            .split(',')
+            .map((item) => item.trim())
+            .filter(Boolean)
           : undefined,
       correctNumericAnswer:
         values.correctNumericAnswer === '' ? undefined : Number(values.correctNumericAnswer),
@@ -213,7 +213,7 @@ export function QuestionForm({ existing }: QuestionFormProps) {
             {optionsArray.fields.map((field, index) => (
               <div key={field.id} className="flex items-center gap-3">
                 <Checkbox
-                  // eslint-disable-next-line @typescript-eslint/restrict-template-expressions, react-hooks/incompatible-library -- RHF's FieldPath type requires a literal `options.${number}.isCorrect` template (not a stringified index); `watch()` is RHF's documented API, see `CreateEnrollmentWizard.tsx`'s identical comment
+                  // eslint-disable-next-line @typescript-eslint/restrict-template-expressions, react-hooks/incompatible-library -- RHF's FieldPath type requires a literal `options.${number}.isCorrect` template (not a stringified index); `watch()` is RHF's documented API, see `CreateEnrollllmentWizard.tsx`'s identical comment
                   checked={form.watch(`options.${index}.isCorrect`)}
                   onCheckedChange={(checked) => {
                     if (questionType === 'SINGLE_CHOICE' && checked) {

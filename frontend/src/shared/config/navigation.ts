@@ -28,7 +28,7 @@ import type { NavSection } from '@/shared/types/nav'
  * Static navigation model for the three role-scoped app areas. This is a
  * UI-only affordance (SECURITY.md §3) — it controls what renders in the
  * sidebar, not what the server will actually authorize. Student/Trainer/
- * Course/Batch/Enrolment Management are implemented (Phases 6/7/9A/10A/10B);
+ * Course/Batch/Enrollment Management are implemented (Phases 6/7/9A/10A/10B);
  * remaining business modules behind these links (fees, certificates, etc.)
  * are out of scope so far — those routes exist as lazy-loaded "Coming Soon"
  * placeholders.
@@ -47,9 +47,9 @@ export const adminNavigation: readonly NavSection[] = [
       { id: 'courses', label: 'Courses', href: '/admin/courses', icon: BookOpen },
       { id: 'batches', label: 'Batches', href: '/admin/batches', icon: Layers },
       {
-        id: 'enrollments',
-        label: 'Enrolments',
-        href: '/admin/enrollments',
+        id: 'Enrollments',
+        label: 'Enrollments',
+        href: '/admin/Enrollments',
         icon: ClipboardList,
       },
       { id: 'live-classes', label: 'Live Classes', href: '/admin/live-classes', icon: Video },

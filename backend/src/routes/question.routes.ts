@@ -50,6 +50,12 @@ questionRouter.post(
   asyncHandler(questionController.archiveQuestion),
 )
 questionRouter.post(
+  '/:id/activate',
+  MANAGE,
+  validate({ params: questionIdParamSchema }),
+  asyncHandler(questionController.activateQuestion),
+)
+questionRouter.post(
   '/:id/duplicate',
   MANAGE,
   validate({ params: questionIdParamSchema }),

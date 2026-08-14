@@ -13,32 +13,54 @@ const timeZoneSchema = z
 export const assignmentIdParamSchema = z.object({ id: objectIdSchema }).strict()
 export type AssignmentIdParam = z.infer<typeof assignmentIdParamSchema>
 
+/**
+ * Deliberately **no** `.default()` on any field here — shared by both the
+ * create and update (`.partial()`) schemas below. Same empirically-verified
+ * rule `question.validator.ts`/`batch.validator.ts` document (SECURITY.md
+ * §4): Zod substitutes a field's default the instant its key is absent from
+ * the request body, regardless of `.partial()` — so a defaulted field here
+ * would silently reset on any update that didn't resend it. Defaults are
+ * applied only on `createAssignmentSchema`, via `.extend()`.
+ */
 const baseAssignmentFields = {
   title: z.string().trim().min(1).max(200),
   shortDescription: z.string().trim().max(300).optional(),
   instructions: z.string().trim().max(10_000),
   batchIds: z.array(objectIdSchema).min(1).max(50),
   submissionType: z.enum(ASSIGNMENT_SUBMISSION_TYPES),
-  allowedFileTypes: z.array(z.string().trim().toLowerCase().max(10)).max(20).default([]),
-  maxFiles: z.coerce.number().int().min(1).max(10).default(1),
+  allowedFileTypes: z.array(z.string().trim().toLowerCase().max(10)).max(20).optional(),
+  maxFiles: z.coerce.number().int().min(1).max(10).optional(),
   maxFileSizeBytes: z.coerce
     .number()
     .int()
     .positive()
     .max(100 * 1024 * 1024)
-    .default(25 * 1024 * 1024),
+    .optional(),
   maxMarks: z.coerce.number().positive(),
   passingMarks: z.coerce.number().min(0).optional(),
   dueDateTime: z.coerce.date(),
   timezone: timeZoneSchema,
-  allowLateSubmission: z.boolean().default(false),
+  allowLateSubmission: z.boolean().optional(),
   lateUntil: z.coerce.date().optional(),
-  allowResubmission: z.boolean().default(false),
+  allowResubmission: z.boolean().optional(),
   maxAttempts: z.coerce.number().int().positive().max(20).optional(),
 }
 
 export const createAssignmentSchema = z
-  .object({ courseId: objectIdSchema, ...baseAssignmentFields })
+  .object({
+    courseId: objectIdSchema,
+    ...baseAssignmentFields,
+    allowedFileTypes: z.array(z.string().trim().toLowerCase().max(10)).max(20).default([]),
+    maxFiles: z.coerce.number().int().min(1).max(10).default(1),
+    maxFileSizeBytes: z.coerce
+      .number()
+      .int()
+      .positive()
+      .max(100 * 1024 * 1024)
+      .default(25 * 1024 * 1024),
+    allowLateSubmission: z.boolean().default(false),
+    allowResubmission: z.boolean().default(false),
+  })
   .strict()
   .refine((value) => !value.passingMarks || value.passingMarks <= value.maxMarks, {
     message: 'Passing marks cannot exceed max marks',

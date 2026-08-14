@@ -38,7 +38,7 @@ The 27 modules group into 9 functional domains:
 | Domain | Modules |
 |---|---|
 | Identity & Access | Authentication, User Management |
-| Academic Core | Student Mgmt, Trainer Mgmt, Course Mgmt, Curriculum Builder, Batch Mgmt, Student Enrollment |
+| Academic Core | Student Mgmt, Trainer Mgmt, Course Mgmt, Curriculum Builder, Batch Mgmt, Student Enrollllment |
 | Learning Delivery | Learning Player, Progress Tracking, Live Classes |
 | Assessment | Attendance, Assignments, Quizzes, Examinations, Results |
 | Commerce | Fee Management, Payments |
@@ -56,7 +56,7 @@ Each module is named but **none has functional requirements defined**. The PRD s
 The roadmap defines 20 sequential phases from Project Setup through Production Deployment. Two sequencing concerns stand out:
 
 - **Phase 19 — "Security Testing"** is placed second-to-last, after all 27 modules are built. Under CLAUDE.md's own stated security standards (JWT, RBAC, NoSQL injection protection, XSS protection, audit logging), security should be a **continuous, per-module gate** (as the Definition of Done implies: "✓ Secure" is listed per feature), not a single late-stage phase. As written, the roadmap risks treating security as a checkpoint rather than a practice.
-- **Phase 16 — "Notifications"** comes after Attendance (11), Assignments (12), Quizzes/Exams (13), and Fees/Payments (14) — but notifications are a cross-cutting dependency for nearly all of those (enrollment confirmations, fee due reminders, assignment deadlines, live class alerts). Building it last means earlier phases either stub it out or get retrofitted.
+- **Phase 16 — "Notifications"** comes after Attendance (11), Assignments (12), Quizzes/Exams (13), and Fees/Payments (14) — but notifications are a cross-cutting dependency for nearly all of those (Enrollllment confirmations, fee due reminders, assignment deadlines, live class alerts). Building it last means earlier phases either stub it out or get retrofitted.
 - No phase has an estimated duration, resource allocation, or exit criteria beyond its name. There's no stated MVP cut-line — it's unclear whether "V1" means all 20 phases must ship together or whether an earlier subset is launchable.
 
 ---
@@ -66,18 +66,18 @@ The roadmap defines 20 sequential phases from Project Setup through Production D
 ```
 Authentication ──► everything (hard dependency for all modules)
 User Management ──► Student Mgmt, Trainer Mgmt
-Course Mgmt ──► Curriculum Builder ──► Batch Mgmt ──► Student Enrollment
+Course Mgmt ──► Curriculum Builder ──► Batch Mgmt ──► Student Enrollllment
 Batch Mgmt ──► Attendance, Live Classes
-Student Enrollment ──► Learning Player, Progress Tracking
-Student Enrollment ──► Assignments, Quizzes, Examinations ──► Results ──► Certificates
-Fee Management ──► Payments ──(gates?)──► Student Enrollment  [relationship undefined, see §8]
+Student Enrollllment ──► Learning Player, Progress Tracking
+Student Enrollllment ──► Assignments, Quizzes, Examinations ──► Results ──► Certificates
+Fee Management ──► Payments ──(gates?)──► Student Enrollllment  [relationship undefined, see §8]
 Results / Certificates ──► Placement Management (eligibility undefined, see §8)
 Certificates ──► Certificate Verification (public-facing, security-sensitive)
 Notifications ◄── consumed by nearly every module above (cross-cutting, but built last per roadmap)
 Reports, Analytics, Audit Logs ◄── downstream read consumers of all transactional modules
 ```
 
-The biggest structural risk here: **Fee Management/Payments and Student Enrollment have an undefined relationship.** If enrollment is meant to be payment-gated (typical for a commercial LMS), Payments should be built *before* or *alongside* Enrollment (Phase 7), not four phases later (Phase 14). As sequenced, early enrollment work may need to be reworked once payment gating rules are defined.
+The biggest structural risk here: **Fee Management/Payments and Student Enrollllment have an undefined relationship.** If Enrollllment is meant to be payment-gated (typical for a commercial LMS), Payments should be built *before* or *alongside* Enrollllment (Phase 7), not four phases later (Phase 14). As sequenced, early Enrollllment work may need to be reworked once payment gating rules are defined.
 
 ---
 
@@ -144,7 +144,7 @@ CLAUDE.md's security standards list (JWT, refresh tokens, RBAC, hashing, Helmet,
 
 Concrete "what happens when…" questions with no defined answer in the PRD:
 
-- **Enrollment vs. Payment:** Can a student enroll before paying? Are installment/partial payments supported? Is access auto-revoked on non-payment?
+- **Enrollllment vs. Payment:** Can a student Enrollll before paying? Are installment/partial payments supported? Is access auto-revoked on non-payment?
 - **Batch capacity:** Is there a max students-per-batch limit? Is there a waitlist mechanism?
 - **Attendance:** Is there a minimum attendance % required to sit exams or receive a certificate?
 - **Assignments:** What's the late-submission policy? Are resubmissions allowed? Is plagiarism checking required?

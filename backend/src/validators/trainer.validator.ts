@@ -186,6 +186,14 @@ const tagSchema = z.string().trim().min(1).max(40)
  * Shared by create/update. `email`/`password`/`role`/`trainerId`/audit
  * fields are deliberately absent — mass assignment of auth-identity or
  * system-generated fields is never accepted here (SECURITY.md).
+ *
+ * Deliberately **no** `.default()` on any array/enum-with-default field
+ * here — this object also feeds `updateTrainerSchema` via `.partial()`.
+ * Same empirically-verified rule `question.validator.ts`/`batch.validator.ts`
+ * document (SECURITY.md §4): a defaulted field here would silently reset it
+ * on any update that didn't resend it (e.g. wiping `expertiseAreas` on an
+ * unrelated phone-number edit). Defaults are applied only on
+ * `createTrainerSchema` below, via `.extend()`.
  */
 const trainerProfileSchema = z
   .object({
@@ -203,49 +211,49 @@ const trainerProfileSchema = z
     phone: phoneSchema,
     alternatePhone: optionalPhoneSchema,
     address: addressSchema.optional(),
-    emergencyContacts: z.array(emergencyContactSchema).max(5).default([]),
+    emergencyContacts: z.array(emergencyContactSchema).max(5).optional(),
 
     designation: z.string().trim().max(150).optional(),
     department: z.string().trim().max(150).optional(),
     totalYearsExperience: z.coerce.number().min(0).max(80).optional(),
     teachingYearsExperience: z.coerce.number().min(0).max(80).optional(),
     industryYearsExperience: z.coerce.number().min(0).max(80).optional(),
-    expertiseAreas: z.array(z.string().trim().min(1).max(60)).max(30).default([]),
-    secondaryExpertise: z.array(z.string().trim().min(1).max(60)).max(30).default([]),
-    skills: z.array(z.string().trim().min(1).max(60)).max(30).default([]),
-    technologies: z.array(z.string().trim().min(1).max(60)).max(30).default([]),
-    specializations: z.array(z.string().trim().min(1).max(60)).max(30).default([]),
+    expertiseAreas: z.array(z.string().trim().min(1).max(60)).max(30).optional(),
+    secondaryExpertise: z.array(z.string().trim().min(1).max(60)).max(30).optional(),
+    skills: z.array(z.string().trim().min(1).max(60)).max(30).optional(),
+    technologies: z.array(z.string().trim().min(1).max(60)).max(30).optional(),
+    specializations: z.array(z.string().trim().min(1).max(60)).max(30).optional(),
     linkedinUrl: optionalUrlSchema,
     portfolioUrl: optionalUrlSchema,
     githubUrl: optionalUrlSchema,
     websiteUrl: optionalUrlSchema,
 
-    qualifications: z.array(qualificationSchema).max(20).default([]),
-    certifications: z.array(certificationSchema).max(20).default([]),
+    qualifications: z.array(qualificationSchema).max(20).optional(),
+    certifications: z.array(certificationSchema).max(20).optional(),
 
     joiningDate: z.coerce.date().optional(),
     employmentType: z.enum(EMPLOYMENT_TYPES).optional(),
-    employmentStatus: z.enum(EMPLOYMENT_STATUSES).default('ACTIVE'),
+    employmentStatus: z.enum(EMPLOYMENT_STATUSES).optional(),
     employeeCode: z.string().trim().max(60).optional(),
     reportingManagerId: objectIdSchema.optional(),
     workLocation: z.string().trim().max(200).optional(),
     probationEndDate: z.coerce.date().optional(),
     noticePeriodDays: z.coerce.number().int().min(0).max(365).optional(),
 
-    preferredTeachingModes: z.array(z.enum(TEACHING_MODES)).max(3).default([]),
-    preferredTimeSlots: z.array(z.enum(PREFERRED_TIME_SLOTS)).max(4).default([]),
+    preferredTeachingModes: z.array(z.enum(TEACHING_MODES)).max(3).optional(),
+    preferredTimeSlots: z.array(z.enum(PREFERRED_TIME_SLOTS)).max(4).optional(),
     maxConcurrentBatches: z.coerce.number().int().min(0).max(50).optional(),
     maxWeeklyTeachingHours: z.coerce.number().min(0).max(168).optional(),
-    availabilityStatus: z.enum(AVAILABILITY_STATUSES).default('AVAILABLE'),
+    availabilityStatus: z.enum(AVAILABILITY_STATUSES).optional(),
     availabilityNotes: z.string().trim().max(1000).optional(),
-    languagesOfInstruction: z.array(z.string().trim().min(1).max(60)).max(20).default([]),
+    languagesOfInstruction: z.array(z.string().trim().min(1).max(60)).max(20).optional(),
     teachingLevel: z.enum(TEACHING_LEVELS).optional(),
-    qualifiedToTeachSubjects: z.array(z.string().trim().min(1).max(100)).max(50).default([]),
-    availability: availabilityArraySchema.default([]),
+    qualifiedToTeachSubjects: z.array(z.string().trim().min(1).max(100)).max(50).optional(),
+    availability: availabilityArraySchema.optional(),
 
     source: z.enum(TRAINER_SOURCES).optional(),
     notes: z.string().trim().max(2000).optional(),
-    tags: z.array(tagSchema).max(20).default([]),
+    tags: z.array(tagSchema).max(20).optional(),
   })
   .strict()
 
@@ -253,6 +261,22 @@ export const createTrainerSchema = trainerProfileSchema
   .extend({
     email: z.email(),
     password: passwordSchema,
+    emergencyContacts: z.array(emergencyContactSchema).max(5).default([]),
+    expertiseAreas: z.array(z.string().trim().min(1).max(60)).max(30).default([]),
+    secondaryExpertise: z.array(z.string().trim().min(1).max(60)).max(30).default([]),
+    skills: z.array(z.string().trim().min(1).max(60)).max(30).default([]),
+    technologies: z.array(z.string().trim().min(1).max(60)).max(30).default([]),
+    specializations: z.array(z.string().trim().min(1).max(60)).max(30).default([]),
+    qualifications: z.array(qualificationSchema).max(20).default([]),
+    certifications: z.array(certificationSchema).max(20).default([]),
+    employmentStatus: z.enum(EMPLOYMENT_STATUSES).default('ACTIVE'),
+    preferredTeachingModes: z.array(z.enum(TEACHING_MODES)).max(3).default([]),
+    preferredTimeSlots: z.array(z.enum(PREFERRED_TIME_SLOTS)).max(4).default([]),
+    availabilityStatus: z.enum(AVAILABILITY_STATUSES).default('AVAILABLE'),
+    languagesOfInstruction: z.array(z.string().trim().min(1).max(60)).max(20).default([]),
+    qualifiedToTeachSubjects: z.array(z.string().trim().min(1).max(100)).max(50).default([]),
+    availability: availabilityArraySchema.default([]),
+    tags: z.array(tagSchema).max(20).default([]),
     /** Mirrors `students`' `sendInvitation` semantics exactly — same underlying flow. */
     sendInvitation: z.boolean().default(true),
   })

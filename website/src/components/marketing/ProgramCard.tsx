@@ -1,18 +1,21 @@
 import { Link } from 'react-router-dom'
 import { ArrowUpRight, Clock, Layers, MonitorSmartphone } from 'lucide-react'
 
-import type { Program } from '@/types/program'
+import type { ProgramListItem } from '@/types/program'
+import { formatEnumLabel } from '@/types/program'
 import { ProgramIcon } from '@/components/marketing/ProgramIcon'
+import { ProgramImageFallback } from '@/components/marketing/ProgramImageFallback'
 import { ResponsiveImage } from '@/components/ui/ResponsiveImage'
+import { programAccent, type ProgramAccent } from '@/utils/program-accent'
 import { cn } from '@/utils/cn'
 
-const ACCENT_CLASSES: Record<Program['accent'], string> = {
+const ACCENT_CLASSES: Record<ProgramAccent, string> = {
   yellow: 'bg-primary text-charcoal',
   charcoal: 'bg-charcoal text-white',
   graphite: 'bg-graphite text-white',
 }
 
-const ACCENT_BORDER: Record<Program['accent'], string> = {
+const ACCENT_BORDER: Record<ProgramAccent, string> = {
   yellow: 'group-hover:border-primary-dark',
   charcoal: 'group-hover:border-charcoal',
   graphite: 'group-hover:border-graphite',
@@ -20,29 +23,35 @@ const ACCENT_BORDER: Record<Program['accent'], string> = {
 
 /**
  * Programs are presented as products, not course thumbnails — real,
- * program-specific photography (never a plain icon grid), a clear outcome
- * statement, key skill tags, and metadata a prospective learner actually
- * needs before clicking through. Desktop hover lifts the card and zooms the
- * image; mobile treats the whole card as one accessible tap target, no
- * hover state required.
+ * program-specific photography where Course Management has it (never a
+ * plain icon grid), a clear outcome statement, key skill tags, and
+ * metadata a prospective learner actually needs before clicking through.
+ * Desktop hover lifts the card and zooms the image; mobile treats the
+ * whole card as one accessible tap target, no hover state required.
  */
-export function ProgramCard({ program }: { program: Program }) {
+export function ProgramCard({ program }: { program: ProgramListItem }) {
+  const accent = programAccent(program.category)
+
   return (
     <Link
-      to={`/services/${program.slug}`}
+      to={`/programs/${program.slug}`}
       className={cn(
         'group border-border-soft bg-surface shadow-soft hover:shadow-lifted focus-visible:ring-primary-dark relative flex h-full flex-col overflow-hidden rounded-2xl border transition-all duration-300 hover:-translate-y-1 focus-visible:ring-2 focus-visible:outline-none',
-        ACCENT_BORDER[program.accent],
+        ACCENT_BORDER[accent],
       )}
     >
       <div className="relative overflow-hidden">
-        <ResponsiveImage
-          src={program.cardImage.src}
-          alt={program.cardImage.alt}
-          aspectRatio="4/3"
-          sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-          className="transition-transform duration-500 ease-out group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
-        />
+        {program.thumbnailUrl ? (
+          <ResponsiveImage
+            src={program.thumbnailUrl}
+            alt={program.title}
+            aspectRatio="4/3"
+            sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+            className="transition-transform duration-500 ease-out group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+          />
+        ) : (
+          <ProgramImageFallback aspectRatio="4/3" />
+        )}
         <div
           className="from-charcoal/70 pointer-events-none absolute inset-0 bg-gradient-to-t via-transparent to-transparent"
           aria-hidden="true"
@@ -53,10 +62,10 @@ export function ProgramCard({ program }: { program: Program }) {
         <span
           className={cn(
             'absolute right-4 bottom-4 flex size-11 items-center justify-center rounded-full shadow-lg',
-            ACCENT_CLASSES[program.accent],
+            ACCENT_CLASSES[accent],
           )}
         >
-          <ProgramIcon name={program.icon} className="size-5" />
+          <ProgramIcon slug={program.slug} className="size-5" />
         </span>
       </div>
 
@@ -67,7 +76,7 @@ export function ProgramCard({ program }: { program: Program }) {
         </div>
 
         <div className="flex flex-wrap gap-1.5">
-          {program.skillTags.slice(0, 3).map((tag) => (
+          {program.skills.slice(0, 3).map((tag) => (
             <span
               key={tag}
               className="border-border-soft text-ink-muted rounded-full border px-2.5 py-1 text-xs font-medium"
@@ -80,16 +89,18 @@ export function ProgramCard({ program }: { program: Program }) {
         <div className="text-ink-soft flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs font-medium">
           <span className="inline-flex items-center gap-1.5">
             <Layers className="size-3.5" aria-hidden="true" />
-            {program.level}
+            {formatEnumLabel(program.level)}
           </span>
           <span className="inline-flex items-center gap-1.5">
             <MonitorSmartphone className="size-3.5" aria-hidden="true" />
-            {program.learningMode}
+            {formatEnumLabel(program.deliveryMode)}
           </span>
-          <span className="inline-flex items-center gap-1.5">
-            <Clock className="size-3.5" aria-hidden="true" />
-            {program.duration}
-          </span>
+          {program.duration && (
+            <span className="inline-flex items-center gap-1.5">
+              <Clock className="size-3.5" aria-hidden="true" />
+              {program.duration}
+            </span>
+          )}
         </div>
 
         <span className="text-primary-dark mt-auto inline-flex items-center gap-1.5 text-sm font-semibold">

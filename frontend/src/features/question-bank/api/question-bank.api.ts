@@ -28,6 +28,10 @@ export function archiveQuestion(id: string): Promise<AdminQuestion> {
   return apiPost<AdminQuestion>(`/questions/${id}/archive`)
 }
 
+export function activateQuestion(id: string): Promise<AdminQuestion> {
+  return apiPost<AdminQuestion>(`/questions/${id}/activate`)
+}
+
 export function duplicateQuestion(id: string): Promise<AdminQuestion> {
   return apiPost<AdminQuestion>(`/questions/${id}/duplicate`)
 }

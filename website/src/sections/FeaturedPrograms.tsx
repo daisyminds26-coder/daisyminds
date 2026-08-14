@@ -6,9 +6,13 @@ import { SectionHeading } from '@/components/ui/SectionHeading'
 import { Button } from '@/components/ui/Button'
 import { ProgramCard } from '@/components/marketing/ProgramCard'
 import { StaggerGroup, StaggerItem } from '@/components/motion/Stagger'
-import type { Program } from '@/types/program'
+import type { ProgramListItem } from '@/types/program'
 
-export function FeaturedPrograms({ programs }: { programs: Program[] }) {
+export function FeaturedPrograms({ programs }: { programs: ProgramListItem[] }) {
+  // No published courses at all yet (not even the "latest published"
+  // fallback the API applies) — nothing honest to show here.
+  if (programs.length === 0) return null
+
   return (
     <Section tone="default">
       <Container>
@@ -18,7 +22,7 @@ export function FeaturedPrograms({ programs }: { programs: Program[] }) {
             title="Programs built around one outcome: hireable skills."
             lead="Every program pairs a project-based curriculum with weekly mentor review — pick the track that matches where you want to end up."
           />
-          <Button href="/services" variant="ghost" trailingIcon={<ArrowRight className="size-4" />}>
+          <Button href="/programs" variant="ghost" trailingIcon={<ArrowRight className="size-4" />}>
             View All Programs
           </Button>
         </div>

@@ -90,37 +90,37 @@ export function AssignmentForm({ existing, onDone }: AssignmentFormProps) {
     resolver: zodResolver(formSchema),
     defaultValues: existing
       ? {
-          courseId: existing.courseId,
-          batchIds: existing.batches.map((batch) => batch.id),
-          title: existing.title,
-          shortDescription: existing.shortDescription ?? '',
-          instructions: existing.instructions,
-          submissionType: existing.submissionType,
-          allowedFileTypes: existing.allowedFileTypes.join(', '),
-          maxFiles: String(existing.maxFiles),
-          maxFileSizeMb: String(Math.round(existing.maxFileSizeBytes / (1024 * 1024))),
-          maxMarks: String(existing.maxMarks),
-          passingMarks: existing.passingMarks !== null ? String(existing.passingMarks) : '',
-          dueDateTime: '',
-          timezone: existing.timezone,
-          allowLateSubmission: existing.allowLateSubmission,
-          allowResubmission: existing.allowResubmission,
-          maxAttempts: existing.maxAttempts !== null ? String(existing.maxAttempts) : '',
-        }
+        courseId: existing.courseId,
+        batchIds: existing.batches.map((batch) => batch.id),
+        title: existing.title,
+        shortDescription: existing.shortDescription ?? '',
+        instructions: existing.instructions,
+        submissionType: existing.submissionType,
+        allowedFileTypes: existing.allowedFileTypes.join(', '),
+        maxFiles: String(existing.maxFiles),
+        maxFileSizeMb: String(Math.round(existing.maxFileSizeBytes / (1024 * 1024))),
+        maxMarks: String(existing.maxMarks),
+        passingMarks: existing.passingMarks !== null ? String(existing.passingMarks) : '',
+        dueDateTime: '',
+        timezone: existing.timezone,
+        allowLateSubmission: existing.allowLateSubmission,
+        allowResubmission: existing.allowResubmission,
+        maxAttempts: existing.maxAttempts !== null ? String(existing.maxAttempts) : '',
+      }
       : {
-          courseId: '',
-          batchIds: [],
-          title: '',
-          instructions: '',
-          submissionType: 'TEXT',
-          maxFiles: '1',
-          maxFileSizeMb: '25',
-          maxMarks: '100',
-          dueDateTime: '',
-          timezone: 'Asia/Kolkata',
-          allowLateSubmission: false,
-          allowResubmission: false,
-        },
+        courseId: '',
+        batchIds: [],
+        title: '',
+        instructions: '',
+        submissionType: 'TEXT',
+        maxFiles: '1',
+        maxFileSizeMb: '25',
+        maxMarks: '100',
+        dueDateTime: '',
+        timezone: 'Asia/Kolkata',
+        allowLateSubmission: false,
+        allowResubmission: false,
+      },
   })
 
   const courseId = form.watch('courseId')
@@ -142,9 +142,9 @@ export function AssignmentForm({ existing, onDone }: AssignmentFormProps) {
       submissionType: values.submissionType,
       allowedFileTypes: values.allowedFileTypes
         ? values.allowedFileTypes
-            .split(',')
-            .map((item) => item.trim().toLowerCase())
-            .filter(Boolean)
+          .split(',')
+          .map((item) => item.trim().toLowerCase())
+          .filter(Boolean)
         : undefined,
       maxFiles: Number(values.maxFiles),
       maxFileSizeBytes: Number(values.maxFileSizeMb) * 1024 * 1024,
@@ -250,7 +250,7 @@ export function AssignmentForm({ existing, onDone }: AssignmentFormProps) {
                             batch.name.toLowerCase().includes(batchSearch.toLowerCase()),
                           )
                           .map((batch) => {
-                            // eslint-disable-next-line react-hooks/incompatible-library -- see `CreateEnrollmentWizard.tsx`'s identical comment
+                            // eslint-disable-next-line react-hooks/incompatible-library -- see `CreateEnrollllmentWizard.tsx`'s identical comment
                             const selected = form.watch('batchIds')
                             const checked = selected.includes(batch.id)
                             return (

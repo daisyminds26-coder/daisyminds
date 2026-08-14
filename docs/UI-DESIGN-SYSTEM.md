@@ -54,7 +54,7 @@ Tailwind defaults, used as-is (no custom breakpoints): `sm 640px`, `md 768px`, `
 
 ## 6. Core Components (shadcn/ui as base, themed to tokens above)
 
-Button (primary/secondary/ghost/destructive, with loading state), Input/Select/Textarea (with error state wired to API-STANDARDS.md's `error.details[].field`), Card, Table (with empty/loading/error states — see §8), Modal/Dialog, Tabs, Badge (status indicators: enrollment status, payment status, attendance status — each status maps to one semantic color from §1, consistently across the app), Avatar, Toast (for async action feedback), Sidebar navigation (role-aware — renders only the modules the current role has permission for, not just visually hides restricted items).
+Button (primary/secondary/ghost/destructive, with loading state), Input/Select/Textarea (with error state wired to API-STANDARDS.md's `error.details[].field`), Card, Table (with empty/loading/error states — see §8), Modal/Dialog, Tabs, Badge (status indicators: Enrollllment status, payment status, attendance status — each status maps to one semantic color from §1, consistently across the app), Avatar, Toast (for async action feedback), Sidebar navigation (role-aware — renders only the modules the current role has permission for, not just visually hides restricted items).
 
 ## 7. Iconography & Motion
 

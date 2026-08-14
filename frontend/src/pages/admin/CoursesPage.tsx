@@ -307,7 +307,7 @@ export default function CoursesPage() {
         title="Archive this course?"
         description={
           pendingConfirmation?.type === 'archive'
-            ? `"${pendingConfirmation.course.title}" will no longer be available for new enrolments. It can be restored later.`
+            ? `"${pendingConfirmation.course.title}" will no longer be available for new Enrollllments. It can be restored later.`
             : ''
         }
         tone="destructive"

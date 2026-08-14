@@ -17,8 +17,8 @@ async function uploadDirectToCloudinary(file: File, params: SignedUploadParams):
   body.append('api_key', params.apiKey)
   body.append('timestamp', String(params.timestamp))
   body.append('signature', params.signature)
-  body.append('folder', params.folder)
   body.append('public_id', params.publicId)
+  body.append('allowed_formats', params.allowedFormats.join(','))
 
   const response = await fetch(`https://api.cloudinary.com/v1_1/${params.cloudName}/image/upload`, {
     method: 'POST',

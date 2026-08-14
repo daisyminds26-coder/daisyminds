@@ -41,6 +41,12 @@ export default function AboutPage() {
         title="About Us"
         description="Daisy Minds is a mentor-led coaching institute offering project-based technology programs and career-focused training."
         path="/about"
+        keywords={[
+          'about Daisy Minds',
+          'technology training institute',
+          'mentor-led coaching',
+          'career training',
+        ]}
       />
       <JsonLd
         data={buildBreadcrumbSchema([
@@ -83,7 +89,7 @@ export default function AboutPage() {
         <Container>
           <SectionHeading
             eyebrow="What We Believe"
-            title="A structured path from enrollment to portfolio."
+            title="A structured path from Enrollllment to portfolio."
             align="center"
             className="mx-auto items-center text-center"
           />

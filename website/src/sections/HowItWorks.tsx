@@ -40,7 +40,7 @@ export function HowItWorks() {
       <Container>
         <SectionHeading
           eyebrow="How Daisy Minds Works"
-          title="A structured path from enrollment to portfolio."
+          title="A structured path from Enrollllment to portfolio."
           align="center"
           className="mx-auto items-center text-center"
         />

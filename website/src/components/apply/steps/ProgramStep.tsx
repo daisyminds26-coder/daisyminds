@@ -1,18 +1,18 @@
 import { ArrowRight, Check } from 'lucide-react'
 
-import type { Program } from '@/types/program'
+import type { ProgramListItem } from '@/types/program'
 import { ProgramIcon } from '@/components/marketing/ProgramIcon'
 import { Button } from '@/components/ui/Button'
 import { cn } from '@/utils/cn'
 
 interface ProgramStepProps {
-  programs: Program[]
-  selectedProgram?: Program
+  programs: ProgramListItem[]
+  selectedProgram?: ProgramListItem
   onSelect: (slug: string) => void
   onContinue: () => void
 }
 
-/** Step 1 — shows the already-selected program (changeable) or, if none was carried over via `?program=`, prompts a selection from all nine before continuing. */
+/** Step 1 — shows the already-selected program (changeable) or, if none was carried over via `?program=`, prompts a selection from every published program before continuing. */
 export function ProgramStep({ programs, selectedProgram, onSelect, onContinue }: ProgramStepProps) {
   return (
     <div className="flex flex-col gap-6">
@@ -54,7 +54,7 @@ export function ProgramStep({ programs, selectedProgram, onSelect, onContinue }:
                 {isSelected ? (
                   <Check className="size-5" />
                 ) : (
-                  <ProgramIcon name={program.icon} className="size-5" />
+                  <ProgramIcon slug={program.slug} className="size-5" />
                 )}
               </span>
               <span>

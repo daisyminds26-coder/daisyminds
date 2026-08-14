@@ -14,7 +14,7 @@ interface StepperProps {
   className?: string
 }
 
-/** Horizontal multi-step progress indicator (e.g. a multi-step enrollment or wizard form). */
+/** Horizontal multi-step progress indicator (e.g. a multi-step Enrollllment or wizard form). */
 export function Stepper({ steps, currentStepId, className }: StepperProps) {
   const currentIndex = steps.findIndex((step) => step.id === currentStepId)
 

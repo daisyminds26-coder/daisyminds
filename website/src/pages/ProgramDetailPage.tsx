@@ -1,15 +1,20 @@
-import { Suspense, use, useMemo } from 'react'
+import { Suspense, use, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import {
   ArrowLeft,
   ArrowRight,
-  Briefcase,
+  BookOpen,
+  CalendarDays,
   CheckCircle2,
   Clock,
+  ClipboardCheck,
+  FileText,
+  HelpCircle,
   Layers,
-  MessagesSquare,
+  LinkIcon,
   MonitorSmartphone,
-  Wrench,
+  Users,
+  Video,
 } from 'lucide-react'
 
 import { Seo } from '@/components/seo/Seo'
@@ -19,32 +24,65 @@ import { Section } from '@/components/ui/Section'
 import { SectionHeading } from '@/components/ui/SectionHeading'
 import { Button } from '@/components/ui/Button'
 import { Badge, Eyebrow } from '@/components/ui/Badge'
-import { Accordion } from '@/components/ui/Accordion'
 import { ResponsiveImage } from '@/components/ui/ResponsiveImage'
 import { Reveal } from '@/components/motion/Reveal'
 import { StaggerGroup, StaggerItem } from '@/components/motion/Stagger'
 import { PlanCard } from '@/components/marketing/PlanCard'
-import { getProgramBySlug } from '@/data/programs'
+import { ProgramImageFallback } from '@/components/marketing/ProgramImageFallback'
+import { ProgramsErrorBoundary } from '@/components/error/ProgramsErrorBoundary'
+import { getProgramBySlug } from '@/services/public-programs-service'
 import { getPlans } from '@/data/plans'
 import { WHY_DAISY_MINDS_REASONS } from '@/data/why-daisy-minds'
 import { buildBreadcrumbSchema, buildCourseSchema } from '@/utils/structured-data'
+import { formatEnumLabel, type Program, type BatchAvailability } from '@/types/program'
 import type { Plan } from '@/types/plan'
-import type { Program } from '@/types/program'
+
+const LESSON_TYPE_ICONS: Record<string, typeof Video> = {
+  VIDEO: Video,
+  TEXT: FileText,
+  DOCUMENT: FileText,
+  LIVE_CLASS: Users,
+  QUIZ: HelpCircle,
+  ASSIGNMENT: ClipboardCheck,
+  EXTERNAL_LINK: LinkIcon,
+}
+
+const AVAILABILITY_STYLES: Record<BatchAvailability, string> = {
+  AVAILABLE: 'text-success bg-success/10',
+  LIMITED: 'text-warning bg-warning/10',
+  FULL: 'text-danger bg-danger/10',
+}
+
+const AVAILABILITY_LABELS: Record<BatchAvailability, string> = {
+  AVAILABLE: 'Seats Available',
+  LIMITED: 'Limited Seats',
+  FULL: 'Full',
+}
 
 export default function ProgramDetailPage() {
   const { slug = '' } = useParams<{ slug: string }>()
+  const [retryCount, setRetryCount] = useState(0)
 
   return (
-    <Suspense key={slug} fallback={<Section spacing="none" className="min-h-[70vh] pt-36" />}>
-      <ProgramDetailContent slug={slug} />
-    </Suspense>
+    <ProgramsErrorBoundary
+      onRetry={() => {
+        setRetryCount((count) => count + 1)
+      }}
+    >
+      <Suspense
+        key={`${slug}-${String(retryCount)}`}
+        fallback={<Section spacing="none" className="min-h-[70vh] pt-36" />}
+      >
+        <ProgramDetailContent slug={slug} />
+      </Suspense>
+    </ProgramsErrorBoundary>
   )
 }
 
 function ProgramDetailContent({ slug }: { slug: string }) {
-  // Re-created only when `slug` changes; the parent `<Suspense key={slug}>`
-  // remounts this subtree on that change, so `use()` never sees a stale
-  // promise for the previous program.
+  // Re-created only when `slug` changes; the parent `<Suspense key>` above
+  // includes `slug`, so `use()` never sees a stale promise for the previous
+  // program.
   const dataPromise = useMemo<Promise<[Program | undefined, Plan[]]>>(
     () => Promise.all([getProgramBySlug(slug), getPlans()]),
     [slug],
@@ -60,13 +98,15 @@ function ProgramDetailContent({ slug }: { slug: string }) {
         <Seo
           title="Program Not Found"
           description="This program could not be found."
-          path={`/services/${slug}`}
+          path={`/programs/${slug}`}
           noIndex
         />
         <h1 className="font-display text-display-sm text-ink">We couldn't find that program</h1>
-        <p className="text-ink-muted">It may have moved, or the link may be out of date.</p>
-        <Button href="/services" variant="ghost" icon={<ArrowLeft className="size-4" />}>
-          Back to all services
+        <p className="text-ink-muted">
+          It may have been unpublished, or the link may be out of date.
+        </p>
+        <Button href="/programs" variant="ghost" icon={<ArrowLeft className="size-4" />}>
+          Back to all programs
         </Button>
       </Section>
     )
@@ -74,20 +114,23 @@ function ProgramDetailContent({ slug }: { slug: string }) {
 
   const applyHref = `/apply?program=${program.slug}`
   const advisorHref = `/contact?program=${program.slug}`
+  const heroImageUrl = program.bannerUrl ?? program.thumbnailUrl
 
   return (
     <>
       <Seo
         title={program.seo.title}
         description={program.seo.description}
-        path={`/services/${program.slug}`}
+        path={`/programs/${program.slug}`}
+        keywords={[program.title, program.category, ...program.skills, 'Daisy Minds']}
+        image={program.thumbnailUrl ?? undefined}
       />
       <JsonLd data={buildCourseSchema(program)} />
       <JsonLd
         data={buildBreadcrumbSchema([
           { name: 'Home', path: '/' },
-          { name: 'Services', path: '/services' },
-          { name: program.title, path: `/services/${program.slug}` },
+          { name: 'Programs', path: '/programs' },
+          { name: program.title, path: `/programs/${program.slug}` },
         ])}
       />
 
@@ -96,11 +139,11 @@ function ProgramDetailContent({ slug }: { slug: string }) {
         <Container>
           <nav aria-label="Breadcrumb" className="mb-8 flex items-center gap-1.5 text-sm">
             <Link
-              to="/services"
+              to="/programs"
               className="text-ink-muted hover:text-ink inline-flex items-center gap-1.5"
             >
               <ArrowLeft className="size-4" />
-              All Services
+              All Programs
             </Link>
           </nav>
 
@@ -117,16 +160,18 @@ function ProgramDetailContent({ slug }: { slug: string }) {
               <div className="text-ink-soft flex flex-wrap items-center gap-x-6 gap-y-2 text-sm font-medium">
                 <span className="inline-flex items-center gap-1.5">
                   <Layers className="size-4" aria-hidden="true" />
-                  {program.level}
+                  {formatEnumLabel(program.level)}
                 </span>
                 <span className="inline-flex items-center gap-1.5">
                   <MonitorSmartphone className="size-4" aria-hidden="true" />
-                  {program.learningMode}
+                  {formatEnumLabel(program.deliveryMode)}
                 </span>
-                <span className="inline-flex items-center gap-1.5">
-                  <Clock className="size-4" aria-hidden="true" />
-                  {program.duration}
-                </span>
+                {program.duration && (
+                  <span className="inline-flex items-center gap-1.5">
+                    <Clock className="size-4" aria-hidden="true" />
+                    {program.duration}
+                  </span>
+                )}
               </div>
 
               <div className="flex flex-wrap items-center gap-3 pt-2">
@@ -144,14 +189,21 @@ function ProgramDetailContent({ slug }: { slug: string }) {
             </Reveal>
 
             <Reveal delay={0.15}>
-              <ResponsiveImage
-                src={program.heroImage.src}
-                alt={program.heroImage.alt}
-                aspectRatio="4/3"
-                priority
-                sizes="(min-width: 1024px) 40vw, 90vw"
-                className="rounded-3xl shadow-[0_30px_60px_-20px_rgb(33_29_25/0.25)]"
-              />
+              {heroImageUrl ? (
+                <ResponsiveImage
+                  src={heroImageUrl}
+                  alt={program.title}
+                  aspectRatio="4/3"
+                  priority
+                  sizes="(min-width: 1024px) 40vw, 90vw"
+                  className="rounded-3xl shadow-[0_30px_60px_-20px_rgb(33_29_25/0.25)]"
+                />
+              ) : (
+                <ProgramImageFallback
+                  aspectRatio="4/3"
+                  className="rounded-3xl shadow-[0_30px_60px_-20px_rgb(33_29_25/0.25)]"
+                />
+              )}
             </Reveal>
           </div>
         </Container>
@@ -160,7 +212,7 @@ function ProgramDetailContent({ slug }: { slug: string }) {
       {/* 2. Overview */}
       <Section tone="surface">
         <Container>
-          <SectionHeading eyebrow="Overview" title={`What ${program.shortTitle} Is About`} />
+          <SectionHeading eyebrow="Overview" title={`What ${program.title} Is About`} />
           <StaggerGroup className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-3">
             <StaggerItem>
               <OverviewCard title="What It Is" body={program.shortDescription} />
@@ -168,7 +220,7 @@ function ProgramDetailContent({ slug }: { slug: string }) {
             <StaggerItem>
               <OverviewCard
                 title="Who It's For"
-                body={`${program.level} learners ready to build practical, job-ready ${program.category.toLowerCase()} skills.`}
+                body={`${formatEnumLabel(program.level)} learners ready to build practical, job-ready ${program.category.toLowerCase()} skills.`}
               />
             </StaggerItem>
             <StaggerItem>
@@ -178,120 +230,150 @@ function ProgramDetailContent({ slug }: { slug: string }) {
               />
             </StaggerItem>
           </StaggerGroup>
-        </Container>
-      </Section>
 
-      {/* 3. What You Will Learn */}
-      <Section tone="default">
-        <Container>
-          <SectionHeading eyebrow="Curriculum" title="What You Will Learn" />
-          <StaggerGroup className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {program.whatYouWillLearn.map((item) => (
-              <StaggerItem key={item.title}>
-                <div className="border-border-soft bg-surface flex h-full flex-col gap-2.5 rounded-2xl border p-5">
-                  <CheckCircle2 className="text-success size-5 shrink-0" aria-hidden="true" />
-                  <p className="text-ink font-semibold">{item.title}</p>
-                  <p className="text-ink-muted text-body-sm">{item.description}</p>
-                </div>
-              </StaggerItem>
-            ))}
-          </StaggerGroup>
-        </Container>
-      </Section>
-
-      {/* 4. Curriculum Highlights */}
-      <Section tone="tint">
-        <Container>
-          <SectionHeading
-            eyebrow="Curriculum Highlights"
-            title="Major learning areas covered"
-            lead="A high-level view of what the program covers — the full lesson-by-lesson curriculum is shared during onboarding."
-          />
-          <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {program.curriculumHighlights.map((area, index) => (
-              <Reveal key={area.title} delay={index * 0.06}>
-                <div className="border-border-soft bg-surface flex gap-4 rounded-xl border p-5">
-                  <span className="text-primary-dark font-display shrink-0 text-lg font-bold">
-                    {String(index + 1).padStart(2, '0')}
-                  </span>
-                  <div>
-                    <p className="text-ink font-semibold">{area.title}</p>
-                    <p className="text-ink-muted text-body-sm mt-0.5">{area.description}</p>
-                  </div>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </Container>
-      </Section>
-
-      {/* 5. Tools & Technologies */}
-      <Section tone="default">
-        <Container>
-          <SectionHeading eyebrow="Tools & Technologies" title="What you'll work with" />
-          <Reveal delay={0.1} className="mt-8 flex flex-wrap gap-3">
-            {program.tools.map((tool) => (
-              <span
-                key={tool}
-                className="border-border-soft bg-surface text-ink inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium"
-              >
-                <Wrench className="text-primary-dark size-4" aria-hidden="true" />
-                {tool}
-              </span>
-            ))}
-          </Reveal>
-        </Container>
-      </Section>
-
-      {/* 6. Hands-on Learning */}
-      <Section tone="surface">
-        <Container>
-          <SectionHeading
-            eyebrow="Hands-on Learning"
-            title="Projects, practice, and mentor guidance"
-            lead={program.mentorSupport}
-          />
-          <StaggerGroup className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2">
-            {program.projects.map((project) => (
-              <StaggerItem key={project.title}>
-                <div className="border-border-soft bg-background flex h-full flex-col gap-2.5 rounded-2xl border p-5">
-                  <MessagesSquare
-                    className="text-primary-dark size-5 shrink-0"
+          {program.learningOutcomes.length > 0 && (
+            <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {program.learningOutcomes.map((outcome) => (
+                <div key={outcome} className="flex items-start gap-3">
+                  <CheckCircle2
+                    className="text-success mt-0.5 size-5 shrink-0"
                     aria-hidden="true"
                   />
-                  <p className="text-ink font-semibold">{project.title}</p>
-                  <p className="text-ink-muted text-body-sm">{project.description}</p>
+                  <p className="text-ink-muted text-body-sm">{outcome}</p>
                 </div>
-              </StaggerItem>
-            ))}
-          </StaggerGroup>
+              ))}
+            </div>
+          )}
+
+          {program.skills.length > 0 && (
+            <div className="mt-8 flex flex-wrap gap-2">
+              {program.skills.map((skill) => (
+                <span
+                  key={skill}
+                  className="border-border-soft bg-surface text-ink inline-flex items-center rounded-full border px-3.5 py-1.5 text-sm font-medium"
+                >
+                  {skill}
+                </span>
+              ))}
+            </div>
+          )}
         </Container>
       </Section>
 
-      {/* 7. Career Opportunities */}
-      <Section tone="default">
-        <Container>
-          <SectionHeading
-            eyebrow="Career Opportunities"
-            title="Where this program can take you"
-            lead="Example roles graduates commonly pursue — not a guarantee of employment or outcome."
-          />
-          <StaggerGroup className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2">
-            {program.careerOpportunities.map((role) => (
-              <StaggerItem key={role.title}>
-                <div className="border-border-soft bg-surface flex h-full flex-col gap-2.5 rounded-2xl border p-5">
-                  <Briefcase className="text-primary-dark size-5 shrink-0" aria-hidden="true" />
-                  <p className="text-ink font-semibold">{role.title}</p>
-                  <p className="text-ink-muted text-body-sm">{role.description}</p>
-                </div>
-              </StaggerItem>
-            ))}
-          </StaggerGroup>
-        </Container>
-      </Section>
+      {/* 3. Curriculum — real published modules/lessons, only if the course has any. */}
+      {program.curriculum.length > 0 && (
+        <Section tone="default">
+          <Container>
+            <SectionHeading
+              eyebrow="Curriculum"
+              title="What You'll Study"
+              lead="A module-by-module view of the published curriculum."
+            />
+            <div className="mt-10 flex flex-col gap-4">
+              {program.curriculum.map((courseModule) => (
+                <Reveal
+                  key={courseModule.id}
+                  className="border-border-soft bg-surface rounded-2xl border p-6"
+                >
+                  <div className="flex items-start gap-3">
+                    <BookOpen
+                      className="text-primary-dark mt-0.5 size-5 shrink-0"
+                      aria-hidden="true"
+                    />
+                    <div className="flex-1">
+                      <h3 className="text-ink font-semibold">{courseModule.title}</h3>
+                      {courseModule.description && (
+                        <p className="text-ink-muted text-body-sm mt-1">
+                          {courseModule.description}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  {courseModule.lessons.length > 0 && (
+                    <ul className="mt-4 flex flex-col gap-2 pl-8">
+                      {courseModule.lessons.map((lesson) => {
+                        const LessonIcon = LESSON_TYPE_ICONS[lesson.lessonType] ?? FileText
+                        return (
+                          <li
+                            key={lesson.id}
+                            className="text-ink-muted flex items-center gap-2.5 text-sm"
+                          >
+                            <LessonIcon className="size-3.5 shrink-0" aria-hidden="true" />
+                            <span className="flex-1">{lesson.title}</span>
+                            {lesson.estimatedDurationMinutes && (
+                              <span className="text-ink-soft text-xs">
+                                {lesson.estimatedDurationMinutes} min
+                              </span>
+                            )}
+                          </li>
+                        )
+                      })}
+                    </ul>
+                  )}
+                </Reveal>
+              ))}
+            </div>
+          </Container>
+        </Section>
+      )}
 
-      {/* 8. Why Learn at Daisy Minds */}
-      <Section tone="tint">
+      {/* 4. Upcoming Batches — only if any are scheduled. */}
+      {program.upcomingBatches.length > 0 && (
+        <Section tone="tint">
+          <Container>
+            <SectionHeading
+              eyebrow="Upcoming Batches"
+              title="Start Dates for This Program"
+              lead="Availability shown reflects real, current Enrollment — never an estimate."
+            />
+            <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {program.upcomingBatches.map((batch) => (
+                <div
+                  key={batch.id}
+                  className="border-border-soft bg-surface rounded-2xl border p-5"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-ink font-semibold">{batch.name}</p>
+                      <p className="text-ink-soft text-xs">{batch.batchCode}</p>
+                    </div>
+                    <span
+                      className={`rounded-full px-2.5 py-1 text-xs font-semibold ${AVAILABILITY_STYLES[batch.availability]}`}
+                    >
+                      {AVAILABILITY_LABELS[batch.availability]}
+                    </span>
+                  </div>
+                  <div className="text-ink-muted mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm">
+                    {batch.startDate && (
+                      <span className="inline-flex items-center gap-1.5">
+                        <CalendarDays className="size-3.5" aria-hidden="true" />
+                        Starts{' '}
+                        {new Date(batch.startDate).toLocaleDateString('en-IN', {
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric',
+                        })}
+                      </span>
+                    )}
+                    <span className="inline-flex items-center gap-1.5">
+                      <MonitorSmartphone className="size-3.5" aria-hidden="true" />
+                      {formatEnumLabel(batch.deliveryMode)}
+                    </span>
+                  </div>
+                  {batch.weeklyScheduleSummary.length > 0 && (
+                    <p className="text-ink-soft mt-2 text-xs">
+                      {batch.weeklyScheduleSummary.join(' · ')} ({batch.timezone})
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </Container>
+        </Section>
+      )}
+
+      {/* 5. Why Learn at Daisy Minds */}
+      <Section tone="surface">
         <Container>
           <SectionHeading
             eyebrow="Why Daisy Minds"
@@ -315,7 +397,7 @@ function ProgramDetailContent({ slug }: { slug: string }) {
         </Container>
       </Section>
 
-      {/* 9. Choose Your Learning Path */}
+      {/* 6. Choose Your Learning Path */}
       <Section tone="default">
         <Container>
           <SectionHeading
@@ -335,25 +417,7 @@ function ProgramDetailContent({ slug }: { slug: string }) {
         </Container>
       </Section>
 
-      {/* 10. FAQ */}
-      <Section tone="surface">
-        <Container size="narrow">
-          <SectionHeading
-            eyebrow="FAQ"
-            title={`Questions about ${program.shortTitle}`}
-            align="center"
-            className="mx-auto items-center text-center"
-          />
-          <Reveal
-            delay={0.1}
-            className="bg-background border-border-soft mt-10 rounded-2xl border px-6 sm:px-10"
-          >
-            <Accordion items={program.faq} />
-          </Reveal>
-        </Container>
-      </Section>
-
-      {/* 11. Final CTA */}
+      {/* 7. Final CTA */}
       <Section tone="charcoal" spacing="compact" grid>
         <Container className="flex flex-col items-center gap-6 text-center">
           <Reveal>
@@ -361,11 +425,13 @@ function ProgramDetailContent({ slug }: { slug: string }) {
           </Reveal>
           <Reveal delay={0.06}>
             <h2 className="font-display text-display-lg max-w-2xl text-balance text-white">
-              {program.cta.heading}
+              Ready to start {program.title}?
             </h2>
           </Reveal>
           <Reveal delay={0.12}>
-            <p className="text-lead max-w-lg text-white/70">{program.cta.description}</p>
+            <p className="text-lead max-w-lg text-white/70">
+              Apply now or talk to an advisor to plan your next intake.
+            </p>
           </Reveal>
           <Reveal delay={0.18} className="flex flex-wrap items-center justify-center gap-3">
             <Button href={applyHref} size="lg" trailingIcon={<ArrowRight className="size-4.5" />}>

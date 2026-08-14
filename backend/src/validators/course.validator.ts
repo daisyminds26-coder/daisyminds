@@ -70,6 +70,21 @@ export type PricingInput = z.infer<typeof pricingSchema>
  * `createCourseSchema` uses the refined schema directly; `updateCourseSchema`
  * calls `.partial()` on this unrefined base first, then re-applies the same
  * coherence check afterward (see below).
+ *
+ * Deliberately **no** `.default()` on any field here — this object is
+ * shared by both the create and update (`.partial()`) schemas, and Zod
+ * substitutes a field's default the instant its key is `undefined`
+ * (including "absent from the request body entirely"), regardless of
+ * `.partial()`/`.optional()` elsewhere. Same empirically-verified rule
+ * `question.validator.ts`/`batch.validator.ts` document and guard against
+ * (SECURITY.md §4) — this schema was the one instance of the pattern that
+ * had not yet been fixed, and a partial course update omitting any of
+ * `language`/`secondaryLanguages`/`tags`/`learningOutcomes`/`skills`/
+ * `prerequisites`/`certificateEnabled`/`visibility`/`isFeatured`/
+ * `eligibleTrainerIds` silently reset it to its default — including
+ * flipping `visibility` back to `PRIVATE` on any update that didn't
+ * explicitly resend it. Defaults are applied only on `createCourseSchema`
+ * below, via `.extend()`.
  */
 const courseBaseSchema = z
   .object({
@@ -90,32 +105,32 @@ const courseBaseSchema = z
     category: z.string().trim().min(1, 'Category is required').max(100),
     subcategory: z.string().trim().max(100).optional(),
     level: z.enum(COURSE_LEVELS),
-    language: z.string().trim().min(1).max(10).default('en'),
-    secondaryLanguages: shortStringArray(10, 10).default([]),
-    tags: shortStringArray(40, 20).default([]),
+    language: z.string().trim().min(1).max(10).optional(),
+    secondaryLanguages: shortStringArray(10, 10).optional(),
+    tags: shortStringArray(40, 20).optional(),
     durationValue: z.coerce.number().positive().max(1000).optional(),
     durationUnit: z.enum(DURATION_UNITS).optional(),
     deliveryMode: z.enum(DELIVERY_MODES),
 
-    learningOutcomes: shortStringArray(300, 20).default([]),
-    skills: shortStringArray(60, 30).default([]),
-    prerequisites: shortStringArray(300, 20).default([]),
+    learningOutcomes: shortStringArray(300, 20).optional(),
+    skills: shortStringArray(60, 30).optional(),
+    prerequisites: shortStringArray(300, 20).optional(),
     targetAudience: z.string().trim().max(500).optional(),
     eligibilityCriteria: z.string().trim().max(500).optional(),
-    certificateEnabled: z.boolean().default(false),
+    certificateEnabled: z.boolean().optional(),
     maxStudentCapacity: z.coerce.number().int().positive().max(100_000).optional(),
 
     pricing: pricingSchema,
 
-    visibility: z.enum(COURSE_VISIBILITIES).default('PRIVATE'),
-    isFeatured: z.boolean().default(false),
+    visibility: z.enum(COURSE_VISIBILITIES).optional(),
+    isFeatured: z.boolean().optional(),
     featuredOrder: z.coerce.number().int().min(0).optional(),
 
     metaTitle: z.string().trim().max(70).optional(),
     metaDescription: z.string().trim().max(160).optional(),
     canonicalUrl: urlSchema.optional(),
 
-    eligibleTrainerIds: z.array(objectIdSchema).max(50).default([]),
+    eligibleTrainerIds: z.array(objectIdSchema).max(50).optional(),
 
     internalNotes: z.string().trim().max(2000).optional(),
   })
@@ -134,7 +149,21 @@ function requireDurationCoherence(
   }
 }
 
-export const courseProfileSchema = courseBaseSchema.superRefine(requireDurationCoherence)
+export const courseProfileSchema = courseBaseSchema
+  .extend({
+    language: z.string().trim().min(1).max(10).default('en'),
+    secondaryLanguages: shortStringArray(10, 10).default([]),
+    tags: shortStringArray(40, 20).default([]),
+    learningOutcomes: shortStringArray(300, 20).default([]),
+    skills: shortStringArray(60, 30).default([]),
+    prerequisites: shortStringArray(300, 20).default([]),
+    certificateEnabled: z.boolean().default(false),
+    visibility: z.enum(COURSE_VISIBILITIES).default('PRIVATE'),
+    isFeatured: z.boolean().default(false),
+    eligibleTrainerIds: z.array(objectIdSchema).max(50).default([]),
+  })
+  .strict()
+  .superRefine(requireDurationCoherence)
 
 export const createCourseSchema = courseProfileSchema
 export type CreateCourseInput = z.infer<typeof createCourseSchema>

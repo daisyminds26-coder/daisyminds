@@ -43,7 +43,7 @@ function locationIsComplete(location: BatchDocument['location']): boolean {
  * unreachable (end-date-before-start-date, overlapping weekly slots,
  * invalid capacity/timezone) — same "don't check the unreachable"
  * discipline `curriculum.service.ts#checkCurriculumReadiness` established.
- * No enrolment-related blocker exists — Phase 10B's concern, not this one's.
+ * No Enrollment-related blocker exists — Phase 10B's concern, not this one's.
  */
 export const batchReadinessService = {
   async checkReadiness(batch: BatchDocument): Promise<ReadinessResult> {

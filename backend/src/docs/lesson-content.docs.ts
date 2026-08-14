@@ -431,7 +431,7 @@ registry.registerPath({
   path: '/courses/{courseId}/launch-readiness',
   tags: TAGS,
   summary:
-    'Course launch (learning content) readiness — a third, distinct concept from course metadata and curriculum structural readiness (ARCHITECTURE.md §21). Never implies enrolment/payment/batch readiness.',
+    'Course launch (learning content) readiness — a third, distinct concept from course metadata and curriculum structural readiness (ARCHITECTURE.md §21). Never implies Enrollment/payment/batch readiness.',
   security,
   request: courseIdParam,
   responses: {

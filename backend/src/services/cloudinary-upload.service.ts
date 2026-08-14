@@ -61,11 +61,24 @@ export interface GenerateSignedUploadOptions {
  * SECURITY.md §6: the frontend never holds Cloudinary API secrets, and
  * never uploads unsigned content. This generates a signature (Cloudinary
  * enforces its own short validity window against the embedded `timestamp`,
- * typically a few minutes) over a server-chosen `folder`/`publicId`/format
+ * typically a few minutes) over a server-chosen `publicId`/format
  * allowlist/size cap — the client can only complete an upload matching
  * exactly those parameters, not an arbitrary one, because Cloudinary
  * itself verifies the signature against the params the client actually
  * sends.
+ *
+ * Every caller builds `publicId` as `${folder}/...` (see e.g. `videoFolder`/
+ * `documentFolder` below and the course thumbnail/banner folders in
+ * `course-management.service.ts`) — `publicId` is already the full path.
+ * `folder` is deliberately **not** included in the signed params or sent to
+ * Cloudinary's upload endpoint: Cloudinary always prepends a separately-
+ * supplied `folder` onto `public_id` server-side, which would double the
+ * path (`daisy-minds/.../thumbnail/daisy-minds/.../thumbnail/xyz.jpg`) and
+ * make the asset unfindable at the `publicId` this function handed back —
+ * exactly the failure `verifyUploadedAsset` below would otherwise hit on
+ * every single upload. `folder` is still returned on `SignedUploadParams`,
+ * used only for `verifyUploadedAsset`'s own "did this land in the expected
+ * place" check, never re-sent to Cloudinary.
  *
  * Defaults to the original image/photo behavior (existing course thumbnail/
  * banner and student/trainer photo callers pass no options and are
@@ -85,7 +98,6 @@ export function generateSignedUploadParams(
   const timestamp = Math.floor(Date.now() / 1000)
   const paramsToSign: Record<string, string | number> = {
     timestamp,
-    folder,
     public_id: publicId,
     allowed_formats: allowedFormats.join(','),
   }

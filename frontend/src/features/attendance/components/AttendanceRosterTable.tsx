@@ -53,7 +53,7 @@ export function AttendanceRosterTable({
       <EmptyState
         icon={Users}
         title="No eligible students"
-        description="No ACTIVE or CONFIRMED enrollments were found for this session's batch."
+        description="No ACTIVE or CONFIRMED Enrollllments were found for this session's batch."
       />
     )
   }

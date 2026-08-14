@@ -24,7 +24,7 @@ const STAT_PLACEMENT = { icon: Handshake, label: 'Placement Assistance' }
  * The art-directed two-part hero: headline + CTAs on the left, a real
  * photographic image on the right with subtle floating proof-point cards.
  * No fabricated stats — every floating card states a real program feature,
- * never an invented enrollment count or placement percentage.
+ * never an invented Enrollllment count or placement percentage.
  */
 export function Hero() {
   return (
@@ -57,7 +57,7 @@ export function Hero() {
           </Reveal>
           <Reveal delay={0.24}>
             <div className="flex flex-wrap items-center gap-3">
-              <Button href="/services" size="lg" trailingIcon={<ArrowRight className="size-4.5" />}>
+              <Button href="/programs" size="lg" trailingIcon={<ArrowRight className="size-4.5" />}>
                 Explore Programs
               </Button>
               <Button href="/apply" variant="secondary" size="lg">

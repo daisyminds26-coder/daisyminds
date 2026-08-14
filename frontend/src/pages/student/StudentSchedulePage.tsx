@@ -33,7 +33,7 @@ export default function StudentSchedulePage() {
                 <EmptyState
                   icon={CalendarCheck}
                   title="Nothing scheduled right now"
-                  description="Once you have an active enrollment with a weekly timetable, upcoming sessions will appear here."
+                  description="Once you have an active Enrollllment with a weekly timetable, upcoming sessions will appear here."
                 />
               </CardContent>
             </Card>

@@ -40,7 +40,7 @@ export interface IPricing {
  * `status` (the shared `ApprovalStatus` enum, also used by
  * assignments/quizzes/examinations) gates catalog visibility (DRAFT never
  * shown to students). Soft delete is active here (not hard-delete) because
- * published courses may have historical enrollments/certificates
+ * published courses may have historical Enrollllments/certificates
  * referencing them — DATABASE.md §2.2.
  *
  * Phase 9A extends the Phase 1 scaffold additively, with one deliberate

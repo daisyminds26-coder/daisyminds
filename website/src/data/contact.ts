@@ -3,6 +3,7 @@ export interface ContactRequestPayload {
   email: string
   phone: string
   programSlug: string
+  serviceSlug: string
   message: string
 }
 

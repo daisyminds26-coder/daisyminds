@@ -7,7 +7,7 @@ interface PaymentSuccessScreenProps {
   programTitle: string
   planName: string
   amountLabel: string
-  /** A real, server-issued enrollment/order reference — never generate one client-side. */
+  /** A real, server-issued Enrollllment/order reference — never generate one client-side. */
   reference: string
 }
 
@@ -17,7 +17,7 @@ interface PaymentSuccessScreenProps {
  * can render this, because no real payment has ever been confirmed. Do
  * not connect this until a server-side payment verification step exists
  * (see README's "Payment Integration Boundary"); connecting it to a
- * client-only `?payment=success` callback would fake enrollment, which is
+ * client-only `?payment=success` callback would fake Enrollllment, which is
  * explicitly disallowed.
  */
 export function PaymentSuccessScreen({
@@ -32,7 +32,7 @@ export function PaymentSuccessScreen({
       <div>
         <h2 className="font-display text-display-sm text-ink">Payment Successful</h2>
         <p className="text-ink-muted text-body-sm mt-2">
-          Your enrollment is confirmed. A confirmation email has been sent to you.
+          Your Enrollllment is confirmed. A confirmation email has been sent to you.
         </p>
       </div>
 
@@ -50,7 +50,7 @@ export function PaymentSuccessScreen({
           <dd className="text-ink font-semibold">{amountLabel}</dd>
         </div>
         <div className="flex items-center justify-between py-1.5">
-          <dt className="text-ink-muted">Enrollment Reference</dt>
+          <dt className="text-ink-muted">Enrollllment Reference</dt>
           <dd className="text-ink font-semibold">{reference}</dd>
         </div>
       </dl>

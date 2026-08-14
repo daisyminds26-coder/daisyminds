@@ -13,7 +13,7 @@ interface LaunchReadinessPanelProps {
  * readiness (Phase 9A) + curriculum structural readiness (Phase 9B) +
  * learning content readiness (Phase 9C). Copy deliberately says "Learning
  * content ready"/"Launch readiness", never that the course can accept
- * students — no enrolment/batch/payment module exists yet (ARCHITECTURE.md
+ * students — no Enrollment/batch/payment module exists yet (ARCHITECTURE.md
  * §21).
  */
 export function LaunchReadinessPanel({ readiness, isLoading }: LaunchReadinessPanelProps) {

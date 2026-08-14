@@ -12,6 +12,7 @@ import { QuestionStatusBadge } from '@/features/question-bank/components/Questio
 import { QuestionForm } from '@/features/question-bank/components/QuestionForm'
 import { useQuestion } from '@/features/question-bank/hooks/use-question'
 import {
+  useActivateQuestion,
   useArchiveQuestion,
   useDuplicateQuestion,
 } from '@/features/question-bank/hooks/use-question-mutations'
@@ -21,6 +22,7 @@ export default function QuestionDetailPage() {
   const navigate = useNavigate()
   const questionQuery = useQuestion(questionId)
   const archiveQuestion = useArchiveQuestion()
+  const activateQuestion = useActivateQuestion()
   const duplicateQuestion = useDuplicateQuestion()
 
   if (questionQuery.isLoading) return <PageLoader />
@@ -72,6 +74,23 @@ export default function QuestionDetailPage() {
             <Copy className="size-3.5" />
             Duplicate
           </Button>
+          {question.status !== 'ACTIVE' && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={activateQuestion.isPending}
+              onClick={() => {
+                activateQuestion.mutate(question.id, {
+                  onSuccess: () => toast.success('Question activated'),
+                  onError: (error) =>
+                    toast.error('Could not activate question', getSafeErrorMessage(error)),
+                })
+              }}
+            >
+              Activate
+            </Button>
+          )}
           {question.status !== 'ARCHIVED' && (
             <Button
               type="button"

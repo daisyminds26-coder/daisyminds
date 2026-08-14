@@ -5,13 +5,13 @@ import { ResponsiveImage } from '@/components/ui/ResponsiveImage'
 import { Reveal } from '@/components/motion/Reveal'
 
 const MILESTONES = [
-  { label: 'Enroll', description: 'Get matched to a program and a live batch.' },
+  { label: 'Enrollll', description: 'Get matched to a program and a live batch.' },
   { label: 'Build', description: 'Ship reviewed projects, module after module.' },
   { label: 'Prepare', description: 'Mock interviews and portfolio polish with your mentor.' },
   { label: 'Launch', description: 'Apply with a portfolio and mentor references behind you.' },
 ]
 
-/** A connected timeline — visually distinct from the numbered `StepCard` grid in "How It Works," which describes the enrollment process rather than the multi-month arc this section covers. */
+/** A connected timeline — visually distinct from the numbered `StepCard` grid in "How It Works," which describes the Enrollllment process rather than the multi-month arc this section covers. */
 export function CareerJourney() {
   return (
     <Section tone="default">

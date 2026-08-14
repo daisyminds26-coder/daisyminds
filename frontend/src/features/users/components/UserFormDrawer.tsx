@@ -68,6 +68,7 @@ function CreateUserForm({ onDone }: { onDone: () => void }) {
           name="password"
           label="Temporary password"
           autoComplete="new-password"
+          description="At least 10 characters, including a letter and a number."
         />
         <SelectField
           control={form.control}

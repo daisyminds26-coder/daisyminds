@@ -3,7 +3,7 @@ import { PanelLeftClose, PanelLeftOpen } from 'lucide-react'
 
 import { SidebarNav } from '@/shared/components/layout/sidebar-nav'
 import { Button } from '@/shared/components/ui/button'
-import { Logo, LogoMark } from '@/shared/components/ui/logo'
+import { Logo } from '@/shared/components/ui/logo'
 import { useUiStore } from '@/shared/stores/ui-store'
 import type { NavSection } from '@/shared/types/nav'
 import { cn } from '@/shared/lib/utils'
@@ -29,35 +29,34 @@ export function Sidebar({ sections, areaRoot }: SidebarProps) {
         isCollapsed ? 'w-[72px]' : 'w-64',
       )}
     >
-      <Link
-        to="/"
-        aria-label="Daisy Minds home"
+      <div
         className={cn(
-          'border-border flex h-16 shrink-0 items-center border-b px-4',
-          isCollapsed && 'justify-center px-0',
+          'border-border flex shrink-0 items-center gap-2 border-b px-3 py-2',
+          isCollapsed && 'justify-center px-2',
         )}
       >
-        {isCollapsed ? <LogoMark className="h-8" /> : <Logo className="h-8" />}
-      </Link>
-
-      <div className="flex-1 overflow-y-auto">
-        <SidebarNav sections={sections} areaRoot={areaRoot} collapsed={isCollapsed} />
-      </div>
-
-      <div className="border-border border-t p-3">
+        {!isCollapsed && (
+          <Link to="/" aria-label="Daisy Minds home" className="flex min-w-0 items-center">
+            <Logo className="h-16" />
+          </Link>
+        )}
         <Button
           variant="ghost"
           size="icon"
-          className="w-full"
+          className={cn('shrink-0', !isCollapsed && 'ml-auto')}
           onClick={toggleSidebar}
           aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
           {isCollapsed ? (
-            <PanelLeftOpen className="size-4" />
+            <PanelLeftOpen className="size-6" />
           ) : (
-            <PanelLeftClose className="size-4" />
+            <PanelLeftClose className="size-6" />
           )}
         </Button>
+      </div>
+
+      <div className="flex-1 overflow-y-auto">
+        <SidebarNav sections={sections} areaRoot={areaRoot} collapsed={isCollapsed} />
       </div>
     </aside>
   )

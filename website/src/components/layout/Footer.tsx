@@ -19,10 +19,18 @@ export function Footer() {
   return (
     <footer className="bg-charcoal text-white/70">
       <Container className="py-16 sm:py-20">
-        <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1.4fr_repeat(3,1fr)]">
+        <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1.2fr_repeat(4,1fr)]">
           <div className="flex flex-col gap-5">
-            <Link to="/" aria-label="Daisy Minds home">
-              <Logo />
+            {/* The logo file has a flat white background baked in (no
+                transparency) — this light card keeps it legible against
+                the footer's dark background without editing the image
+                itself. */}
+            <Link
+              to="/"
+              aria-label="Daisy Minds home"
+              className="bg-background w-fit rounded-lg px-4 py-3"
+            >
+              <Logo className="h-16" />
             </Link>
             <p className="max-w-xs text-sm leading-relaxed">
               Mentor-led, project-first programs for careers in software, data, design, and

@@ -1,13 +1,13 @@
 import { ArrowLeft, Clock3, ShieldAlert } from 'lucide-react'
 
-import type { Program } from '@/types/program'
+import type { ProgramListItem } from '@/types/program'
 import type { Plan } from '@/types/plan'
 import type { Applicant } from '@/components/apply/steps/AccountStep'
 import { formatPlanPrice } from '@/data/plans'
 import { Button } from '@/components/ui/Button'
 
 interface PaymentStepProps {
-  program: Program
+  program: ProgramListItem
   plan: Plan
   applicant: Applicant
   onBack: () => void
@@ -17,7 +17,7 @@ interface PaymentStepProps {
  * The honest payment boundary. No payment gateway is integrated on the
  * backend yet (confirmed — see README's "Payment Integration Boundary"),
  * so this step never simulates or fakes a successful payment or
- * enrollment. It states the real status plainly and stops here, exactly as
+ * Enrollllment. It states the real status plainly and stops here, exactly as
  * the brief requires: "Payment integration will be connected in the Fees &
  * Payments phase." `PaymentSuccessScreen` exists, built and ready, for the
  * moment that phase ships — it is intentionally never rendered from here.

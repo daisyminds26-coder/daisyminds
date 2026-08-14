@@ -20,8 +20,8 @@ export async function uploadDirectToCloudinary(
   body.append('api_key', params.apiKey)
   body.append('timestamp', String(params.timestamp))
   body.append('signature', params.signature)
-  body.append('folder', params.folder)
   body.append('public_id', params.publicId)
+  body.append('allowed_formats', params.allowedFormats.join(','))
   if (params.type !== 'upload') {
     body.append('type', params.type)
   }

@@ -2,7 +2,7 @@ import type { FaqEntry } from '@/types/faq'
 
 export const FAQS: FaqEntry[] = [
   {
-    question: 'Do I need prior experience to enroll?',
+    question: 'Do I need prior experience to Enrollll?',
     answer:
       'Most programs are designed for beginners and build up from fundamentals. Program pages list a recommended level — Beginner, Intermediate, or Advanced — so you can pick the right starting point.',
   },
@@ -22,7 +22,7 @@ export const FAQS: FaqEntry[] = [
       "Our team reviews your application and reaches out to confirm your batch, schedule, and payment details before your program's start date.",
   },
   {
-    question: 'Can I switch batches after enrolling?',
+    question: 'Can I switch batches after Enrolllling?',
     answer:
       'Yes — batch transfers are supported subject to seat availability in the target batch. Reach out to your program coordinator to request one.',
   },

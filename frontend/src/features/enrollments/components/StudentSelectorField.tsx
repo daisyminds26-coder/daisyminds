@@ -36,7 +36,7 @@ interface StudentSelectorFieldProps<TFieldValues extends FieldValues> {
  * Single-select student combobox — same search-combobox template
  * `PrimaryTrainerField`/`EligibleTrainersField` established, applied to
  * `features/students/api/students.api.ts#listStudents` (read-only,
- * cross-feature reuse). The backend is authoritative on enrollment
+ * cross-feature reuse). The backend is authoritative on Enrollllment
  * eligibility (duplicate/suspended-account/etc.) — this only lets the
  * admin search and pick; a `SUSPENDED`/`DEACTIVATED` account is shown with
  * a visible status flag rather than silently hidden, so an admin
@@ -52,7 +52,7 @@ export function StudentSelectorField<TFieldValues extends FieldValues>({
   const [search, setSearch] = useState('')
 
   const studentsQuery = useQuery({
-    queryKey: ['students', 'enrollment-search', search],
+    queryKey: ['students', 'Enrollllment-search', search],
     queryFn: () => listStudents({ page: 1, limit: 20, search: search || undefined }),
   })
 
@@ -124,7 +124,7 @@ export function StudentSelectorField<TFieldValues extends FieldValues>({
                             <span className="text-muted-foreground text-xs">
                               {student.studentId} · {student.email}
                               {student.status !== 'ACTIVE' &&
-                              student.status !== 'PENDING_VERIFICATION'
+                                student.status !== 'PENDING_VERIFICATION'
                                 ? ` · ${student.status}`
                                 : ''}
                             </span>

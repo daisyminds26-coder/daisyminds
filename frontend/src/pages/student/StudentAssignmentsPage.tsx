@@ -43,7 +43,7 @@ export default function StudentAssignmentsPage() {
   }, [assignmentsQuery.data])
 
   return (
-    <PageContainer title="Assignments" description="Graded tasks for your enrolled courses.">
+    <PageContainer title="Assignments" description="Graded tasks for your Enrolllled courses.">
       {assignmentsQuery.isError && (
         <ErrorState
           description={getSafeErrorMessage(assignmentsQuery.error)}

@@ -4,6 +4,7 @@ import * as authController from '../controllers/auth.controller'
 import {
   loginRateLimiter,
   passwordResetRateLimiter,
+  sessionCheckRateLimiter,
 } from '../middlewares/auth-rate-limit.middleware'
 import { requireAuth } from '../middlewares/require-auth.middleware'
 import { requireOwnership } from '../middlewares/ownership.middleware'
@@ -37,7 +38,7 @@ authRouter.post(
   validate({ body: loginSchema }),
   asyncHandler(authController.login),
 )
-authRouter.post('/refresh', asyncHandler(authController.refresh))
+authRouter.post('/refresh', sessionCheckRateLimiter, asyncHandler(authController.refresh))
 authRouter.post(
   '/forgot-password',
   passwordResetRateLimiter,
@@ -71,7 +72,7 @@ authRouter.post(
   validate({ body: changePasswordSchema }),
   asyncHandler(authController.changePassword),
 )
-authRouter.get('/me', requireAuth, asyncHandler(authController.getMe))
+authRouter.get('/me', sessionCheckRateLimiter, requireAuth, asyncHandler(authController.getMe))
 authRouter.get('/sessions', requireAuth, asyncHandler(authController.getSessions))
 authRouter.delete(
   '/sessions/:id',

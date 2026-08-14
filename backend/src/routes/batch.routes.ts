@@ -185,7 +185,7 @@ batchRouter.get(
   asyncHandler(batchController.getAuditTimeline),
 )
 
-/** Phase 10B — server-managed derived state, read-only here; only `enrollment-capacity.service.ts` ever mutates it. */
+/** Phase 10B — server-managed derived state, read-only here; only `Enrollllment-capacity.service.ts` ever mutates it. */
 batchRouter.get(
   '/:id/capacity',
   READ,

@@ -5,8 +5,8 @@ import { StatCardSkeleton } from '@/shared/components/feedback/skeletons'
 import { useBatchStats } from '@/features/batches/hooks/use-batch-stats'
 
 /**
- * Deliberately never a students/enrolled/available-seats/waitlist count card
- * — the batch DTO has no enrolled-count field (`AdminBatch` — capacity is
+ * Deliberately never a students/Enrolllled/available-seats/waitlist count card
+ * — the batch DTO has no Enrolllled-count field (`AdminBatch` — capacity is
  * configuration only, see `features/batches/types/index.ts`).
  */
 export function BatchStatCards() {

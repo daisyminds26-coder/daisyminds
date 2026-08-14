@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import {
+  activateQuestion,
   archiveQuestion,
   createQuestion,
   duplicateQuestion,
@@ -34,6 +35,16 @@ export function useArchiveQuestion() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: archiveQuestion,
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: questionBankKeys.lists() })
+    },
+  })
+}
+
+export function useActivateQuestion() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: activateQuestion,
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: questionBankKeys.lists() })
     },

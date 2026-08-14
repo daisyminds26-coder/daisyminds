@@ -31,6 +31,14 @@ const venueSchema = z
   })
   .strict()
 
+/**
+ * Deliberately **no** `.default()` on `trainerIds` here — this object is
+ * shared by both the create and update (`.partial()`) schemas below. Same
+ * empirically-verified rule `question.validator.ts`/`batch.validator.ts`
+ * document (SECURITY.md §4): a defaulted field here would silently wipe a
+ * session's assigned trainers on any update that didn't resend them.
+ * `createLiveClassSchema` applies the default separately, via `.extend()`.
+ */
 const baseSessionFields = {
   title: z.string().trim().min(1).max(200),
   description: z.string().trim().max(2000).optional(),
@@ -42,14 +50,18 @@ const baseSessionFields = {
   joinUrl: z.string().trim().max(1000).optional(),
   hostUrl: z.string().trim().max(1000).optional(),
   venue: venueSchema.optional(),
-  trainerIds: z.array(objectIdSchema).max(10).default([]),
+  trainerIds: z.array(objectIdSchema).max(10).optional(),
   primaryTrainerId: objectIdSchema.optional(),
   /** Required only when the service detects the session falls outside the batch's date range or on a calendar-exception date — enforced in `live-class.service.ts`, not here (a Zod-level requirement can't see the batch). */
   overrideReason: z.string().trim().max(500).optional(),
 }
 
 export const createLiveClassSchema = z
-  .object({ batchId: objectIdSchema, ...baseSessionFields })
+  .object({
+    batchId: objectIdSchema,
+    ...baseSessionFields,
+    trainerIds: z.array(objectIdSchema).max(10).default([]),
+  })
   .strict()
   .refine((value) => value.startDateTime < value.endDateTime, {
     message: 'Start time must be before end time',

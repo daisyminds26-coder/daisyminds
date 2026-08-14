@@ -21,10 +21,10 @@ export interface LaunchReadinessSummary {
  * `courseManagementService.getReadiness`) or curriculum structural
  * readiness (Phase 9B, `curriculumService.checkCurriculumReadiness`). This
  * composes both of those plus a content-readiness pass over published
- * lessons; it deliberately never checks for enrolments/batches, since those
+ * lessons; it deliberately never checks for Enrollllments/batches, since those
  * modules don't exist yet — "launch readiness" here means "learning content
  * is ready to be consumed once those modules ship," not "students can
- * enroll now."
+ * Enrollll now."
  */
 export interface CourseLaunchReadinessResult {
   ready: boolean

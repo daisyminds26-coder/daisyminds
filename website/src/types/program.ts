@@ -1,95 +1,88 @@
-export const PROGRAM_LEVELS = ['Beginner', 'Intermediate', 'Advanced'] as const
+/**
+ * Real backend enum values (`backend/src/models/course.model.ts`) — kept
+ * as-is rather than remapped to a website-only vocabulary, so a value
+ * straight off the API never needs translation before being compared/typed
+ * against. Display casing is handled by `formatEnumLabel` where rendered.
+ */
+export const PROGRAM_LEVELS = ['BEGINNER', 'INTERMEDIATE', 'ADVANCED', 'ALL_LEVELS'] as const
 export type ProgramLevel = (typeof PROGRAM_LEVELS)[number]
 
-export const PROGRAM_MODES = ['Online', 'Offline', 'Hybrid'] as const
-export type ProgramMode = (typeof PROGRAM_MODES)[number]
+export const PROGRAM_DELIVERY_MODES = ['ONLINE', 'OFFLINE', 'HYBRID', 'SELF_PACED'] as const
+export type ProgramDeliveryMode = (typeof PROGRAM_DELIVERY_MODES)[number]
 
-/** Card/hero photography — always paired with real, specific alt text (never decorative-empty; these images carry meaning). */
-export interface ProgramImage {
-  src: string
-  alt: string
+export const BATCH_AVAILABILITY = ['AVAILABLE', 'LIMITED', 'FULL'] as const
+export type BatchAvailability = (typeof BATCH_AVAILABILITY)[number]
+
+export interface ProgramLesson {
+  id: string
+  title: string
+  lessonType: string
+  estimatedDurationMinutes: number | null
 }
 
-export interface ProgramLearningItem {
+export interface ProgramModule {
+  id: string
   title: string
   description: string
+  lessons: ProgramLesson[]
 }
 
-export interface ProgramFaqEntry {
-  question: string
-  answer: string
-}
-
-/**
- * Icon names are resolved through `components/marketing/ProgramIcon.tsx`'s
- * lookup map, not imported directly into data — keeps this file JSON-API
- * shaped (serializable, no React component references) so it's a drop-in
- * placeholder for the eventual `GET /api/v1/public/programs` response.
- */
-export type ProgramIconName =
-  | 'web-development'
-  | 'android-development'
-  | 'cybersecurity'
-  | 'artificial-intelligence'
-  | 'data-science'
-  | 'data-analytics'
-  | 'devops'
-  | 'cloud-computing'
-  | 'digital-marketing'
-
-/**
- * Shape intentionally mirrors what `GET /api/v1/public/programs` and
- * `GET /api/v1/public/programs/:slug` will eventually return — the
- * marketing data layer in `data/programs.ts` is a drop-in placeholder for
- * that endpoint, not a separate content model. See `data/programs.ts` for
- * the "never fabricate detailed syllabus claims" content rules that shaped
- * `curriculumHighlights`/`tools`/`projects` below.
- */
-export interface Program {
+export interface ProgramUpcomingBatch {
   id: string
+  batchCode: string
+  name: string
+  startDate: string | null
+  endDate: string | null
+  deliveryMode: ProgramDeliveryMode
+  timezone: string
+  weeklyScheduleSummary: string[]
+  availability: BatchAvailability
+}
+
+/**
+ * Mirrors `backend/src/services/public-programs-dto.ts`'s
+ * `PublicProgramListItemDto` field-for-field — this is a direct API
+ * response shape, not a website content model. Fields the old static
+ * `data/programs.ts` had that Course Management doesn't (FAQ, career
+ * opportunities, tools, projects, mentor-support copy, curriculum
+ * "highlights") are gone, not faked; `courseMarketing` fields can be added
+ * here additively if a later phase ships them on the backend.
+ */
+export interface ProgramListItem {
+  id: string
+  courseCode: string
   slug: string
   title: string
-  shortTitle: string
   shortDescription: string
-  description: string
-  heroImage: ProgramImage
-  cardImage: ProgramImage
-  icon: ProgramIconName
+  thumbnailUrl: string | null
   category: string
-  featured: boolean
-  duration: string
   level: ProgramLevel
-  learningMode: ProgramMode
-  /** Short, punchy proof points shown near the hero (e.g. "Live project-based learning"). */
-  highlights: string[]
-  /** Short tags shown on the `/services` card (e.g. "React", "Node.js") — not full sentences. */
-  skillTags: string[]
-  /** "What You Will Learn" — 6–10 cards. */
-  whatYouWillLearn: ProgramLearningItem[]
-  /** "Curriculum Highlights" — major learning areas, deliberately not exact module/lesson counts. */
-  curriculumHighlights: ProgramLearningItem[]
-  /** Tools/technologies covered — rendered as plain text badges, never as third-party logos (avoids trademark misuse). */
-  tools: string[]
-  /** Hands-on projects/practice students work through. */
-  projects: ProgramLearningItem[]
-  /** Example roles graduates commonly pursue — illustrative, never a guarantee. */
-  careerOpportunities: ProgramLearningItem[]
-  faq: ProgramFaqEntry[]
-  seo: {
-    title: string
-    description: string
-  }
-  cta: {
-    heading: string
-    description: string
-  }
-  mentorSupport: string
-  accent: 'yellow' | 'charcoal' | 'graphite'
-  /**
-   * Optional mapping-ready pointer to the LMS's real academic `Course`
-   * entity (see `docs/DATABASE.md`). Left undefined until an admin links a
-   * program to a course — the public site must never write to or duplicate
-   * LMS course data, only reference it once linked.
-   */
-  courseId?: string
+  deliveryMode: ProgramDeliveryMode
+  duration: string | null
+  skills: string[]
+  certificateAvailable: boolean
+  featured: boolean
+  featuredOrder: number | null
+}
+
+/** Mirrors `PublicProgramDetailDto` — superset of `ProgramListItem`. */
+export interface Program extends ProgramListItem {
+  description: string
+  bannerUrl: string | null
+  language: string
+  durationValue: number | null
+  durationUnit: string | null
+  learningOutcomes: string[]
+  seo: { title: string; description: string }
+  publishedAt: string | null
+  curriculum: ProgramModule[]
+  upcomingBatches: ProgramUpcomingBatch[]
+}
+
+/** `"BEGINNER"` -> `"Beginner"`, `"ALL_LEVELS"` -> `"All Levels"`, `"SELF_PACED"` -> `"Self Paced"`. */
+export function formatEnumLabel(value: string): string {
+  return value
+    .split('_')
+    .map((word) => word.charAt(0) + word.slice(1).toLowerCase())
+    .join(' ')
 }

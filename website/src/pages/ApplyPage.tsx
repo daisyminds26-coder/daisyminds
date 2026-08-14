@@ -1,4 +1,4 @@
-import { Suspense, use, useState } from 'react'
+import { Suspense, use, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { ChevronDown } from 'lucide-react'
 
@@ -12,15 +12,16 @@ import { ProgramStep } from '@/components/apply/steps/ProgramStep'
 import { PlanStep } from '@/components/apply/steps/PlanStep'
 import { AccountStep, type Applicant } from '@/components/apply/steps/AccountStep'
 import { PaymentStep } from '@/components/apply/steps/PaymentStep'
+import { ProgramsErrorBoundary } from '@/components/error/ProgramsErrorBoundary'
 import { useApplicationState, type ApplicationStep } from '@/hooks/useApplicationState'
-import { getPrograms } from '@/data/programs'
+import { getPrograms } from '@/services/public-programs-service'
 import { getPlans } from '@/data/plans'
-import type { Program } from '@/types/program'
+import type { ProgramListItem } from '@/types/program'
 import type { Plan } from '@/types/plan'
 
-const dataPromise: Promise<[Program[], Plan[]]> = Promise.all([getPrograms(), getPlans()])
-
 export default function ApplyPage() {
+  const [retryCount, setRetryCount] = useState(0)
+
   return (
     <>
       <Seo
@@ -29,14 +30,27 @@ export default function ApplyPage() {
         path="/apply"
         noIndex
       />
-      <Suspense fallback={<Section spacing="none" className="min-h-[70vh] pt-36" />}>
-        <ApplyFlow />
-      </Suspense>
+      <ProgramsErrorBoundary
+        onRetry={() => {
+          setRetryCount((count) => count + 1)
+        }}
+      >
+        <Suspense
+          key={retryCount}
+          fallback={<Section spacing="none" className="min-h-[70vh] pt-36" />}
+        >
+          <ApplyFlow />
+        </Suspense>
+      </ProgramsErrorBoundary>
     </>
   )
 }
 
 function ApplyFlow() {
+  const dataPromise = useMemo<Promise<[ProgramListItem[], Plan[]]>>(
+    () => Promise.all([getPrograms(), getPlans()]),
+    [],
+  )
   const [programs, plans] = use(dataPromise)
   const [searchParams] = useSearchParams()
 
