@@ -6,7 +6,7 @@ const TESTIMONIALS: Testimonial[] = [
     id: 'testimonial-1',
     name: 'Rohit Sharma',
     outcome: 'Junior Frontend Engineer',
-    programTitle: 'Full Stack Web Development',
+    programTitle: 'Web Development',
     quote:
       'The project-first structure meant I had a real portfolio before I finished the program — that made every interview conversation easier.',
     initials: 'RS',
@@ -14,8 +14,8 @@ const TESTIMONIALS: Testimonial[] = [
   {
     id: 'testimonial-2',
     name: 'Ananya Iyer',
-    outcome: 'Data Analyst',
-    programTitle: 'Data Science & Analytics',
+    outcome: 'Junior Data Analyst',
+    programTitle: 'Data Science',
     quote:
       'Mentors reviewed my actual work every week, not just quiz scores. That feedback loop is the whole reason I stuck with it.',
     initials: 'AI',
@@ -23,10 +23,10 @@ const TESTIMONIALS: Testimonial[] = [
   {
     id: 'testimonial-3',
     name: 'Vikram Desai',
-    outcome: 'Product Designer',
-    programTitle: 'UI/UX Product Design',
+    outcome: 'Digital Marketing Associate',
+    programTitle: 'Digital Marketing',
     quote:
-      'The case-study format is exactly how design portfolios get reviewed in the real world. I walked into interviews already prepared.',
+      'The campaign-based projects are exactly how real marketing work gets reviewed. I walked into interviews already prepared.',
     initials: 'VD',
   },
 ]

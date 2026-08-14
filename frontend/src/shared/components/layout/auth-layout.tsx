@@ -1,6 +1,8 @@
 import { Link, Outlet } from 'react-router-dom'
 import { GraduationCap } from 'lucide-react'
 
+import { Logo } from '@/shared/components/ui/logo'
+
 /**
  * Layout for public auth pages (login, forgot/reset password). Split panel
  * on desktop — brand/value-prop on the left, form on the right — collapses
@@ -10,11 +12,8 @@ export function AuthLayout() {
   return (
     <div className="bg-background grid min-h-svh lg:grid-cols-2">
       <div className="bg-primary/10 relative hidden flex-col justify-between p-10 lg:flex">
-        <Link to="/" className="flex items-center gap-2.5">
-          <span className="bg-primary text-primary-foreground flex size-9 items-center justify-center rounded-md text-sm font-bold">
-            DM
-          </span>
-          <span className="text-h3 font-semibold">Daisy Minds</span>
+        <Link to="/" aria-label="Daisy Minds home">
+          <Logo className="h-9" />
         </Link>
 
         <div className="flex max-w-md flex-col gap-4">
@@ -33,12 +32,9 @@ export function AuthLayout() {
       </div>
 
       <div className="flex flex-col items-center justify-center p-6 sm:p-10">
-        <div className="mb-8 flex items-center gap-2.5 lg:hidden">
-          <span className="bg-primary text-primary-foreground flex size-9 items-center justify-center rounded-md text-sm font-bold">
-            DM
-          </span>
-          <span className="text-h3 font-semibold">Daisy Minds</span>
-        </div>
+        <Link to="/" aria-label="Daisy Minds home" className="mb-8 flex items-center lg:hidden">
+          <Logo className="h-9" />
+        </Link>
         <div className="w-full max-w-sm">
           <Outlet />
         </div>

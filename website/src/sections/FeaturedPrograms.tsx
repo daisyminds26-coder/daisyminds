@@ -18,8 +18,8 @@ export function FeaturedPrograms({ programs }: { programs: Program[] }) {
             title="Programs built around one outcome: hireable skills."
             lead="Every program pairs a project-based curriculum with weekly mentor review — pick the track that matches where you want to end up."
           />
-          <Button href="/programs" variant="ghost" trailingIcon={<ArrowRight className="size-4" />}>
-            View all programs
+          <Button href="/services" variant="ghost" trailingIcon={<ArrowRight className="size-4" />}>
+            View All Programs
           </Button>
         </div>
 

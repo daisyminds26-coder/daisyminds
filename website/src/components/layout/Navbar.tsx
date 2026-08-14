@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Menu, X } from 'lucide-react'
+import { ChevronDown, Menu, X } from 'lucide-react'
 
 import { Button } from '@/components/ui/Button'
 import { Container } from '@/components/ui/Container'
 import { Logo } from '@/components/ui/Logo'
+import { ServicesMegaMenu } from '@/components/layout/ServicesMegaMenu'
 import { PRIMARY_NAV } from '@/data/nav'
+import { getPrograms } from '@/data/programs'
+import type { Program } from '@/types/program'
 import { lmsRoute } from '@/utils/env'
 import { useScrolled } from '@/hooks/useScrolled'
 import { cn } from '@/utils/cn'
@@ -22,7 +25,19 @@ function NavbarLogo() {
 export function Navbar() {
   const scrolled = useScrolled(12)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [mobileServicesOpen, setMobileServicesOpen] = useState(false)
+  const [mobilePrograms, setMobilePrograms] = useState<Program[]>([])
   const location = useLocation()
+
+  useEffect(() => {
+    let active = true
+    void getPrograms().then((data) => {
+      if (active) setMobilePrograms(data)
+    })
+    return () => {
+      active = false
+    }
+  }, [])
 
   // Closes the mobile menu on navigation. Adjusted during render (React's
   // documented pattern for resetting state when a prop changes) rather than
@@ -55,23 +70,27 @@ export function Navbar() {
           <NavbarLogo />
 
           <nav className="hidden items-center gap-8 lg:flex" aria-label="Primary">
-            {PRIMARY_NAV.map((item) => (
-              <Link
-                key={item.href}
-                to={item.href}
-                className="text-ink-muted hover:text-ink text-sm font-medium transition-colors"
-              >
-                {item.label}
-              </Link>
-            ))}
+            {PRIMARY_NAV.map((item) =>
+              item.megaMenu ? (
+                <ServicesMegaMenu key={item.href} />
+              ) : (
+                <Link
+                  key={item.href}
+                  to={item.href}
+                  className="text-ink-muted hover:text-ink text-sm font-medium transition-colors"
+                >
+                  {item.label}
+                </Link>
+              ),
+            )}
           </nav>
 
           <div className="hidden items-center gap-3 lg:flex">
             <Button href={lmsRoute('/login')} external variant="ghost" size="sm">
               Student Login
             </Button>
-            <Button href="/programs" size="sm">
-              Explore Programs
+            <Button href="/apply" size="sm">
+              Apply Now
             </Button>
           </div>
 
@@ -101,21 +120,77 @@ export function Navbar() {
             className="border-border-soft bg-background overflow-hidden border-b lg:hidden"
           >
             <Container className="flex flex-col gap-1 py-4">
-              {PRIMARY_NAV.map((item) => (
-                <Link
-                  key={item.href}
-                  to={item.href}
-                  className="text-ink hover:bg-surface-raised rounded-lg px-3 py-3 text-base font-medium"
-                >
-                  {item.label}
-                </Link>
-              ))}
+              {PRIMARY_NAV.map((item) =>
+                item.megaMenu ? (
+                  <div key={item.href} className="flex flex-col">
+                    <button
+                      type="button"
+                      className="text-ink hover:bg-surface-raised flex items-center justify-between rounded-lg px-3 py-3 text-base font-medium"
+                      aria-expanded={mobileServicesOpen}
+                      aria-controls="mobile-services-list"
+                      onClick={() => {
+                        setMobileServicesOpen((open) => !open)
+                      }}
+                    >
+                      {item.label}
+                      <ChevronDown
+                        className={cn(
+                          'size-4 transition-transform duration-200',
+                          mobileServicesOpen && 'rotate-180',
+                        )}
+                        aria-hidden="true"
+                      />
+                    </button>
+                    <AnimatePresence>
+                      {mobileServicesOpen && (
+                        <motion.div
+                          id="mobile-services-list"
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="overflow-hidden"
+                        >
+                          <ul className="flex flex-col gap-0.5 py-1 pl-3">
+                            {mobilePrograms.map((program) => (
+                              <li key={program.slug}>
+                                <Link
+                                  to={`/services/${program.slug}`}
+                                  className="text-ink-muted hover:text-ink block rounded-lg px-3 py-2 text-sm"
+                                >
+                                  {program.shortTitle}
+                                </Link>
+                              </li>
+                            ))}
+                            <li>
+                              <Link
+                                to="/services"
+                                className="text-primary-dark block rounded-lg px-3 py-2 text-sm font-semibold"
+                              >
+                                View all programs →
+                              </Link>
+                            </li>
+                          </ul>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                ) : (
+                  <Link
+                    key={item.href}
+                    to={item.href}
+                    className="text-ink hover:bg-surface-raised rounded-lg px-3 py-3 text-base font-medium"
+                  >
+                    {item.label}
+                  </Link>
+                ),
+              )}
               <div className="border-border-soft mt-3 flex flex-col gap-2 border-t pt-4">
                 <Button href={lmsRoute('/login')} external variant="ghost" className="w-full">
                   Student Login
                 </Button>
-                <Button href="/programs" className="w-full">
-                  Explore Programs
+                <Button href="/apply" className="w-full">
+                  Apply Now
                 </Button>
               </div>
             </Container>

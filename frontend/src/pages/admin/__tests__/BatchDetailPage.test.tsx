@@ -13,6 +13,7 @@ import { resetCoursesMockState } from '@/test/msw/handlers/courses.handlers'
 import { resetTrainersMockState } from '@/test/msw/handlers/trainers.handlers'
 import { resetStudentsMockState } from '@/test/msw/handlers/students.handlers'
 import { resetEnrollmentsMockState } from '@/test/msw/handlers/enrollments.handlers'
+import { resetLiveClassesMockState } from '@/test/msw/handlers/live-classes.handlers'
 import { createTestQueryClient, resetAuthStore } from '@/test/test-utils'
 
 beforeEach(() => {
@@ -24,6 +25,7 @@ beforeEach(() => {
   // Order matters: enrollment seeding bumps the freshly-reset batches'
   // occupiedSeats — see `enrollments.handlers.ts#resetEnrollmentsMockState`.
   resetEnrollmentsMockState()
+  resetLiveClassesMockState()
   resetAuthStore()
 })
 
@@ -369,5 +371,17 @@ describe('BatchDetailPage', () => {
       'href',
       '/admin/enrollments/new?batchId=batch-1',
     )
+  })
+
+  it('shows this batch\'s own live-class sessions on the "Live Classes" tab, with a create action', async () => {
+    const user = userEvent.setup()
+    await renderAsSuperAdmin('batch-1')
+
+    await screen.findByRole('heading', { name: 'August 2026 Morning Batch' })
+    await user.click(screen.getByRole('tab', { name: 'Live Classes' }))
+
+    expect(await screen.findByText('Week 1 — Introduction')).toBeInTheDocument()
+    expect(screen.getByText('Week 2 — Live Session')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Create session' })).toBeInTheDocument()
   })
 })

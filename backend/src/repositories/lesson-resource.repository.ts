@@ -33,6 +33,22 @@ export const lessonResourceRepository = {
     return LessonResourceModel.countDocuments({ lessonId, isDeleted: false })
   },
 
+  /** Every active resource across a whole course — one query for the student Resources page instead of one per lesson (`courseId` is denormalized for exactly this). */
+  findActiveByCourse(courseId: string, session?: ClientSession): Promise<LessonResourceDocument[]> {
+    return LessonResourceModel.find({ courseId, isDeleted: false })
+      .sort({ lessonId: 1, sortOrder: 1 })
+      .session(session ?? null)
+  },
+
+  findByIdAcrossLessons(
+    resourceId: string,
+    session?: ClientSession,
+  ): Promise<LessonResourceDocument | null> {
+    return LessonResourceModel.findOne({ _id: resourceId, isDeleted: false }).session(
+      session ?? null,
+    )
+  },
+
   async nextSortOrder(lessonId: string, session?: ClientSession): Promise<number> {
     const last = await LessonResourceModel.findOne({ lessonId, isDeleted: false })
       .sort({ sortOrder: -1 })

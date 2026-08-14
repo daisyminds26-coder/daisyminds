@@ -10,9 +10,36 @@ export const trainerRoutes: RouteObject[] = [
       import('@/pages/trainer/TrainerDashboardPage').then((m) => ({ Component: m.default })),
   },
   { path: 'courses', lazy: comingSoon },
-  { path: 'live-classes', lazy: comingSoon },
-  { path: 'attendance', lazy: comingSoon },
-  { path: 'assignments', lazy: comingSoon },
+  {
+    path: 'live-classes',
+    lazy: () =>
+      import('@/pages/trainer/TrainerLiveClassesPage').then((m) => ({ Component: m.default })),
+  },
+  {
+    path: 'attendance',
+    lazy: () =>
+      import('@/pages/trainer/TrainerAttendancePage').then((m) => ({ Component: m.default })),
+  },
+  {
+    path: 'assignments',
+    lazy: () =>
+      import('@/pages/trainer/TrainerAssignmentsPage').then((m) => ({ Component: m.default })),
+  },
+  {
+    path: 'assignments/:assignmentId',
+    lazy: () =>
+      import('@/pages/trainer/TrainerAssignmentDetailPage').then((m) => ({ Component: m.default })),
+  },
+  {
+    path: 'assessments',
+    lazy: () =>
+      import('@/pages/trainer/TrainerAssessmentsPage').then((m) => ({ Component: m.default })),
+  },
+  {
+    path: 'assessments/:assessmentId',
+    lazy: () =>
+      import('@/pages/trainer/TrainerAssessmentDetailPage').then((m) => ({ Component: m.default })),
+  },
   { path: 'results', lazy: comingSoon },
   {
     path: 'profile',

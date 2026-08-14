@@ -392,6 +392,88 @@ Logged in as `SUPER_ADMIN` (repeat the role-restricted rows as `ADMIN` where not
 19. Resize to a mobile viewport — confirm the list (card layout), wizard, dialogs, and detail page all remain usable with no horizontal scroll, and every dialog/wizard step is reachable and completable by keyboard alone.
 20. Simulate a concurrent-capacity scenario (e.g. two browser tabs enrolling into the last seat of the same batch) — confirm the losing submission is handled gracefully (waitlisted or a clear capacity message), never a raw/confusing error, and the UI's copy treats it as expected behavior rather than implying a bug.
 
+## Student Portal (Phase 11A)
+
+`features/student-portal/` against a new self-scoped `../backend/src/routes/student-portal.routes.ts` (`/api/v1/student/*`, gated on `requireRole('STUDENT')` alone — `STUDENT` has no permission-catalog entries). Entry points under `pages/student/`: `StudentDashboardPage` (`/student`), `MyCoursesPage` (`/student/courses`), `StudentCourseOverviewPage` (`/student/courses/:courseId`), `StudentSchedulePage` (`/student/schedule`), `StudentResourcesPage` (`/student/resources`), `StudentProfilePage` (`/student/profile`) — plus `/student/settings` reusing the existing `AccountSecurityPage` unchanged, and `/student/notifications`/`/student/certificates` as honest `ComingSoonPage` placeholders (those modules don't exist yet). See ARCHITECTURE.md §25 for the full design. **Course progress and the actual lesson player shipped in Phase 11B, below** — the bullets here describe the foundation this phase built on.
+
+- Rendered inside a new `StudentShell` (`shared/components/layout/student-shell.tsx`), not the shared `DashboardLayout` Admin/Trainer use — same underlying `Sidebar`/`Header`/`MobileNavDrawer`/`Footer` primitives, plus a new `StudentBottomNav` (Home/Courses/Schedule/Profile, fixed, mobile-only) for the "premium, mobile-first learner" feel the task spec called for.
+- Every query hook (`useStudentDashboard`, `useStudentEnrollments`, `useStudentCourse`, `useStudentSchedule`, `useStudentResources`, `useStudentProfile`) reads only the authenticated student's own data — there is no `studentId` parameter to pass in anywhere in this feature, by construction.
+- `CourseCard`/`StudentCourseOverviewPage` render the backend-derived `accessState` (`accessStateLabel`/`accessStateTone` in `utils/access-state.ts`) via the shared `StatusBadge` — same "never re-derive entitlement client-side" rule the Admin Enrolment module's `AccessBadge` already established.
+- `StudentResourcesPage` never renders a raw Cloudinary URL — "Download"/"Open" triggers `useResourceDeliveryUrl()` on click, which calls the signed-delivery endpoint fresh each time (a 5-minute-expiry URL is never cached/reused).
+- `StudentProfilePage`'s edit form is deliberately narrow — phone/alternate phone/address/one emergency contact only, matching exactly what `backend/src/validators/student-portal.validator.ts#updateOwnProfileSchema` accepts; `studentId`, enrollment, role, account status, and profile photo upload are read-only or out of scope this phase.
+
+### Manual testing checklist
+
+Logged in as `STUDENT` (the seeded `active@example.com` / `correct-horse-1` account, or any student created via Admin Student Management with an admin-created enrolment):
+
+1. `/student` loads the dashboard — with an `ACTIVE` enrolment, "Continue Learning" shows the real course/batch and its link lands on the correct course overview; with no enrolment at all, an honest "You don't have an active course yet" empty state appears instead (no fabricated stat cards).
+2. `/student/courses` lists every enrolment as a card (thumbnail/title/code/batch/access-state badge/level/mode/certificate indicator) — never a course the student isn't enrolled in.
+3. Open a course from either page — `/student/courses/:courseId` shows the header (title, level, mode, batch, trainer) plus the published curriculum accordion when the enrolment is `ACTIVE`/`COMPLETED`-with-access.
+4. From an Admin session, suspend that same student's enrolment; reload the course page as the student — confirm it still returns `200` with an "Your course access is currently paused" message, the curriculum section is gone, and no lesson/module data is present in the response (check Network tab, not just the UI).
+5. Visit a course id the student was never enrolled in — confirm a clean 404-driven "Course not found" state, not a raw error or a leaked course title.
+6. `/student/schedule` shows upcoming class occurrences (date/time/timezone/delivery mode) derived from the active batch's weekly timetable — confirm a date marked as a `calendarException` (holiday/no-class) in that batch's settings does not appear.
+7. `/student/resources` lists resources grouped by course, only for courses with active access; click "Open"/"Download" — confirms a signed URL request fires and the file opens in a new tab; a resource attached to a draft/unpublished lesson never appears in the list even if the student is otherwise entitled.
+8. `/student/profile` shows read-only identity fields (name, student ID, email, profile-completion bar) plus an editable contact-details form (phone/alternate phone/address/one emergency contact); save a change and confirm it persists on reload.
+9. `/student/settings` reaches the existing Account Security page (change password, sessions, logout all devices) — same component Admin/Trainer already use, unmodified.
+10. Try to reach `/admin/*` or `/trainer/*` while logged in as a `STUDENT` — redirected to `/unauthorized`, same `RequireRole` gate every other area uses; confirm the student sidebar never shows an Admin/Trainer nav item.
+11. Resize to a mobile viewport — confirm the bottom nav (Home/Courses/Schedule/Profile) appears, all four routes are reachable from it, the full nav (incl. Resources/Settings) is still reachable via the header's hamburger drawer, and no page produces horizontal scroll.
+
+## Learning Player (Phase 11B)
+
+`features/learning-player/` against a new `../backend/src/routes/student-learning.routes.ts` (`/api/v1/student/courses/:courseId/{progress,lessons/:lessonId,lessons/:lessonId/media,lessons/:lessonId/progress,lessons/:lessonId/complete}`). Entry points: `StudentLearningRedirectPage` (`/student/courses/:courseId/learn` — resolves real resume-learning server-side, then `<Navigate>`s) and `StudentLearningPlayerPage` (`/student/courses/:courseId/learn/:lessonId`) — both mounted as **siblings of**, not children of, the `StudentShell` route tree (`app/router.tsx`), so the player renders its own full-page header/curriculum-sidebar without the portal's sidebar/header/bottom-nav on top of it. See ARCHITECTURE.md §26 for the full design.
+
+- `LessonContentPane` dispatches by `lessonType` to `VideoLessonPlayer`/`TextLessonView`/`DocumentLessonView`/`ExternalLinkLessonView` — `QUIZ`/`ASSIGNMENT`/`LIVE_CLASS` render an honest "Available in a later phase" state, never a fake form.
+- `VideoLessonPlayer` is a plain HTML5 `<video>` with native controls (no player-library dependency) — position reports on a ~12s throttle plus pause/seek/unmount, resumes from `lesson.progress.videoPositionSeconds` on load, and auto-completes server-side at 90% watched (the frontend never decides completion itself, only reports position).
+- `TextLessonView` renders `lesson.textContent` via `LessonTextContent` — a direct render of server-sanitized HTML (Phase 9C's `sanitize-html`, at write time), styled with a compact hand-written set of Tailwind child-selectors rather than pulling in `@tailwindcss/typography` for one read-only view.
+- `DocumentLessonView`/`ExternalLinkLessonView`/`LessonResourcesList` never fetch a signed URL until the student clicks Open/Download — `useLessonMediaUrl`/`useResourceDeliveryUrl` are mutations, not queries, and nothing is cached beyond the click.
+- `PlayerCurriculumList` renders real per-lesson state — ✓ completed / ● in progress / ○ not started / 🔒 locked, each paired with visible text (`aria-label`), never color alone — and is reused unchanged by both the desktop sidebar and the mobile `Sheet` drawer.
+- `CourseProgressBar` (`features/student-portal/components/`) is the one progress-bar component every view renders — the player header, `CourseCard`, `ContinueLearningCard`, and `StudentCourseOverviewPage` all show the same backend-computed `percentage`, never a client-side recalculation, always paired with real text ("5 of 12 required lessons completed").
+- "Continue Learning"/"Start Learning" CTAs across the Dashboard, My Courses, and Course Overview all route to `/student/courses/:courseId/learn` (no lesson id) — the redirect page, not the CTA itself, decides which lesson to resume.
+
+### Manual testing checklist
+
+Logged in as `STUDENT`, with a course that has at least two published lessons where the second has the first as a prerequisite:
+
+1. From the Dashboard or My Courses, click "Start Learning" — lands on the first published lesson; the header shows the course title, current lesson title, and a progress bar reading "0 of N required lessons completed."
+2. Complete a `TEXT` lesson via "Mark as complete" — button switches to a disabled "Completed" state; reload the page and confirm it's still marked complete (not lost on refresh).
+3. Open a `VIDEO` lesson — confirm the player loads a real signed URL (Network tab, not a raw Cloudinary `publicId`), play forward past ~90% of the duration, and confirm the lesson is marked `COMPLETED` without clicking anything.
+4. Leave a video partway through, navigate away, then reopen the same lesson — confirm playback resumes near where you left off (not from `0:00`).
+5. Open a `DOCUMENT` lesson — confirm no delivery URL is requested until you click "Open document," and it opens in a new tab.
+6. Open an `EXTERNAL_LINK` lesson — confirm it's a plain outbound link (`target="_blank" rel="noopener noreferrer"`), never an embedded iframe.
+7. Before completing the prerequisite, try to open the dependent lesson directly (via URL) — confirm it shows a locked state with the lock reason as visible text, and no lesson content/media is present in the API response (check Network tab).
+8. Complete the prerequisite — confirm the dependent lesson unlocks (both in the curriculum sidebar and by opening it directly) without a page reload being required beyond normal navigation.
+9. Use Previous/Next at the bottom of the lesson — confirm they follow module-then-lesson order and skip nothing; on the last lesson with everything required complete, confirm a "Course learning complete" state instead of a dead-end Next button.
+10. Resize to a mobile viewport — confirm the curriculum sidebar is gone, a "Curriculum" button opens it in a bottom-accessible drawer, and Previous/Next are a sticky bar at the bottom of the screen that never overlaps lesson content.
+11. From an Admin session, suspend the student's enrolment; reload a lesson the student was mid-way through — confirm the lesson shows a paused-access state, not the video/text content, and the media-delivery endpoint returns `403` if called directly.
+12. As the student, edit the page URL to a lesson id from a course you're not enrolled in — confirm `404`, not a leaked lesson title or a raw error.
+13. Check that the Dashboard/My Courses/Course Overview progress bars all agree with each other and with the player header for the same course (same percentage, same "N of M" count) — they're all reading the same backend value.
+
+## Live Classes + Attendance (Phase 12)
+
+Four feature folders against `../backend/src/routes/{live-class,attendance,student-live-class,trainer-live-class}.routes.ts`: `features/live-classes/` (admin `/live-classes/*`), `features/attendance/` (session-scoped roster/mark/finalize/reopen + the cross-session admin report, shared by admin and trainer), `features/student-live-classes/` (self-scoped `/student/live-classes/*` + `/student/attendance`), `features/trainer-live-classes/` (self-scoped `/trainer/live-classes/*`, reusing `AdminLiveClass`/`AttendanceRosterPanel` from the two admin feature folders rather than a parallel type/component set). See ARCHITECTURE.md §27 for the full backend design this UI sits on.
+
+- `AttendanceRosterPanel` (`features/attendance/components/`) is the **one** roster + mark + finalize + reopen implementation, rendered by both the admin session-detail page (`canFinalize`) and the trainer self-scoped attendance page (`canFinalize={false}`) — same component, same mutation hooks, only a boolean prop and a `basePath` differ.
+- `CreateLiveClassDialog`/`GenerateLiveClassesDialog` both require a known `batchId` — a live class is never created from a floating, batch-picker form; both are only opened from the Batch Detail page's "Live Classes" tab (`BatchLiveClassesTab`, replacing the former placeholder in `FutureModuleCards`).
+- `features/live-classes/utils/zoned-datetime.ts#zonedWallTimeToUtc()` converts a `datetime-local` input's wall-clock value into the correct UTC instant *in the session's own timezone* (mirroring the backend's identical round-trip technique) — never the admin's browser timezone, which may differ from the batch's.
+- `LiveClassCard` (`features/student-live-classes/components/`) is reused unchanged by both the Student Dashboard's "Upcoming Live Classes" section and the full `/student/live-classes` page — the "Join Class" button only renders enabled once the backend-computed `canJoin` flag is true; before that it shows "Join available 15 minutes before class," and a cancelled session shows a clear, non-interactive cancelled state rather than disappearing from the list.
+- No client-side permission-hiding was added for admin lifecycle/create/generate actions — the `Can`/`usePermission` hooks exist in `features/auth/` but, matching every other admin page in this codebase, aren't used to hide buttons; the backend's `requirePermission`/ownership checks are the real, and only, enforcement boundary (SECURITY.md §3).
+
+### Manual testing checklist
+
+Logged in as `ADMIN`/`SUPER_ADMIN` on a batch with a weekly timetable and an assigned primary trainer:
+
+1. From the batch's "Live Classes" tab, create a manual session — confirm it appears with a `DM-CLS-{year}-{seq}` code and `Draft` status.
+2. From the same tab, "Generate from timetable" over a date range spanning the weekly slot at least twice — preview shows the occurrences; create them; running "Generate" again over the same range shows 0 created / N skipped (already existed).
+3. Open the session detail page and walk it through Schedule → Start → Mark complete — confirm each button only appears for the correct current status, and a Cancel action is available until it's terminal.
+4. Try creating a second session for the same trainer at an overlapping time — confirm a conflict error, then confirm providing an override reason lets it through.
+5. On the Attendance tab, confirm every eligible student starts "Unmarked," mark one Present and one Absent, Save, then Finalize — confirm any still-unmarked student becomes Absent automatically, and further mark buttons disable.
+6. Reopen attendance with a reason — confirm marking becomes possible again.
+7. Log in as the assigned `TRAINER` — confirm `/trainer/live-classes` shows only sessions assigned to this trainer, Start/Mark complete work, and `/trainer/attendance` can mark the same session's roster but has no Finalize/Reopen button anywhere.
+8. Log in as an enrolled `STUDENT` — confirm `/student/live-classes` shows the session with no Join button until the 15-minute window opens (or seed one already `LIVE`), that clicking Join opens the meeting URL in a new tab, and that a cancelled session shows a clear cancelled state instead of disappearing.
+9. As the same student, confirm the Dashboard's "Upcoming Live Classes" section and `/student/schedule` never both show the same session — a real session always replaces its derived timetable slot for that date.
+10. As the student, visit `/student/attendance` after an admin finalizes at least one session with this student marked — confirm the per-course percentage and recent-sessions list render.
+11. Resize every page above to a mobile viewport — confirm the attendance roster never scrolls horizontally (row-card layout, not a wide table) and every mark button remains a comfortable touch target.
+
 ## Adding shadcn/ui Components
 
 ```bash

@@ -169,6 +169,12 @@ export const studentRepository = {
     return StudentModel.findOne({ _id: id })
   },
 
+  /** Batch-fetch for the attendance roster and similar list views — one query for every student on a roster instead of one per row. */
+  findByIds(ids: string[]): Promise<StudentDocument[]> {
+    if (ids.length === 0) return Promise.resolve([])
+    return StudentModel.find({ _id: { $in: ids }, isDeleted: false })
+  },
+
   findByUserId(userId: string): Promise<StudentDocument | null> {
     return StudentModel.findOne({ userId, isDeleted: false })
   },

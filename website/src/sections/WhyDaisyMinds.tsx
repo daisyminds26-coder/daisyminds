@@ -1,35 +1,16 @@
-import { GraduationCap, Infinity as InfinityIcon, Users2 } from 'lucide-react'
-
 import { Container } from '@/components/ui/Container'
 import { Section } from '@/components/ui/Section'
 import { Eyebrow } from '@/components/ui/Badge'
 import { Reveal } from '@/components/motion/Reveal'
 import { StaggerGroup, StaggerItem } from '@/components/motion/Stagger'
+import { WHY_DAISY_MINDS_REASONS } from '@/data/why-daisy-minds'
 
-const REASONS = [
-  {
-    icon: Users2,
-    title: 'Expert Trainers',
-    description: 'Every course is led by mentors with real, hands-on industry experience.',
-  },
-  {
-    icon: GraduationCap,
-    title: 'Online Remote Learning',
-    description: 'Learn from anywhere on a structured schedule built around live sessions.',
-  },
-  {
-    icon: InfinityIcon,
-    title: 'Lifetime Access',
-    description: 'Course material and recordings stay available to you long after you graduate.',
-  },
-]
-
-/** The site's "About" moment — real copy from daisyminds.com, not invented. */
+/** The site's "why choose us" moment — headline/intro is real copy from daisyminds.com; the six reason cards below follow the institute's own published messaging (shared with every program detail page via `data/why-daisy-minds.ts`). */
 export function WhyDaisyMinds() {
   return (
     <Section id="why-daisy-minds" tone="default">
-      <Container className="grid grid-cols-1 gap-14 lg:grid-cols-[1.1fr_1fr] lg:gap-10">
-        <Reveal className="flex flex-col gap-6">
+      <Container>
+        <Reveal className="mx-auto flex max-w-2xl flex-col items-center gap-5 text-center">
           <Eyebrow>About Daisy Minds</Eyebrow>
           <p className="font-display text-display-md text-ink text-balance">
             Over 10 years in distance learning for skill development.
@@ -40,12 +21,16 @@ export function WhyDaisyMinds() {
           </p>
         </Reveal>
 
-        <StaggerGroup className="grid grid-cols-1 gap-8 sm:grid-cols-2">
-          {REASONS.map((reason) => (
-            <StaggerItem key={reason.title} className="flex flex-col gap-3">
-              <reason.icon className="text-primary-dark size-6" aria-hidden="true" />
-              <h3 className="text-ink text-base font-bold">{reason.title}</h3>
-              <p className="text-ink-muted text-body-sm">{reason.description}</p>
+        <StaggerGroup className="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {WHY_DAISY_MINDS_REASONS.map((reason) => (
+            <StaggerItem key={reason.title}>
+              <div className="border-border-soft bg-surface shadow-soft hover:shadow-lifted flex h-full flex-col gap-4 rounded-2xl border p-6 transition-shadow duration-300">
+                <span className="bg-primary-soft text-primary-dark flex size-12 items-center justify-center rounded-xl">
+                  <reason.icon className="size-6" aria-hidden="true" />
+                </span>
+                <h3 className="text-ink text-base font-bold">{reason.title}</h3>
+                <p className="text-ink-muted text-body-sm">{reason.description}</p>
+              </div>
             </StaggerItem>
           ))}
         </StaggerGroup>

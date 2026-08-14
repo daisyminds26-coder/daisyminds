@@ -76,6 +76,80 @@ const BASE_PERMISSIONS: SeedPermission[] = [
     description: 'Export enrollment records to CSV',
     category: 'Enrollments',
   },
+  { key: 'live_classes:read', description: 'View live class sessions', category: 'Live Classes' },
+  {
+    key: 'live_classes:manage',
+    description:
+      'Create, update, generate from timetable, and change the lifecycle state of live class sessions (schedule, start, complete, cancel)',
+    category: 'Live Classes',
+  },
+  {
+    key: 'attendance:read',
+    description: 'View attendance records and reports',
+    category: 'Attendance',
+  },
+  {
+    key: 'attendance:manage',
+    description: 'Mark, finalize, and reopen session attendance',
+    category: 'Attendance',
+  },
+  {
+    key: 'attendance:export',
+    description: 'Export attendance reports to CSV',
+    category: 'Attendance',
+  },
+  {
+    key: 'assignments:read',
+    description: 'View assignments and submissions',
+    category: 'Assignments',
+  },
+  {
+    key: 'assignments:manage',
+    description:
+      'Create, update, and change the lifecycle state of assignments (publish, close, cancel, archive)',
+    category: 'Assignments',
+  },
+  {
+    key: 'assignments:grade',
+    description: 'Grade and return student assignment submissions',
+    category: 'Assignments',
+  },
+  {
+    key: 'assignments:export',
+    description: 'Export assignment submission summaries to CSV',
+    category: 'Assignments',
+  },
+  {
+    key: 'questions:read',
+    description: 'View the question bank',
+    category: 'Assessments',
+  },
+  {
+    key: 'questions:manage',
+    description: 'Create, update, archive, and duplicate questions in the question bank',
+    category: 'Assessments',
+  },
+  {
+    key: 'assessments:read',
+    description: 'View quizzes, examinations, and attempts',
+    category: 'Assessments',
+  },
+  {
+    key: 'assessments:manage',
+    description:
+      'Create, update, and change the lifecycle state of quizzes/examinations (publish, close, publish results, archive, cancel)',
+    category: 'Assessments',
+  },
+  {
+    key: 'assessments:grade',
+    description: 'Manually grade subjective questions on student attempts',
+    category: 'Assessments',
+  },
+  {
+    key: 'assessments:export',
+    description: 'Export assessment result summaries to CSV',
+    category: 'Assessments',
+  },
 ]
 
 const ROLE_PERMISSIONS: Record<SystemRoleName, string[]> = {
@@ -101,6 +175,21 @@ const ROLE_PERMISSIONS: Record<SystemRoleName, string[]> = {
     'enrollments:read',
     'enrollments:manage',
     'enrollments:export',
+    'live_classes:read',
+    'live_classes:manage',
+    'attendance:read',
+    'attendance:manage',
+    'attendance:export',
+    'assignments:read',
+    'assignments:manage',
+    'assignments:grade',
+    'assignments:export',
+    'questions:read',
+    'questions:manage',
+    'assessments:read',
+    'assessments:manage',
+    'assessments:grade',
+    'assessments:export',
   ],
   TRAINER: ['users:read'],
   STUDENT: [],

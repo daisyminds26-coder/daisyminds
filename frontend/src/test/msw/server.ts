@@ -10,6 +10,8 @@ import { curriculumHandlers } from '@/test/msw/handlers/curriculum.handlers'
 import { lessonContentHandlers } from '@/test/msw/handlers/lesson-content.handlers'
 import { batchesHandlers } from '@/test/msw/handlers/batches.handlers'
 import { enrollmentsHandlers } from '@/test/msw/handlers/enrollments.handlers'
+import { studentPortalHandlers } from '@/test/msw/handlers/student-portal.handlers'
+import { liveClassesHandlers } from '@/test/msw/handlers/live-classes.handlers'
 
 export const server = setupServer(
   ...authHandlers,
@@ -22,4 +24,6 @@ export const server = setupServer(
   ...lessonContentHandlers,
   ...batchesHandlers,
   ...enrollmentsHandlers,
+  ...studentPortalHandlers,
+  ...liveClassesHandlers,
 )

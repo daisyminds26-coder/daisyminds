@@ -8,6 +8,7 @@ import { Section } from '@/components/ui/Section'
 import { SectionHeading } from '@/components/ui/SectionHeading'
 import { TextField, TextAreaField } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
+import { ResponsiveImage } from '@/components/ui/ResponsiveImage'
 import { Reveal } from '@/components/motion/Reveal'
 import { submitContactRequest } from '@/data/contact'
 import { CONTACT_INFO } from '@/data/contact-info'
@@ -78,10 +79,25 @@ export default function ContactPage() {
 
       <Section spacing="none" className="pt-36 pb-24 sm:pt-44">
         <Container size="narrow">
+          <Reveal className="mx-auto mb-10 max-w-md overflow-hidden rounded-3xl">
+            <ResponsiveImage
+              src="/images/career/contact-advisor.jpg"
+              alt="A friendly Daisy Minds advisor wearing a headset, ready to help"
+              aspectRatio="21/9"
+              priority
+            />
+          </Reveal>
+
           <SectionHeading
             eyebrow="Get In Touch"
-            title="Tell us what you're trying to build."
-            lead="Share a few details and our team will follow up within one business day."
+            title={
+              programSlug ? 'Talk to a Daisy Minds Advisor' : "Tell us what you're trying to build."
+            }
+            lead={
+              programSlug
+                ? 'Need help choosing the right plan or start date? Share a few details and an advisor will follow up within one business day.'
+                : 'Share a few details and our team will follow up within one business day.'
+            }
             align="center"
             className="mx-auto items-center text-center"
           />

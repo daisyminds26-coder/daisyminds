@@ -1,4 +1,4 @@
-import type { ClientSession } from 'mongoose'
+import type { ClientSession, Types } from 'mongoose'
 
 import { BatchModel, type BatchDocument, type IBatch } from '../models/batch.model'
 import type { BatchDeliveryMode, BatchStatus } from '../models/batch.model'
@@ -115,6 +115,12 @@ export const batchRepository = {
     return BatchModel.findOne({ _id: id })
   },
 
+  /** Batch-fetch for the student portal's schedule/dashboard views — one query for all of a student's batches instead of one per enrollment. */
+  findByIds(ids: string[]): Promise<BatchDocument[]> {
+    if (ids.length === 0) return Promise.resolve([])
+    return BatchModel.find({ _id: { $in: ids }, isDeleted: false })
+  },
+
   create(data: Partial<IBatch>): Promise<BatchDocument> {
     return BatchModel.create(data)
   },
@@ -143,6 +149,25 @@ export const batchRepository = {
   async listAllForExport(filter: ListBatchesFilter, maxRows: number): Promise<BatchDocument[]> {
     const query = buildQuery(filter)
     return BatchModel.find(query).sort({ createdAt: -1 }).limit(maxRows)
+  },
+
+  /**
+   * Every batch this trainer teaches (primary or assistant), any status —
+   * unlike `findOperationalBatchesForTrainer` below (scoped to
+   * `SCHEDULED`/`ACTIVE` for scheduling-conflict checks), grading an
+   * assignment for a batch legitimately continues after that batch is
+   * `COMPLETED`, so this deliberately applies no status filter. Used only
+   * to resolve "which batches does this trainer own" for the Assignments
+   * module's ownership check.
+   */
+  findIdsForTrainer(trainerId: string): Promise<{ _id: Types.ObjectId }[]> {
+    return BatchModel.find(
+      {
+        isDeleted: false,
+        $or: [{ primaryTrainerId: trainerId }, { assistantTrainerIds: trainerId }],
+      },
+      { _id: 1 },
+    )
   },
 
   /**

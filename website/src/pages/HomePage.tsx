@@ -10,6 +10,7 @@ import { HowItWorks } from '@/sections/HowItWorks'
 import { ProductShowcase } from '@/sections/ProductShowcase'
 import { LearningExperience } from '@/sections/LearningExperience'
 import { WhyDaisyMinds } from '@/sections/WhyDaisyMinds'
+import { ChooseYourPath } from '@/sections/ChooseYourPath'
 import { TrainerShowcase } from '@/sections/TrainerShowcase'
 import { CareerJourney } from '@/sections/CareerJourney'
 import { StudentStories } from '@/sections/StudentStories'
@@ -28,7 +29,7 @@ import { buildOrganizationSchema } from '@/utils/structured-data'
  * reference — no `useEffect`/`useState` loading dance, no extra render pass.
  */
 const homepageDataPromise = Promise.all([
-  getFeaturedPrograms(3),
+  getFeaturedPrograms(6),
   getTrainers(),
   getTestimonials(),
   getUpcomingBatches(),
@@ -70,6 +71,7 @@ export default function HomePage() {
       <ProductShowcase />
       <LearningExperience />
       <WhyDaisyMinds />
+      <ChooseYourPath />
       <TrainerShowcase trainers={trainers} />
       <CareerJourney />
       <StudentStories testimonials={testimonials} />

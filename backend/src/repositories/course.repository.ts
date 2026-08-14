@@ -110,6 +110,12 @@ export const courseRepository = {
     return CourseModel.findOne({ _id: id })
   },
 
+  /** Batch-fetch for the student portal's enrollment list/dashboard — one query for every distinct course a student is enrolled in, instead of one per enrollment. */
+  findByIds(ids: string[]): Promise<CourseDocument[]> {
+    if (ids.length === 0) return Promise.resolve([])
+    return CourseModel.find({ _id: { $in: ids }, isDeleted: false })
+  },
+
   findBySlug(slug: string, excludeId?: string): Promise<CourseDocument | null> {
     return CourseModel.findOne({
       slug,

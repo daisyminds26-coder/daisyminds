@@ -1,5 +1,5 @@
-import { DashboardLayout } from '@/shared/components/layout/dashboard-layout'
+import { StudentShell } from '@/shared/components/layout/student-shell'
 
 export default function StudentDashboardLayout() {
-  return <DashboardLayout area="student" />
+  return <StudentShell />
 }

@@ -22,7 +22,20 @@ import { healthRouter } from './routes/health.routes'
 import { lessonContentRouter } from './routes/lesson-content.routes'
 import { roleRouter } from './routes/role.routes'
 import { studentRouter } from './routes/student.routes'
+import { studentPortalRouter } from './routes/student-portal.routes'
+import { studentLearningRouter } from './routes/student-learning.routes'
+import { studentLiveClassRouter } from './routes/student-live-class.routes'
 import { trainerRouter } from './routes/trainer.routes'
+import { trainerLiveClassRouter } from './routes/trainer-live-class.routes'
+import { liveClassRouter } from './routes/live-class.routes'
+import { attendanceRouter } from './routes/attendance.routes'
+import { assignmentRouter } from './routes/assignment.routes'
+import { studentAssignmentRouter } from './routes/student-assignment.routes'
+import { trainerAssignmentRouter } from './routes/trainer-assignment.routes'
+import { questionRouter } from './routes/question.routes'
+import { assessmentRouter } from './routes/assessment.routes'
+import { studentAssessmentRouter } from './routes/student-assessment.routes'
+import { trainerAssessmentRouter } from './routes/trainer-assessment.routes'
 import { userRouter } from './routes/user.routes'
 
 import './docs'
@@ -72,6 +85,19 @@ export function createApp(): Express {
   app.use(`${env.API_PREFIX}/courses`, lessonContentRouter)
   app.use(`${env.API_PREFIX}/batches`, batchRouter)
   app.use(`${env.API_PREFIX}/enrollments`, enrollmentRouter)
+  app.use(`${env.API_PREFIX}/student`, studentPortalRouter)
+  app.use(`${env.API_PREFIX}/student`, studentLearningRouter)
+  app.use(`${env.API_PREFIX}/student`, studentLiveClassRouter)
+  app.use(`${env.API_PREFIX}/trainer`, trainerLiveClassRouter)
+  app.use(`${env.API_PREFIX}/live-classes`, liveClassRouter)
+  app.use(`${env.API_PREFIX}/attendance`, attendanceRouter)
+  app.use(`${env.API_PREFIX}/assignments`, assignmentRouter)
+  app.use(`${env.API_PREFIX}/student`, studentAssignmentRouter)
+  app.use(`${env.API_PREFIX}/trainer`, trainerAssignmentRouter)
+  app.use(`${env.API_PREFIX}/questions`, questionRouter)
+  app.use(`${env.API_PREFIX}/assessments`, assessmentRouter)
+  app.use(`${env.API_PREFIX}/student`, studentAssessmentRouter)
+  app.use(`${env.API_PREFIX}/trainer`, trainerAssessmentRouter)
 
   app.use(notFoundHandler)
   app.use(errorHandler)

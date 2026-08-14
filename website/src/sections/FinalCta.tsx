@@ -24,7 +24,7 @@ export function FinalCta() {
           </p>
         </Reveal>
         <Reveal delay={0.16} className="flex flex-wrap items-center justify-center gap-3">
-          <Button href="/programs" size="lg" trailingIcon={<ArrowRight className="size-4.5" />}>
+          <Button href="/services" size="lg" trailingIcon={<ArrowRight className="size-4.5" />}>
             Explore Programs
           </Button>
           <Button href="/contact" variant="outline-light" size="lg">

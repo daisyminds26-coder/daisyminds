@@ -3,6 +3,7 @@ import { PanelLeftClose, PanelLeftOpen } from 'lucide-react'
 
 import { SidebarNav } from '@/shared/components/layout/sidebar-nav'
 import { Button } from '@/shared/components/ui/button'
+import { Logo, LogoMark } from '@/shared/components/ui/logo'
 import { useUiStore } from '@/shared/stores/ui-store'
 import type { NavSection } from '@/shared/types/nav'
 import { cn } from '@/shared/lib/utils'
@@ -30,17 +31,13 @@ export function Sidebar({ sections, areaRoot }: SidebarProps) {
     >
       <Link
         to="/"
+        aria-label="Daisy Minds home"
         className={cn(
           'border-border flex h-16 shrink-0 items-center border-b px-4',
           isCollapsed && 'justify-center px-0',
         )}
       >
-        <span className="bg-primary text-primary-foreground flex size-8 shrink-0 items-center justify-center rounded-md text-sm font-bold">
-          DM
-        </span>
-        {!isCollapsed && (
-          <span className="text-h3 ml-2.5 font-semibold whitespace-nowrap">Daisy Minds</span>
-        )}
+        {isCollapsed ? <LogoMark className="h-8" /> : <Logo className="h-8" />}
       </Link>
 
       <div className="flex-1 overflow-y-auto">

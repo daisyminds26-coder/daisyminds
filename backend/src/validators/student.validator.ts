@@ -17,7 +17,8 @@ const passwordSchema = z
   .regex(/[0-9]/, 'Password must include at least one number')
 
 const objectIdSchema = z.string().regex(/^[a-f0-9]{24}$/i, 'Invalid id')
-const phoneSchema = z
+/** Exported for reuse by the student self-service profile validator (Phase 11A) — same rule, not a parallel copy. */
+export const phoneSchema = z
   .string()
   .trim()
   .min(6, 'Enter a valid phone number')
@@ -32,7 +33,8 @@ export const studentSessionParamSchema = z
   .strict()
 export type StudentSessionParam = z.infer<typeof studentSessionParamSchema>
 
-const addressSchema = z
+/** Exported for reuse by the student self-service profile validator (Phase 11A) — same rule, not a parallel copy. */
+export const addressSchema = z
   .object({
     line1: z.string().trim().min(1).max(200),
     line2: z.string().trim().max(200).optional(),
@@ -43,7 +45,8 @@ const addressSchema = z
   })
   .strict()
 
-const emergencyContactSchema = z
+/** Exported for reuse by the student self-service profile validator (Phase 11A) — same rule, not a parallel copy. */
+export const emergencyContactSchema = z
   .object({
     name: z.string().trim().min(1).max(150),
     phone: phoneSchema,

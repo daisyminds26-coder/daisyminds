@@ -271,7 +271,8 @@ function toListItemDto(row: StudentListRow): AdminStudentListItemDto {
  * that requirement doesn't silently break the formula. See
  * ARCHITECTURE.md's Student Management section for the full rationale.
  */
-function calculateProfileCompletion(data: {
+/** Exported for reuse by the student self-service profile update (Phase 11A) — same formula, not a parallel copy. */
+export function calculateProfileCompletion(data: {
   firstName: string
   lastName: string
   dateOfBirth: Date | null

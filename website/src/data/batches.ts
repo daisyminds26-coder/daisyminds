@@ -10,8 +10,8 @@ function daysFromNow(days: number): string {
 const UPCOMING_BATCHES: UpcomingBatch[] = [
   {
     id: 'batch-1',
-    programSlug: 'full-stack-web-development',
-    programTitle: 'Full Stack Web Development',
+    programSlug: 'web-development',
+    programTitle: 'Web Development',
     startDate: daysFromNow(18),
     mode: 'Hybrid',
     timeSlot: 'Mon–Fri, 7:00–9:00 PM IST',
@@ -19,8 +19,8 @@ const UPCOMING_BATCHES: UpcomingBatch[] = [
   },
   {
     id: 'batch-2',
-    programSlug: 'data-science-analytics',
-    programTitle: 'Data Science & Analytics',
+    programSlug: 'data-science',
+    programTitle: 'Data Science',
     startDate: daysFromNow(25),
     mode: 'Online',
     timeSlot: 'Tue/Thu/Sat, 6:00–8:00 PM IST',
@@ -28,8 +28,8 @@ const UPCOMING_BATCHES: UpcomingBatch[] = [
   },
   {
     id: 'batch-3',
-    programSlug: 'ui-ux-product-design',
-    programTitle: 'UI/UX Product Design',
+    programSlug: 'digital-marketing',
+    programTitle: 'Digital Marketing',
     startDate: daysFromNow(32),
     mode: 'Hybrid',
     timeSlot: 'Weekends, 10:00 AM–1:00 PM IST',
@@ -37,8 +37,8 @@ const UPCOMING_BATCHES: UpcomingBatch[] = [
   },
   {
     id: 'batch-4',
-    programSlug: 'cloud-devops-engineering',
-    programTitle: 'Cloud & DevOps Engineering',
+    programSlug: 'cloud-computing',
+    programTitle: 'Cloud Computing',
     startDate: daysFromNow(40),
     mode: 'Online',
     timeSlot: 'Mon/Wed/Fri, 8:00–10:00 PM IST',

@@ -1,6 +1,7 @@
 import { Container } from '@/components/ui/Container'
 import { Section } from '@/components/ui/Section'
 import { SectionHeading } from '@/components/ui/SectionHeading'
+import { ResponsiveImage } from '@/components/ui/ResponsiveImage'
 import { Reveal } from '@/components/motion/Reveal'
 
 const MILESTONES = [
@@ -15,12 +16,18 @@ export function CareerJourney() {
   return (
     <Section tone="default">
       <Container>
-        <SectionHeading
-          eyebrow="The Career Journey"
-          title="From first lesson to first offer."
-          align="center"
-          className="mx-auto items-center text-center"
-        />
+        <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-[1.2fr_1fr]">
+          <SectionHeading eyebrow="The Career Journey" title="From first lesson to first offer." />
+          <Reveal delay={0.1}>
+            <ResponsiveImage
+              src="/images/career/career-prep.jpg"
+              alt="A candidate in an interview conversation, representing career-readiness preparation"
+              aspectRatio="4/3"
+              sizes="(min-width: 1024px) 32vw, 90vw"
+              className="rounded-3xl"
+            />
+          </Reveal>
+        </div>
 
         <div className="relative mt-16">
           <div

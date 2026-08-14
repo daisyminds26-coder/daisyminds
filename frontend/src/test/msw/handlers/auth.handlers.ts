@@ -43,6 +43,13 @@ export const MOCK_ACCOUNTS: Record<string, MockAccount> = {
     permissions: ['users:read', 'users:manage'],
     status: 'ACTIVE',
   },
+  'trainer@example.com': {
+    email: 'trainer@example.com',
+    password: 'correct-horse-1',
+    role: 'TRAINER',
+    permissions: ['users:read'],
+    status: 'ACTIVE',
+  },
   'superadmin@example.com': {
     email: 'superadmin@example.com',
     password: 'correct-horse-1',

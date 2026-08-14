@@ -13,8 +13,8 @@ export function LogoMark({ className }: { className?: string }) {
     <img
       src={logoMarkSrc}
       alt=""
-      width={791}
-      height={490}
+      width={500}
+      height={577}
       className={cn('block h-11 w-auto object-contain', className)}
     />
   )
@@ -30,8 +30,8 @@ export function Logo({ className }: { className?: string }) {
     <img
       src={logoLockupSrc}
       alt=""
-      width={1027}
-      height={674}
+      width={1872}
+      height={577}
       className={cn('block h-11 w-auto object-contain', className)}
     />
   )

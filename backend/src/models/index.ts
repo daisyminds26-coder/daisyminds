@@ -101,6 +101,8 @@ export {
   type LessonProgressDocument,
   LESSON_PROGRESS_STATUSES,
   type LessonProgressStatus,
+  PROGRESS_COMPLETION_SOURCES,
+  type ProgressCompletionSource,
 } from './lesson-progress.model'
 export {
   LiveClassModel,
@@ -108,6 +110,15 @@ export {
   type LiveClassDocument,
   LIVE_CLASS_STATUSES,
   type LiveClassStatus,
+  LIVE_CLASS_DELIVERY_MODES,
+  type LiveClassDeliveryMode,
+  LIVE_CLASS_PROVIDERS,
+  type LiveClassProvider,
+  LIVE_CLASS_SOURCES,
+  type LiveClassSource,
+  ATTENDANCE_SESSION_STATUSES,
+  type AttendanceSessionStatus,
+  type ILiveClassVenue,
 } from './live-class.model'
 
 export {
@@ -116,16 +127,26 @@ export {
   type AttendanceDocument,
   ATTENDANCE_STATUSES,
   type AttendanceStatus,
+  ATTENDANCE_SOURCES,
+  type AttendanceSource,
 } from './attendance.model'
-export { AssignmentModel, type IAssignment, type AssignmentDocument } from './assignment.model'
+export {
+  AssignmentModel,
+  type IAssignment,
+  type AssignmentDocument,
+  ASSIGNMENT_STATUSES,
+  type AssignmentStatus,
+  ASSIGNMENT_SUBMISSION_TYPES,
+  type AssignmentSubmissionType,
+} from './assignment.model'
 export {
   AssignmentSubmissionModel,
   type IAssignmentSubmission,
   type AssignmentSubmissionDocument,
-  SUBMISSION_STATUSES,
-  type SubmissionStatus,
+  ASSIGNMENT_SUBMISSION_STATUSES,
+  type AssignmentSubmissionStatus,
 } from './assignment-submission.model'
-export { QuizModel, type IQuiz, type QuizDocument } from './quiz.model'
+export { type IAssignmentAttachment } from './shared/assignment-attachment.schema'
 export {
   QuestionModel,
   type IQuestion,
@@ -134,22 +155,36 @@ export {
   type QuestionType,
   QUESTION_DIFFICULTIES,
   type QuestionDifficulty,
+  QUESTION_STATUSES,
+  type QuestionStatus,
 } from './question.model'
+export { type IQuestionOption } from './shared/question-option.schema'
 export {
-  QuizAttemptModel,
-  type IQuizAttempt,
-  type QuizAttemptDocument,
-  QUIZ_ATTEMPT_STATUSES,
-  type QuizAttemptStatus,
-} from './quiz-attempt.model'
-export { ExaminationModel, type IExamination, type ExaminationDocument } from './examination.model'
+  AssessmentModel,
+  type IAssessment,
+  type AssessmentDocument,
+  ASSESSMENT_TYPES,
+  type AssessmentType,
+  ASSESSMENT_STATUSES,
+  type AssessmentStatus,
+  MAX_QUESTIONS_PER_ASSESSMENT,
+} from './assessment.model'
+export { type IAssessmentSection } from './shared/assessment-section.schema'
 export {
-  ExaminationResultModel,
-  type IExaminationResult,
-  type ExaminationResultDocument,
-  EXAMINATION_RESULT_STATUSES,
-  type ExaminationResultStatus,
-} from './examination-result.model'
+  AssessmentAttemptModel,
+  type IAssessmentAttempt,
+  type AssessmentAttemptDocument,
+  ASSESSMENT_ATTEMPT_STATUSES,
+  type AssessmentAttemptStatus,
+  SUBMISSION_METHODS,
+  type SubmissionMethod,
+  PASS_STATUSES,
+  type PassStatus,
+} from './assessment-attempt.model'
+export {
+  type IAssessmentAttemptQuestionSnapshot,
+  type IAssessmentAttemptAnswer,
+} from './assessment-attempt.model'
 
 export {
   PaymentModel,

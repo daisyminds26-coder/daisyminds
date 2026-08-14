@@ -13,23 +13,30 @@ describe('App', () => {
     render(<App />)
 
     expect(
-      await screen.findByRole('heading', { level: 1, name: /careers built on/i }),
+      await screen.findByRole('heading', {
+        level: 1,
+        name: /build skills\. create opportunities/i,
+      }),
     ).toBeInTheDocument()
     expect(screen.getByRole('navigation', { name: 'Primary' })).toBeInTheDocument()
     for (const link of screen.getAllByRole('link', { name: /explore programs/i })) {
-      expect(link).toHaveAttribute('href', '/programs')
+      expect(link).toHaveAttribute('href', '/services')
     }
   })
 
-  it('navigates to the Programs page via the navbar link', async () => {
+  it('navigates to the Services page via the navbar mega menu', async () => {
     const user = userEvent.setup()
     render(<App />)
 
-    await screen.findByRole('heading', { level: 1, name: /careers built on/i })
-    await user.click(screen.getByRole('link', { name: 'Programs' }))
+    await screen.findByRole('heading', { level: 1, name: /build skills\. create opportunities/i })
+    await user.click(screen.getByRole('button', { name: 'Services' }))
+    await user.click(await screen.findByRole('link', { name: /view all programs/i }))
 
     expect(
-      await screen.findByRole('heading', { level: 2, name: /find the program/i }),
+      await screen.findByRole('heading', {
+        level: 2,
+        name: /build skills that move your career forward/i,
+      }),
     ).toBeInTheDocument()
   })
 
@@ -37,7 +44,7 @@ describe('App', () => {
     const user = userEvent.setup()
     render(<App />)
 
-    await screen.findByRole('heading', { level: 1, name: /careers built on/i })
+    await screen.findByRole('heading', { level: 1, name: /build skills\. create opportunities/i })
     const toggle = screen.getByRole('button', { name: 'Open menu' })
     expect(toggle).toHaveAttribute('aria-expanded', 'false')
 
@@ -48,7 +55,7 @@ describe('App', () => {
     )
     const mobileMenu = document.getElementById('mobile-menu')
     if (!mobileMenu) throw new Error('Expected the mobile menu panel to be in the document')
-    expect(within(mobileMenu).getByRole('link', { name: 'FAQ' })).toBeInTheDocument()
+    expect(within(mobileMenu).getByRole('link', { name: 'Contact' })).toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: 'Close menu' }))
     await waitFor(() => {
@@ -62,7 +69,7 @@ describe('App', () => {
   it('points "Student Login" at the configured LMS URL, external and never a local route', async () => {
     render(<App />)
 
-    await screen.findByRole('heading', { level: 1, name: /careers built on/i })
+    await screen.findByRole('heading', { level: 1, name: /build skills\. create opportunities/i })
     const loginLinks = screen.getAllByRole('link', { name: 'Student Login' })
     for (const link of loginLinks) {
       expect(link).toHaveAttribute('href', 'http://localhost:5173/login')
@@ -73,43 +80,41 @@ describe('App', () => {
 
   it('routes from a program card to its own program detail page', async () => {
     const user = userEvent.setup()
-    window.history.pushState({}, '', '/programs')
+    window.history.pushState({}, '', '/services')
     render(<App />)
 
     const heading = await screen.findByRole('heading', {
       level: 3,
-      name: 'Full Stack Web Development',
+      name: 'Web Development',
     })
     const card = heading.closest('a')
     if (!card) throw new Error('Expected the program title to be wrapped in a link')
     await user.click(card)
 
     expect(
-      await screen.findByRole('heading', { level: 1, name: 'Full Stack Web Development' }),
+      await screen.findByRole('heading', { level: 1, name: 'Web Development' }),
     ).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /apply for this program/i })).toHaveAttribute(
-      'href',
-      '/contact?program=full-stack-web-development',
-    )
+    for (const link of screen.getAllByRole('link', { name: 'Apply for Program' })) {
+      expect(link).toHaveAttribute('href', '/apply?program=web-development')
+    }
   })
 
   it('filters the programs list by category', async () => {
     const user = userEvent.setup()
-    window.history.pushState({}, '', '/programs')
+    window.history.pushState({}, '', '/services')
     render(<App />)
 
-    await screen.findByRole('heading', { level: 3, name: 'Full Stack Web Development' })
-    expect(
-      screen.getByRole('heading', { level: 3, name: 'UI/UX Product Design' }),
-    ).toBeInTheDocument()
+    await screen.findByRole('heading', { level: 3, name: 'Web Development' })
+    expect(screen.getByRole('heading', { level: 3, name: 'Android Development' })).toBeInTheDocument()
 
-    await user.click(screen.getByRole('button', { name: 'Design' }))
+    await user.click(screen.getByRole('button', { name: 'Security' }))
 
+    expect(screen.getByRole('heading', { level: 3, name: 'Cybersecurity' })).toBeInTheDocument()
     expect(
-      screen.getByRole('heading', { level: 3, name: 'UI/UX Product Design' }),
-    ).toBeInTheDocument()
+      screen.queryByRole('heading', { level: 3, name: 'Web Development' }),
+    ).not.toBeInTheDocument()
     expect(
-      screen.queryByRole('heading', { level: 3, name: 'Full Stack Web Development' }),
+      screen.queryByRole('heading', { level: 3, name: 'Android Development' }),
     ).not.toBeInTheDocument()
   })
 

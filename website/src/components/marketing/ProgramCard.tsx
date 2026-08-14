@@ -2,74 +2,103 @@ import { Link } from 'react-router-dom'
 import { ArrowUpRight, Clock, Layers, MonitorSmartphone } from 'lucide-react'
 
 import type { Program } from '@/types/program'
+import { ProgramIcon } from '@/components/marketing/ProgramIcon'
+import { ResponsiveImage } from '@/components/ui/ResponsiveImage'
 import { cn } from '@/utils/cn'
 
 const ACCENT_CLASSES: Record<Program['accent'], string> = {
-  yellow: 'bg-primary',
-  charcoal: 'bg-charcoal',
-  graphite: 'bg-graphite',
+  yellow: 'bg-primary text-charcoal',
+  charcoal: 'bg-charcoal text-white',
+  graphite: 'bg-graphite text-white',
+}
+
+const ACCENT_BORDER: Record<Program['accent'], string> = {
+  yellow: 'group-hover:border-primary-dark',
+  charcoal: 'group-hover:border-charcoal',
+  graphite: 'group-hover:border-graphite',
 }
 
 /**
- * Programs are presented as products, not course thumbnails — a colored
- * identity band standing in for photography (no stock imagery), a clear
- * outcome statement, and metadata a prospective learner actually needs
- * before clicking through.
+ * Programs are presented as products, not course thumbnails — real,
+ * program-specific photography (never a plain icon grid), a clear outcome
+ * statement, key skill tags, and metadata a prospective learner actually
+ * needs before clicking through. Desktop hover lifts the card and zooms the
+ * image; mobile treats the whole card as one accessible tap target, no
+ * hover state required.
  */
 export function ProgramCard({ program }: { program: Program }) {
   return (
     <Link
-      to={`/programs/${program.slug}`}
-      className="group border-border-soft bg-surface shadow-soft hover:shadow-lifted focus-visible:ring-primary-dark relative flex h-full flex-col overflow-hidden rounded-2xl border transition-all duration-300 hover:-translate-y-1 focus-visible:ring-2 focus-visible:outline-none"
+      to={`/services/${program.slug}`}
+      className={cn(
+        'group border-border-soft bg-surface shadow-soft hover:shadow-lifted focus-visible:ring-primary-dark relative flex h-full flex-col overflow-hidden rounded-2xl border transition-all duration-300 hover:-translate-y-1 focus-visible:ring-2 focus-visible:outline-none',
+        ACCENT_BORDER[program.accent],
+      )}
     >
-      <div className={cn('relative h-28 overflow-hidden', ACCENT_CLASSES[program.accent])}>
+      <div className="relative overflow-hidden">
+        <ResponsiveImage
+          src={program.cardImage.src}
+          alt={program.cardImage.alt}
+          aspectRatio="4/3"
+          sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+          className="transition-transform duration-500 ease-out group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+        />
         <div
-          className="absolute inset-0 [mask-image:radial-gradient(circle_at_top_right,black,transparent_70%)] opacity-20"
-          style={{
-            backgroundImage: 'radial-gradient(circle, rgb(255 255 255 / 0.6) 1px, transparent 1px)',
-            backgroundSize: '16px 16px',
-          }}
+          className="from-charcoal/70 pointer-events-none absolute inset-0 bg-gradient-to-t via-transparent to-transparent"
           aria-hidden="true"
         />
-        <span
-          className={cn(
-            'absolute top-4 left-5 rounded-full px-3 py-1 text-xs font-semibold',
-            program.accent === 'yellow'
-              ? 'bg-charcoal/85 text-white'
-              : 'bg-white/15 text-white backdrop-blur-sm',
-          )}
-        >
+        <span className="bg-charcoal/70 absolute top-4 left-4 rounded-full px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm">
           {program.category}
         </span>
-        <ArrowUpRight
+        <span
           className={cn(
-            'absolute right-5 bottom-4 size-6 -translate-y-1 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100',
-            program.accent === 'yellow' ? 'text-charcoal' : 'text-white',
+            'absolute right-4 bottom-4 flex size-11 items-center justify-center rounded-full shadow-lg',
+            ACCENT_CLASSES[program.accent],
           )}
-          aria-hidden="true"
-        />
+        >
+          <ProgramIcon name={program.icon} className="size-5" />
+        </span>
       </div>
 
       <div className="flex flex-1 flex-col gap-4 p-6">
         <div className="flex flex-col gap-2">
           <h3 className="font-display text-ink text-xl font-bold text-balance">{program.title}</h3>
-          <p className="text-ink-muted text-body-sm line-clamp-2">{program.outcome}</p>
+          <p className="text-ink-muted text-body-sm line-clamp-2">{program.shortDescription}</p>
         </div>
 
-        <div className="text-ink-soft mt-auto flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs font-medium">
+        <div className="flex flex-wrap gap-1.5">
+          {program.skillTags.slice(0, 3).map((tag) => (
+            <span
+              key={tag}
+              className="border-border-soft text-ink-muted rounded-full border px-2.5 py-1 text-xs font-medium"
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+
+        <div className="text-ink-soft flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs font-medium">
           <span className="inline-flex items-center gap-1.5">
             <Layers className="size-3.5" aria-hidden="true" />
             {program.level}
           </span>
           <span className="inline-flex items-center gap-1.5">
             <MonitorSmartphone className="size-3.5" aria-hidden="true" />
-            {program.mode}
+            {program.learningMode}
           </span>
           <span className="inline-flex items-center gap-1.5">
             <Clock className="size-3.5" aria-hidden="true" />
-            {program.durationLabel}
+            {program.duration}
           </span>
         </div>
+
+        <span className="text-primary-dark mt-auto inline-flex items-center gap-1.5 text-sm font-semibold">
+          Explore Program
+          <ArrowUpRight
+            className="size-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+            aria-hidden="true"
+          />
+        </span>
       </div>
     </Link>
   )

@@ -41,6 +41,7 @@ import { BatchTrainerPanel } from '@/features/batches/components/BatchTrainerPan
 import { BatchWeeklyTimetableSummary } from '@/features/batches/components/BatchWeeklyTimetableSummary'
 import { BatchCalendarView } from '@/features/batches/components/BatchCalendarView'
 import { FutureModuleCards } from '@/features/batches/components/FutureModuleCards'
+import { BatchLiveClassesTab } from '@/features/batches/components/BatchLiveClassesTab'
 import { DuplicateBatchDialog } from '@/features/batches/components/DuplicateBatchDialog'
 import { useBatch } from '@/features/batches/hooks/use-batch'
 import { useBatchCapacity } from '@/features/batches/hooks/use-batch-capacity'
@@ -729,6 +730,7 @@ export default function BatchDetailPage() {
             <TabsTrigger value="students">Students</TabsTrigger>
             <TabsTrigger value="schedule">Schedule</TabsTrigger>
             <TabsTrigger value="trainer">Trainer</TabsTrigger>
+            <TabsTrigger value="live-classes">Live Classes</TabsTrigger>
             <TabsTrigger value="operations">Operations</TabsTrigger>
             <TabsTrigger value="audit">Audit</TabsTrigger>
           </TabsList>
@@ -743,6 +745,9 @@ export default function BatchDetailPage() {
           </TabsContent>
           <TabsContent value="trainer">
             {activeTab === 'trainer' && <TrainersTab batch={batch} />}
+          </TabsContent>
+          <TabsContent value="live-classes">
+            {activeTab === 'live-classes' && <BatchLiveClassesTab batch={batch} />}
           </TabsContent>
           <TabsContent value="operations">
             {activeTab === 'operations' && <OperationsTab batch={batch} />}

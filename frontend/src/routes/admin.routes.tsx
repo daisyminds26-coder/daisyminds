@@ -83,7 +83,59 @@ export const adminRoutes: RouteObject[] = [
     lazy: () =>
       import('@/pages/admin/EnrollmentDetailPage').then((m) => ({ Component: m.default })),
   },
-  { path: 'attendance', lazy: comingSoon },
+  {
+    path: 'live-classes',
+    lazy: () => import('@/pages/admin/LiveClassesPage').then((m) => ({ Component: m.default })),
+  },
+  {
+    path: 'live-classes/:liveClassId',
+    lazy: () => import('@/pages/admin/LiveClassDetailPage').then((m) => ({ Component: m.default })),
+  },
+  {
+    path: 'attendance',
+    lazy: () =>
+      import('@/pages/admin/AttendanceReportPage').then((m) => ({ Component: m.default })),
+  },
+  {
+    path: 'assignments',
+    lazy: () => import('@/pages/admin/AssignmentsPage').then((m) => ({ Component: m.default })),
+  },
+  {
+    path: 'assignments/new',
+    lazy: () =>
+      import('@/pages/admin/AssignmentCreatePage').then((m) => ({ Component: m.default })),
+  },
+  {
+    path: 'assignments/:assignmentId',
+    lazy: () =>
+      import('@/pages/admin/AssignmentDetailPage').then((m) => ({ Component: m.default })),
+  },
+  {
+    path: 'question-bank',
+    lazy: () => import('@/pages/admin/QuestionBankPage').then((m) => ({ Component: m.default })),
+  },
+  {
+    path: 'question-bank/new',
+    lazy: () => import('@/pages/admin/QuestionCreatePage').then((m) => ({ Component: m.default })),
+  },
+  {
+    path: 'question-bank/:questionId',
+    lazy: () => import('@/pages/admin/QuestionDetailPage').then((m) => ({ Component: m.default })),
+  },
+  {
+    path: 'assessments',
+    lazy: () => import('@/pages/admin/AssessmentsPage').then((m) => ({ Component: m.default })),
+  },
+  {
+    path: 'assessments/new',
+    lazy: () =>
+      import('@/pages/admin/AssessmentCreatePage').then((m) => ({ Component: m.default })),
+  },
+  {
+    path: 'assessments/:assessmentId',
+    lazy: () =>
+      import('@/pages/admin/AssessmentDetailPage').then((m) => ({ Component: m.default })),
+  },
   { path: 'fees', lazy: comingSoon },
   { path: 'certificates', lazy: comingSoon },
   { path: 'placements', lazy: comingSoon },

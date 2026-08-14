@@ -3,10 +3,13 @@ import {
   BarChart3,
   BookOpen,
   CalendarCheck,
+  CalendarClock,
   CircleUserRound,
   ClipboardList,
+  FileQuestion,
   FileText,
   GraduationCap,
+  HelpCircle,
   LayoutDashboard,
   Layers,
   Megaphone,
@@ -49,7 +52,21 @@ export const adminNavigation: readonly NavSection[] = [
         href: '/admin/enrollments',
         icon: ClipboardList,
       },
+      { id: 'live-classes', label: 'Live Classes', href: '/admin/live-classes', icon: Video },
       { id: 'attendance', label: 'Attendance', href: '/admin/attendance', icon: CalendarCheck },
+      { id: 'assignments', label: 'Assignments', href: '/admin/assignments', icon: PenSquare },
+      {
+        id: 'question-bank',
+        label: 'Question Bank',
+        href: '/admin/question-bank',
+        icon: HelpCircle,
+      },
+      {
+        id: 'assessments',
+        label: 'Quizzes & Exams',
+        href: '/admin/assessments',
+        icon: FileQuestion,
+      },
     ],
   },
   {
@@ -109,11 +126,23 @@ export const trainerNavigation: readonly NavSection[] = [
     label: 'Evaluation',
     items: [
       { id: 'assignments', label: 'Assignments', href: '/trainer/assignments', icon: PenSquare },
+      {
+        id: 'assessments',
+        label: 'Quizzes & Exams',
+        href: '/trainer/assessments',
+        icon: FileQuestion,
+      },
       { id: 'results', label: 'Results', href: '/trainer/results', icon: ClipboardList },
     ],
   },
 ]
 
+/**
+ * Phase 11A (Student Portal Foundation) real nav — Dashboard/My Courses/
+ * Schedule/Resources are real pages this phase ships; Notifications/
+ * Certificates are honest future placeholders (their own module hasn't
+ * been built yet), not disguised as empty real pages.
+ */
 export const studentNavigation: readonly NavSection[] = [
   {
     id: 'overview',
@@ -125,21 +154,38 @@ export const studentNavigation: readonly NavSection[] = [
     items: [
       { id: 'courses', label: 'My Courses', href: '/student/courses', icon: BookOpen },
       { id: 'live-classes', label: 'Live Classes', href: '/student/live-classes', icon: Video },
-      { id: 'assignments', label: 'Assignments', href: '/student/assignments', icon: FileText },
+      { id: 'schedule', label: 'Schedule', href: '/student/schedule', icon: CalendarCheck },
+      { id: 'attendance', label: 'Attendance', href: '/student/attendance', icon: CalendarClock },
+      { id: 'assignments', label: 'Assignments', href: '/student/assignments', icon: PenSquare },
+      {
+        id: 'assessments',
+        label: 'Quizzes & Exams',
+        href: '/student/assessments',
+        icon: FileQuestion,
+      },
+      { id: 'resources', label: 'Resources', href: '/student/resources', icon: FileText },
     ],
   },
   {
-    id: 'progress',
-    label: 'Progress',
+    id: 'future',
+    label: 'Coming later',
     items: [
-      { id: 'results', label: 'Results', href: '/student/results', icon: ClipboardList },
+      {
+        id: 'notifications',
+        label: 'Notifications',
+        href: '/student/notifications',
+        icon: Megaphone,
+      },
       { id: 'certificates', label: 'Certificates', href: '/student/certificates', icon: Award },
     ],
   },
   {
     id: 'account',
     label: 'Account',
-    items: [{ id: 'profile', label: 'Profile', href: '/student/profile', icon: CircleUserRound }],
+    items: [
+      { id: 'profile', label: 'Profile', href: '/student/profile', icon: CircleUserRound },
+      { id: 'settings', label: 'Settings & Security', href: '/student/settings', icon: Settings },
+    ],
   },
 ]
 

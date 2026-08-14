@@ -3,6 +3,7 @@ import { CalendarClock, MessagesSquare, Radar } from 'lucide-react'
 import { Container } from '@/components/ui/Container'
 import { Section } from '@/components/ui/Section'
 import { SectionHeading } from '@/components/ui/SectionHeading'
+import { ResponsiveImage } from '@/components/ui/ResponsiveImage'
 import { Reveal } from '@/components/motion/Reveal'
 import { cn } from '@/utils/cn'
 
@@ -41,6 +42,15 @@ export function LearningExperience() {
           align="center"
           className="mx-auto items-center text-center"
         />
+
+        <Reveal delay={0.05} className="mx-auto mt-10 max-w-3xl">
+          <ResponsiveImage
+            src="/images/students/hands-on-training.jpg"
+            alt="A small group of Daisy Minds students working hands-on together on a project"
+            aspectRatio="21/9"
+            className="rounded-3xl"
+          />
+        </Reveal>
 
         <div className="mt-16 flex flex-col gap-14">
           {EXPERIENCE_ITEMS.map((item, index) => (

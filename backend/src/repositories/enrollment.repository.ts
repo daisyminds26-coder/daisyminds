@@ -335,6 +335,34 @@ export const enrollmentRepository = {
     }).then(Boolean)
   },
 
+  /** Every live enrollment for a student, newest first — the student portal's own read (never the admin `list()` aggregation, which joins fields a self-service DTO doesn't need and doesn't scope by studentId alone). */
+  findAllByStudent(studentId: string): Promise<EnrollmentDocument[]> {
+    return EnrollmentModel.find({ studentId, isDeleted: false }).sort({ createdAt: -1 })
+  },
+
+  /** Every enrollment in a batch matching the given statuses — the attendance roster's own eligibility read (Phase 12), never the admin `list()` aggregation, which joins display fields attendance doesn't need. */
+  findEligibleForBatch(
+    batchId: string,
+    statuses: readonly EnrollmentStatus[],
+  ): Promise<EnrollmentDocument[]> {
+    return EnrollmentModel.find({ batchId, status: { $in: statuses }, isDeleted: false })
+  },
+
+  /** All (non-terminal-aware) enrollments a specific student has for one batch — a student is normally enrolled in a batch at most once, but this returns every live row rather than assuming that. */
+  findAllByStudentAndBatch(studentId: string, batchId: string): Promise<EnrollmentDocument[]> {
+    return EnrollmentModel.find({ studentId, batchId, isDeleted: false })
+  },
+
+  /** The most recent enrollment (any status) for a student+course — "does/did this student have any relationship to this course," for the student Course Overview page (distinct from `findAccessGrantingForStudentCourse`, which only returns one if it currently grants access). */
+  findLatestByStudentAndCourse(
+    studentId: string,
+    courseId: string,
+  ): Promise<EnrollmentDocument | null> {
+    return EnrollmentModel.findOne({ studentId, courseId, isDeleted: false }).sort({
+      createdAt: -1,
+    })
+  },
+
   /** The single enrollment (if any) currently granting a student access to a course — `ACTIVE`, or `COMPLETED` with an open/future access window. Used by `enrollment-access.service.ts`. */
   findAccessGrantingForStudentCourse(
     studentId: string,

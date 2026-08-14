@@ -50,6 +50,25 @@ export const router = createBrowserRouter([
               })),
             children: studentRoutes,
           },
+          // The Learning Player is deliberately NOT nested under the
+          // student-dashboard-layout (StudentShell) — it renders its own
+          // full-page header/curriculum-sidebar and needs to stay
+          // distraction-free (task's own instruction), not wrapped in the
+          // portal's sidebar/header/bottom-nav chrome as well.
+          {
+            path: 'student/courses/:courseId/learn',
+            lazy: () =>
+              import('@/pages/student/StudentLearningRedirectPage').then((m) => ({
+                Component: m.default,
+              })),
+          },
+          {
+            path: 'student/courses/:courseId/learn/:lessonId',
+            lazy: () =>
+              import('@/pages/student/StudentLearningPlayerPage').then((m) => ({
+                Component: m.default,
+              })),
+          },
         ],
       },
     ],
