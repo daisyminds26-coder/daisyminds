@@ -82,12 +82,10 @@ function toPayload(values: CreateStudentFormValues): CreateStudentPayload {
       degree: record.degree,
       institution: record.institution,
       yearOfCompletion: Number(record.yearOfCompletion),
-      boardOrUniversity: record.boardOrUniversity ?? null,
-      fieldOfStudy: record.fieldOfStudy ?? null,
-      gradeValue: record.gradeValue ?? null,
-      gradeType: record.gradeType ?? null,
-      documentUrl: null,
-      documentPublicId: null,
+      boardOrUniversity: record.boardOrUniversity,
+      fieldOfStudy: record.fieldOfStudy,
+      gradeValue: record.gradeValue,
+      gradeType: record.gradeType,
     })),
   }
 }

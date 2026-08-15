@@ -10,11 +10,13 @@ const passwordSchema = z
   .regex(/[a-zA-Z]/, 'Password must contain at least one letter')
   .regex(/[0-9]/, 'Password must contain at least one number')
 
+/** Mirrors `backend/src/validators/student.validator.ts`'s `phoneSchema` exactly. */
 const phoneSchema = z
   .string()
   .trim()
   .min(6, 'Enter a valid phone number')
   .max(20, 'Enter a valid phone number')
+  .regex(/^[0-9+\-() ]+$/, 'Phone number contains invalid characters')
 
 const addressSchema = z.object({
   line1: z.string().trim().min(1, 'Address line 1 is required').max(200),

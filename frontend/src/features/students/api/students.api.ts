@@ -52,16 +52,15 @@ export interface EmergencyContactInput {
   email?: string
 }
 
+/** No `documentUrl`/`documentPublicId` — backend only ever sets those via the confirm-upload endpoint, never as raw client input on the record itself. */
 export interface EducationRecordInput {
   degree: string
   institution: string
   yearOfCompletion: number
-  boardOrUniversity: string | null
-  fieldOfStudy: string | null
-  gradeValue: string | null
-  gradeType: GradeType | null
-  documentUrl: string | null
-  documentPublicId: string | null
+  boardOrUniversity?: string
+  fieldOfStudy?: string
+  gradeValue?: string
+  gradeType?: GradeType
 }
 
 export interface StudentProfileFields {
