@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 
 import { PageContainer } from '@/shared/components/containers/page-container'
 import { buttonVariants } from '@/shared/components/ui/button'
+import { Card, CardContent } from '@/shared/components/ui/card'
 import { cn } from '@/shared/lib/utils'
 import { BatchCreateWizard } from '@/features/batches/components/BatchCreateWizard'
 
@@ -23,11 +24,15 @@ export default function BatchCreatePage() {
         </Link>
       }
     >
-      <BatchCreateWizard
-        onDone={(batchId) => {
-          void navigate(`/admin/batches/${batchId}`)
-        }}
-      />
+      <Card>
+        <CardContent>
+          <BatchCreateWizard
+            onDone={(batchId) => {
+              void navigate(`/admin/batches/${batchId}`)
+            }}
+          />
+        </CardContent>
+      </Card>
     </PageContainer>
   )
 }

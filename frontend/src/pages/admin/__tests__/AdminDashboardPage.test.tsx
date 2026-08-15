@@ -41,7 +41,7 @@ describe('AdminDashboardPage', () => {
 
     expect(await screen.findByText('Active students')).toBeInTheDocument()
     expect(screen.getByText('Active trainers')).toBeInTheDocument()
-    expect(screen.getByText('Published courses')).toBeInTheDocument()
+    expect(screen.getByText('Active users')).toBeInTheDocument()
   })
 
   it('renders recent students and trainers', async () => {

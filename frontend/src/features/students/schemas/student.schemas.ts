@@ -64,14 +64,11 @@ const dateOfBirthSchema = z.date().refine((date) => date < new Date(), {
 
 export const studentProfileSchema = z.object({
   firstName: z.string().trim().min(1, 'First name is required').max(100),
-  middleName: z.string().trim().max(100).optional().or(z.literal('')),
   lastName: z.string().trim().min(1, 'Last name is required').max(100),
-  displayName: z.string().trim().max(250).optional().or(z.literal('')),
   dateOfBirth: dateOfBirthSchema,
   gender: z.enum(GENDERS).optional(),
   preferredLanguage: z.string().trim().max(60).optional().or(z.literal('')),
   phone: phoneSchema,
-  alternatePhone: phoneSchema.optional().or(z.literal('')),
   address: addressSchema,
   emergencyContacts: z
     .array(emergencyContactSchema)

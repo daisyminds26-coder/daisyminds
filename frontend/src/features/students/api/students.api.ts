@@ -66,14 +66,11 @@ export interface EducationRecordInput {
 
 export interface StudentProfileFields {
   firstName: string
-  middleName?: string
   lastName: string
-  displayName?: string
   dateOfBirth: string
   gender?: Gender
   preferredLanguage?: string
   phone: string
-  alternatePhone?: string
   address: AddressInput
   emergencyContacts: EmergencyContactInput[]
   educationRecords?: EducationRecordInput[]

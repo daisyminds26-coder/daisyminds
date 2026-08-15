@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 
 import { PageContainer } from '@/shared/components/containers/page-container'
 import { buttonVariants } from '@/shared/components/ui/button'
+import { Card, CardContent } from '@/shared/components/ui/card'
 import { cn } from '@/shared/lib/utils'
 import { StudentCreateWizard } from '@/features/students/components/StudentCreateWizard'
 
@@ -23,11 +24,15 @@ export default function StudentCreatePage() {
         </Link>
       }
     >
-      <StudentCreateWizard
-        onDone={() => {
-          void navigate('/admin/students')
-        }}
-      />
+      <Card>
+        <CardContent>
+          <StudentCreateWizard
+            onDone={() => {
+              void navigate('/admin/students')
+            }}
+          />
+        </CardContent>
+      </Card>
     </PageContainer>
   )
 }

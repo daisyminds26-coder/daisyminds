@@ -36,16 +36,13 @@ function toAddressFormValue(address: StudentAddress | null): UpdateStudentFormVa
 function toDefaultValues(student: AdminStudent): UpdateStudentFormValues {
   return {
     firstName: student.firstName,
-    middleName: student.middleName ?? '',
     lastName: student.lastName,
-    displayName: student.displayName ?? '',
     dateOfBirth: student.dateOfBirth
       ? new Date(student.dateOfBirth)
       : (undefined as unknown as Date),
     gender: student.gender ?? undefined,
     preferredLanguage: student.preferredLanguage ?? '',
     phone: student.phone ?? '',
-    alternatePhone: student.alternatePhone ?? '',
     address: toAddressFormValue(student.address),
     emergencyContacts:
       student.emergencyContacts.length > 0
@@ -172,9 +169,7 @@ export function StudentEditForm({
           <h3 className="text-body-sm font-semibold">Personal information</h3>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <TextField control={form.control} name="firstName" label="First name" />
-            <TextField control={form.control} name="middleName" label="Middle name" />
             <TextField control={form.control} name="lastName" label="Last name" />
-            <TextField control={form.control} name="displayName" label="Display name" />
             <DatePickerField
               control={form.control}
               name="dateOfBirth"
@@ -197,7 +192,6 @@ export function StudentEditForm({
           <h3 className="text-body-sm font-semibold">Contact information</h3>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <TextField control={form.control} name="phone" label="Primary phone" />
-            <TextField control={form.control} name="alternatePhone" label="Alternate phone" />
             <div className="sm:col-span-2">
               <TextField control={form.control} name="address.line1" label="Address line 1" />
             </div>

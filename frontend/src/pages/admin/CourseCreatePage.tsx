@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 
 import { PageContainer } from '@/shared/components/containers/page-container'
 import { buttonVariants } from '@/shared/components/ui/button'
+import { Card, CardContent } from '@/shared/components/ui/card'
 import { cn } from '@/shared/lib/utils'
 import { CourseCreateWizard } from '@/features/courses/components/CourseCreateWizard'
 
@@ -23,11 +24,15 @@ export default function CourseCreatePage() {
         </Link>
       }
     >
-      <CourseCreateWizard
-        onDone={() => {
-          void navigate('/admin/courses')
-        }}
-      />
+      <Card>
+        <CardContent>
+          <CourseCreateWizard
+            onDone={() => {
+              void navigate('/admin/courses')
+            }}
+          />
+        </CardContent>
+      </Card>
     </PageContainer>
   )
 }

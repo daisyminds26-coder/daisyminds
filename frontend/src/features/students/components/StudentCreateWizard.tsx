@@ -38,13 +38,10 @@ const DEFAULT_VALUES: CreateStudentFormValues = {
   password: '',
   sendInvitation: true,
   firstName: '',
-  middleName: '',
   lastName: '',
-  displayName: '',
   dateOfBirth: undefined as unknown as Date,
   preferredLanguage: '',
   phone: '',
-  alternatePhone: '',
   address: { line1: '', line2: '', city: '', state: '', postalCode: '', country: 'India' },
   emergencyContacts: [{ name: '', phone: '', relationship: '', alternatePhone: '', email: '' }],
   educationRecords: [],
@@ -170,9 +167,7 @@ export function StudentCreateWizard({ onDone }: { onDone: () => void }) {
               <Separator />
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <TextField control={form.control} name="firstName" label="First name" />
-                <TextField control={form.control} name="middleName" label="Middle name" />
                 <TextField control={form.control} name="lastName" label="Last name" />
-                <TextField control={form.control} name="displayName" label="Display name" />
                 <DatePickerField
                   control={form.control}
                   name="dateOfBirth"
@@ -197,7 +192,6 @@ export function StudentCreateWizard({ onDone }: { onDone: () => void }) {
           {currentStep?.id === 'contact' && (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <TextField control={form.control} name="phone" label="Primary phone" />
-              <TextField control={form.control} name="alternatePhone" label="Alternate phone" />
               <div className="sm:col-span-2">
                 <TextField control={form.control} name="address.line1" label="Address line 1" />
               </div>
