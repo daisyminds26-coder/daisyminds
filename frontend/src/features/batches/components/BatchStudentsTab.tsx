@@ -218,7 +218,7 @@ export function BatchStudentsTab({ batchId }: { batchId: string }) {
   return (
     <div className="flex flex-col gap-6">
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <div className="border-border rounded-lg border p-3">
+        <div className="border-border bg-card rounded-lg border p-3">
           <p className="text-caption text-muted-foreground">Seats occupied</p>
           <p className="text-title-sm font-semibold">
             {capacityQuery.isLoading || !capacity
@@ -226,19 +226,19 @@ export function BatchStudentsTab({ batchId }: { batchId: string }) {
               : `${String(capacity.occupiedSeats)} / ${String(capacity.maxStudents)}`}
           </p>
         </div>
-        <div className="border-border rounded-lg border p-3">
+        <div className="border-border bg-card rounded-lg border p-3">
           <p className="text-caption text-muted-foreground">Seats available</p>
           <p className="text-title-sm font-semibold">
             {capacityQuery.isLoading || !capacity ? '—' : capacity.availableSeats}
           </p>
         </div>
-        <div className="border-border rounded-lg border p-3">
+        <div className="border-border bg-card rounded-lg border p-3">
           <p className="text-caption text-muted-foreground">Waitlisted</p>
           <p className="text-title-sm font-semibold">
             {capacityQuery.isLoading || !capacity ? '—' : capacity.waitlistCount}
           </p>
         </div>
-        <div className="border-border flex items-center justify-center rounded-lg border p-3">
+        <div className="border-border bg-card flex items-center justify-center rounded-lg border p-3">
           <Link
             to={`/admin/enrollments?batchId=${batchId}`}
             className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'w-full gap-1.5')}

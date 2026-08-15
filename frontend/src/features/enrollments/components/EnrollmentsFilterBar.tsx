@@ -1,3 +1,4 @@
+import { formatEnumLabel } from '@/shared/lib/utils'
 import { SearchBox } from '@/shared/components/data-display/search-box'
 import { FilterBar, type FilterDef } from '@/shared/components/data-display/filter-bar'
 import { Button } from '@/shared/components/ui/button'
@@ -70,7 +71,7 @@ export function EnrollmentsFilterBar({
       onChange: (value) => {
         onSourceChange(value as EnrollmentSource | undefined)
       },
-      options: ENROLLMENT_SOURCES.map((value) => ({ value, label: value.replace(/_/g, ' ') })),
+      options: ENROLLMENT_SOURCES.map((value) => ({ value, label: formatEnumLabel(value) })),
     },
   ]
 

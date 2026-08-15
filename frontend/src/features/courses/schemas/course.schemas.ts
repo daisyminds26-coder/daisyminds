@@ -65,14 +65,6 @@ const pricingSchema = z
 export const courseProfileSchema = z
   .object({
     title: z.string().trim().min(1, 'Title is required').max(200),
-    shortTitle: z.string().trim().max(80).optional().or(z.literal('')),
-    slug: z
-      .string()
-      .trim()
-      .max(220)
-      .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Use lowercase letters, numbers, and hyphens only')
-      .optional()
-      .or(z.literal('')),
     shortDescription: z.string().trim().max(300).optional().or(z.literal('')),
     description: z.string().trim().max(10_000).optional().or(z.literal('')),
     category: z.string().trim().min(1, 'Category is required').max(100),

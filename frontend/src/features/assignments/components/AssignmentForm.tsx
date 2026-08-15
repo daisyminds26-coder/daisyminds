@@ -6,19 +6,13 @@ import { z } from 'zod'
 import { Button } from '@/shared/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card'
 import { Checkbox } from '@/shared/components/ui/checkbox'
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/shared/components/ui/form'
+import { Form, FormField, FormItem, FormLabel, FormMessage } from '@/shared/components/ui/form'
 import { Input } from '@/shared/components/ui/input'
 import { TextField } from '@/shared/components/forms/text-field'
 import { TextareaField } from '@/shared/components/forms/textarea-field'
 import { SelectField } from '@/shared/components/forms/select-field'
 import { CheckboxField } from '@/shared/components/forms/checkbox-field'
+import { DateTimePickerField } from '@/shared/components/forms/date-time-picker-field'
 import { ListSkeleton } from '@/shared/components/feedback/skeletons'
 import { toast } from '@/shared/lib/toast'
 import { getSafeErrorMessage } from '@/features/auth/utils/error-messages'
@@ -90,37 +84,37 @@ export function AssignmentForm({ existing, onDone }: AssignmentFormProps) {
     resolver: zodResolver(formSchema),
     defaultValues: existing
       ? {
-        courseId: existing.courseId,
-        batchIds: existing.batches.map((batch) => batch.id),
-        title: existing.title,
-        shortDescription: existing.shortDescription ?? '',
-        instructions: existing.instructions,
-        submissionType: existing.submissionType,
-        allowedFileTypes: existing.allowedFileTypes.join(', '),
-        maxFiles: String(existing.maxFiles),
-        maxFileSizeMb: String(Math.round(existing.maxFileSizeBytes / (1024 * 1024))),
-        maxMarks: String(existing.maxMarks),
-        passingMarks: existing.passingMarks !== null ? String(existing.passingMarks) : '',
-        dueDateTime: '',
-        timezone: existing.timezone,
-        allowLateSubmission: existing.allowLateSubmission,
-        allowResubmission: existing.allowResubmission,
-        maxAttempts: existing.maxAttempts !== null ? String(existing.maxAttempts) : '',
-      }
+          courseId: existing.courseId,
+          batchIds: existing.batches.map((batch) => batch.id),
+          title: existing.title,
+          shortDescription: existing.shortDescription ?? '',
+          instructions: existing.instructions,
+          submissionType: existing.submissionType,
+          allowedFileTypes: existing.allowedFileTypes.join(', '),
+          maxFiles: String(existing.maxFiles),
+          maxFileSizeMb: String(Math.round(existing.maxFileSizeBytes / (1024 * 1024))),
+          maxMarks: String(existing.maxMarks),
+          passingMarks: existing.passingMarks !== null ? String(existing.passingMarks) : '',
+          dueDateTime: '',
+          timezone: existing.timezone,
+          allowLateSubmission: existing.allowLateSubmission,
+          allowResubmission: existing.allowResubmission,
+          maxAttempts: existing.maxAttempts !== null ? String(existing.maxAttempts) : '',
+        }
       : {
-        courseId: '',
-        batchIds: [],
-        title: '',
-        instructions: '',
-        submissionType: 'TEXT',
-        maxFiles: '1',
-        maxFileSizeMb: '25',
-        maxMarks: '100',
-        dueDateTime: '',
-        timezone: 'Asia/Kolkata',
-        allowLateSubmission: false,
-        allowResubmission: false,
-      },
+          courseId: '',
+          batchIds: [],
+          title: '',
+          instructions: '',
+          submissionType: 'TEXT',
+          maxFiles: '1',
+          maxFileSizeMb: '25',
+          maxMarks: '100',
+          dueDateTime: '',
+          timezone: 'Asia/Kolkata',
+          allowLateSubmission: false,
+          allowResubmission: false,
+        },
   })
 
   const courseId = form.watch('courseId')
@@ -142,9 +136,9 @@ export function AssignmentForm({ existing, onDone }: AssignmentFormProps) {
       submissionType: values.submissionType,
       allowedFileTypes: values.allowedFileTypes
         ? values.allowedFileTypes
-          .split(',')
-          .map((item) => item.trim().toLowerCase())
-          .filter(Boolean)
+            .split(',')
+            .map((item) => item.trim().toLowerCase())
+            .filter(Boolean)
         : undefined,
       maxFiles: Number(values.maxFiles),
       maxFileSizeBytes: Number(values.maxFileSizeMb) * 1024 * 1024,
@@ -322,19 +316,7 @@ export function AssignmentForm({ existing, onDone }: AssignmentFormProps) {
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <FormField
-                control={form.control}
-                name="dueDateTime"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Due date</FormLabel>
-                    <FormControl>
-                      <Input type="datetime-local" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <DateTimePickerField control={form.control} name="dueDateTime" label="Due date" />
               <TextField
                 control={form.control}
                 name="timezone"
@@ -358,18 +340,10 @@ export function AssignmentForm({ existing, onDone }: AssignmentFormProps) {
               label="Allow late submission"
             />
             {allowLateSubmission && (
-              <FormField
+              <DateTimePickerField
                 control={form.control}
                 name="lateUntil"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Accept late submissions until (optional)</FormLabel>
-                    <FormControl>
-                      <Input type="datetime-local" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                label="Accept late submissions until (optional)"
               />
             )}
 

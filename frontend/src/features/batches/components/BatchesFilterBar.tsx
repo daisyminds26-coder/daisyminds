@@ -1,3 +1,4 @@
+import { formatEnumLabel } from '@/shared/lib/utils'
 import { SearchBox } from '@/shared/components/data-display/search-box'
 import { FilterBar, type FilterDef } from '@/shared/components/data-display/filter-bar'
 import { Button } from '@/shared/components/ui/button'
@@ -81,7 +82,7 @@ export function BatchesFilterBar({
       onChange: (value) => {
         onStatusChange(value as BatchStatus | undefined)
       },
-      options: BATCH_STATUSES.map((value) => ({ value, label: value.replace(/_/g, ' ') })),
+      options: BATCH_STATUSES.map((value) => ({ value, label: formatEnumLabel(value) })),
     },
     {
       id: 'deliveryMode',
@@ -90,7 +91,7 @@ export function BatchesFilterBar({
       onChange: (value) => {
         onDeliveryModeChange(value as BatchDeliveryMode | undefined)
       },
-      options: BATCH_DELIVERY_MODES.map((value) => ({ value, label: value.replace(/_/g, ' ') })),
+      options: BATCH_DELIVERY_MODES.map((value) => ({ value, label: formatEnumLabel(value) })),
     },
     {
       id: 'temporal',

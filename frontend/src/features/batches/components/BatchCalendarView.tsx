@@ -93,7 +93,7 @@ export function BatchCalendarView({
               className={
                 occurrence.isException
                   ? 'border-border bg-muted/40 flex items-center gap-2 rounded-lg border p-2'
-                  : 'border-border flex items-center gap-2 rounded-lg border p-2'
+                  : 'border-border bg-card flex items-center gap-2 rounded-lg border p-2'
               }
             >
               {occurrence.isException ? (

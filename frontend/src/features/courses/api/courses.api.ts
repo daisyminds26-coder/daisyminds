@@ -46,8 +46,6 @@ export interface PricingInput {
 
 export interface CourseProfileFields {
   title: string
-  shortTitle?: string
-  slug?: string
   shortDescription?: string
   description?: string
   category: string

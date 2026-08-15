@@ -1,3 +1,4 @@
+import { formatEnumLabel } from '@/shared/lib/utils'
 import { useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useFieldArray, useForm } from 'react-hook-form'
@@ -14,6 +15,7 @@ import { TextareaField } from '@/shared/components/forms/textarea-field'
 import { DatePickerField } from '@/shared/components/forms/date-picker-field'
 import { PasswordField } from '@/features/auth/components/PasswordField'
 import { TagsField } from '@/features/trainers/components/TagsField'
+import { MultiSelectField } from '@/shared/components/forms/multi-select-field'
 import { AvailabilityEditor } from '@/features/trainers/components/AvailabilityEditor'
 import { useCreateTrainer } from '@/features/trainers/hooks/use-create-trainer'
 import { getSafeErrorMessage } from '@/features/auth/utils/error-messages'
@@ -42,7 +44,6 @@ const STEPS: StepperStep[] = [
   { id: 'employment', label: 'Employment' },
   { id: 'teaching', label: 'Teaching' },
   { id: 'availability', label: 'Availability' },
-  { id: 'emergency', label: 'Emergency' },
   { id: 'review', label: 'Review' },
 ]
 
@@ -51,14 +52,11 @@ const DEFAULT_VALUES: CreateTrainerFormValues = {
   password: '',
   sendInvitation: true,
   firstName: '',
-  middleName: '',
   lastName: '',
-  displayName: '',
   preferredLanguage: '',
   bio: '',
   phone: '',
   alternatePhone: '',
-  emergencyContacts: [],
   designation: '',
   department: '',
   totalYearsExperience: '',
@@ -66,8 +64,6 @@ const DEFAULT_VALUES: CreateTrainerFormValues = {
   industryYearsExperience: '',
   expertiseAreas: [],
   secondaryExpertise: [],
-  skills: [],
-  technologies: [],
   specializations: [],
   linkedinUrl: '',
   portfolioUrl: '',
@@ -78,7 +74,6 @@ const DEFAULT_VALUES: CreateTrainerFormValues = {
   employmentStatus: 'ACTIVE',
   employeeCode: '',
   workLocation: '',
-  noticePeriodDays: '',
   preferredTeachingModes: [],
   preferredTimeSlots: [],
   maxConcurrentBatches: '',
@@ -89,7 +84,6 @@ const DEFAULT_VALUES: CreateTrainerFormValues = {
   qualifiedToTeachSubjects: [],
   availability: [],
   notes: '',
-  tags: [],
 }
 
 /**
@@ -116,18 +110,33 @@ function certificationField(
   return `certifications.${index}.${key}`
 }
 
-function emergencyContactField(
-  index: number,
-  key: keyof CreateTrainerFormValues['emergencyContacts'][number],
-): FieldPath<CreateTrainerFormValues> {
-  // eslint-disable-next-line @typescript-eslint/restrict-template-expressions -- `index` is a numeric array index, never arbitrary content
-  return `emergencyContacts.${index}.${key}`
-}
-
 function toNumberOrUndefined(value: string | undefined): number | undefined {
   if (!value) return undefined
   const parsed = Number(value)
   return Number.isNaN(parsed) ? undefined : parsed
+}
+
+/** An address whose required fields are all blank (the common "never touched" case, now allowed by `addressSchema`'s refine) shouldn't be sent at all — the backend's own address schema still requires every field when `address` is present. */
+function toAddressPayload(
+  address: CreateTrainerFormValues['address'],
+): CreateTrainerPayload['address'] {
+  if (
+    !address?.line1 &&
+    !address?.city &&
+    !address?.state &&
+    !address?.postalCode &&
+    !address?.country
+  ) {
+    return undefined
+  }
+  return {
+    line1: address.line1 ?? '',
+    line2: address.line2 ?? undefined,
+    city: address.city ?? '',
+    state: address.state ?? '',
+    postalCode: address.postalCode ?? '',
+    country: address.country ?? '',
+  }
 }
 
 function toPayload(values: CreateTrainerFormValues): CreateTrainerPayload {
@@ -139,29 +148,25 @@ function toPayload(values: CreateTrainerFormValues): CreateTrainerPayload {
     totalYearsExperience: toNumberOrUndefined(values.totalYearsExperience),
     teachingYearsExperience: toNumberOrUndefined(values.teachingYearsExperience),
     industryYearsExperience: toNumberOrUndefined(values.industryYearsExperience),
-    noticePeriodDays: toNumberOrUndefined(values.noticePeriodDays),
     maxConcurrentBatches: toNumberOrUndefined(values.maxConcurrentBatches),
     maxWeeklyTeachingHours: toNumberOrUndefined(values.maxWeeklyTeachingHours),
+    address: toAddressPayload(values.address),
     qualifications: values.qualifications.map((qualification) => ({
       degree: qualification.degree,
       institution: qualification.institution,
-      boardOrUniversity: qualification.boardOrUniversity ?? null,
-      fieldOfStudy: qualification.fieldOfStudy ?? null,
+      boardOrUniversity: qualification.boardOrUniversity,
+      fieldOfStudy: qualification.fieldOfStudy,
       yearOfCompletion: Number(qualification.yearOfCompletion),
-      gradeValue: qualification.gradeValue ?? null,
-      gradeType: qualification.gradeType ?? null,
-      documentUrl: null,
-      documentPublicId: null,
+      gradeValue: qualification.gradeValue,
+      gradeType: qualification.gradeType,
     })),
     certifications: values.certifications.map((certification) => ({
       name: certification.name,
       issuingOrganization: certification.issuingOrganization,
-      credentialId: certification.credentialId ?? null,
+      credentialId: certification.credentialId,
       issueDate: certification.issueDate.toISOString(),
-      expiryDate: certification.expiryDate ? certification.expiryDate.toISOString() : null,
-      verificationUrl: certification.verificationUrl ?? null,
-      documentUrl: null,
-      documentPublicId: null,
+      expiryDate: certification.expiryDate ? certification.expiryDate.toISOString() : undefined,
+      verificationUrl: certification.verificationUrl,
     })),
   }
 }
@@ -175,7 +180,6 @@ export function TrainerCreateWizard({ onDone }: { onDone: () => void }) {
   })
   const qualifications = useFieldArray({ control: form.control, name: 'qualifications' })
   const certifications = useFieldArray({ control: form.control, name: 'certifications' })
-  const emergencyContacts = useFieldArray({ control: form.control, name: 'emergencyContacts' })
 
   const currentStep = STEPS[stepIndex]
   const isLastStep = stepIndex === STEPS.length - 1
@@ -189,7 +193,6 @@ export function TrainerCreateWizard({ onDone }: { onDone: () => void }) {
     employment: ['employmentStatus'],
     teaching: ['availabilityStatus'],
     availability: ['availability'],
-    emergency: [],
     review: [],
   }
 
@@ -245,9 +248,9 @@ export function TrainerCreateWizard({ onDone }: { onDone: () => void }) {
               <Separator />
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <TextField control={form.control} name="firstName" label="First name" />
-                <TextField control={form.control} name="middleName" label="Middle name" />
                 <TextField control={form.control} name="lastName" label="Last name" />
-                <TextField control={form.control} name="displayName" label="Display name" />
+              </div>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <DatePickerField
                   control={form.control}
                   name="dateOfBirth"
@@ -258,7 +261,7 @@ export function TrainerCreateWizard({ onDone }: { onDone: () => void }) {
                   control={form.control}
                   name="gender"
                   label="Gender"
-                  options={GENDERS.map((value) => ({ value, label: value.replace(/_/g, ' ') }))}
+                  options={GENDERS.map((value) => ({ value, label: formatEnumLabel(value) }))}
                 />
                 <TextField
                   control={form.control}
@@ -319,8 +322,6 @@ export function TrainerCreateWizard({ onDone }: { onDone: () => void }) {
                 name="secondaryExpertise"
                 label="Secondary expertise"
               />
-              <TagsField control={form.control} name="skills" label="Skills" />
-              <TagsField control={form.control} name="technologies" label="Technologies" />
               <TagsField control={form.control} name="specializations" label="Specializations" />
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <TextField control={form.control} name="linkedinUrl" label="LinkedIn URL" />
@@ -486,7 +487,7 @@ export function TrainerCreateWizard({ onDone }: { onDone: () => void }) {
                   label="Employment type"
                   options={EMPLOYMENT_TYPES.map((value) => ({
                     value,
-                    label: value.replace(/_/g, ' '),
+                    label: formatEnumLabel(value),
                   }))}
                 />
                 <SelectField
@@ -495,7 +496,7 @@ export function TrainerCreateWizard({ onDone }: { onDone: () => void }) {
                   label="Employment status"
                   options={EMPLOYMENT_STATUSES.map((value) => ({
                     value,
-                    label: value.replace(/_/g, ' '),
+                    label: formatEnumLabel(value),
                   }))}
                 />
                 <TextField control={form.control} name="employeeCode" label="Employee code" />
@@ -505,20 +506,14 @@ export function TrainerCreateWizard({ onDone }: { onDone: () => void }) {
                   name="probationEndDate"
                   label="Probation end date"
                 />
-                <TextField
-                  control={form.control}
-                  name="noticePeriodDays"
-                  label="Notice period (days)"
-                />
               </div>
-              <TagsField control={form.control} name="tags" label="Tags" />
               <SelectField
                 control={form.control}
                 name="source"
                 label="Source"
                 options={TRAINER_SOURCES.map((value) => ({
                   value,
-                  label: value.replace(/_/g, ' '),
+                  label: formatEnumLabel(value),
                 }))}
               />
               <TextareaField control={form.control} name="notes" label="Internal notes" rows={4} />
@@ -534,7 +529,7 @@ export function TrainerCreateWizard({ onDone }: { onDone: () => void }) {
                   label="Availability status"
                   options={AVAILABILITY_STATUSES.map((value) => ({
                     value,
-                    label: value.replace(/_/g, ' '),
+                    label: formatEnumLabel(value),
                   }))}
                 />
                 <SelectField
@@ -543,7 +538,7 @@ export function TrainerCreateWizard({ onDone }: { onDone: () => void }) {
                   label="Teaching level"
                   options={TEACHING_LEVELS.map((value) => ({
                     value,
-                    label: value.replace(/_/g, ' '),
+                    label: formatEnumLabel(value),
                   }))}
                 />
                 <TextField
@@ -557,17 +552,20 @@ export function TrainerCreateWizard({ onDone }: { onDone: () => void }) {
                   label="Max weekly teaching hours"
                 />
               </div>
-              <TagsField
+              <MultiSelectField
                 control={form.control}
                 name="preferredTeachingModes"
                 label="Preferred teaching modes"
-                description={`One of: ${TEACHING_MODES.join(', ')}`}
+                options={TEACHING_MODES.map((value) => ({ value, label: formatEnumLabel(value) }))}
               />
-              <TagsField
+              <MultiSelectField
                 control={form.control}
                 name="preferredTimeSlots"
                 label="Preferred time slots"
-                description={`One of: ${PREFERRED_TIME_SLOTS.join(', ')}`}
+                options={PREFERRED_TIME_SLOTS.map((value) => ({
+                  value,
+                  label: formatEnumLabel(value),
+                }))}
               />
               <TagsField
                 control={form.control}
@@ -591,79 +589,6 @@ export function TrainerCreateWizard({ onDone }: { onDone: () => void }) {
 
           {currentStep?.id === 'availability' && (
             <AvailabilityEditor<CreateTrainerFormValues> control={form.control} />
-          )}
-
-          {currentStep?.id === 'emergency' && (
-            <div className="flex flex-col gap-4">
-              <p className="text-body-sm text-muted-foreground">
-                Optional — add if the trainer wants one on file.
-              </p>
-              {emergencyContacts.fields.map((field, index) => (
-                <div
-                  key={field.id}
-                  className="border-border flex flex-col gap-3 rounded-lg border p-4"
-                >
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <TextField
-                      control={form.control}
-                      name={emergencyContactField(index, 'name')}
-                      label="Name"
-                    />
-                    <TextField
-                      control={form.control}
-                      name={emergencyContactField(index, 'relationship')}
-                      label="Relationship"
-                    />
-                    <TextField
-                      control={form.control}
-                      name={emergencyContactField(index, 'phone')}
-                      label="Phone"
-                    />
-                    <TextField
-                      control={form.control}
-                      name={emergencyContactField(index, 'alternatePhone')}
-                      label="Alternate phone"
-                    />
-                    <TextField
-                      control={form.control}
-                      name={emergencyContactField(index, 'email')}
-                      label="Email"
-                      type="email"
-                    />
-                  </div>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="text-destructive self-start"
-                    onClick={() => {
-                      emergencyContacts.remove(index)
-                    }}
-                  >
-                    Remove contact
-                  </Button>
-                </div>
-              ))}
-              {emergencyContacts.fields.length < 5 && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="self-start"
-                  onClick={() => {
-                    emergencyContacts.append({
-                      name: '',
-                      phone: '',
-                      relationship: '',
-                      alternatePhone: '',
-                      email: '',
-                    })
-                  }}
-                >
-                  Add emergency contact
-                </Button>
-              )}
-            </div>
           )}
 
           {currentStep?.id === 'review' && (

@@ -18,7 +18,7 @@ export function BatchCapacityWidget({ capacity, isLoading }: BatchCapacityWidget
     maxStudents > 0 ? Math.min(100, Math.round((occupiedSeats / maxStudents) * 100)) : 0
 
   return (
-    <div className="border-border flex flex-col gap-4 rounded-xl border p-4">
+    <div className="border-border bg-card flex flex-col gap-4 rounded-xl border p-4">
       <div>
         <p className="text-h3 font-semibold">
           {occupiedSeats} / {maxStudents} Seats Occupied

@@ -1,3 +1,4 @@
+import { formatEnumLabel } from '@/shared/lib/utils'
 import { useEffect } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
@@ -32,8 +33,6 @@ import type { AdminCourse } from '@/features/courses/types'
 function toDefaultValues(course: AdminCourse): UpdateCourseFormValues {
   return {
     title: course.title,
-    shortTitle: course.shortTitle ?? '',
-    slug: course.slug,
     shortDescription: course.shortDescription,
     description: course.description,
     category: course.category,
@@ -150,8 +149,6 @@ export function CourseEditForm({ course, onDone }: { course: AdminCourse; onDone
           </p>
           <TextField control={form.control} name="title" label="Course title" />
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <TextField control={form.control} name="shortTitle" label="Short title" />
-            <TextField control={form.control} name="slug" label="Slug" />
             <TextField control={form.control} name="category" label="Category" />
             <TextField control={form.control} name="subcategory" label="Subcategory" />
           </div>
@@ -168,21 +165,20 @@ export function CourseEditForm({ course, onDone }: { course: AdminCourse; onDone
               control={form.control}
               name="level"
               label="Level"
-              options={COURSE_LEVELS.map((value) => ({ value, label: value.replace(/_/g, ' ') }))}
+              options={COURSE_LEVELS.map((value) => ({ value, label: formatEnumLabel(value) }))}
             />
             <SelectField
               control={form.control}
               name="deliveryMode"
               label="Delivery mode"
-              options={DELIVERY_MODES.map((value) => ({ value, label: value.replace(/_/g, ' ') }))}
+              options={DELIVERY_MODES.map((value) => ({ value, label: formatEnumLabel(value) }))}
             />
-            <TextField control={form.control} name="language" label="Primary language" />
             <TextField control={form.control} name="durationValue" label="Duration" />
             <SelectField
               control={form.control}
               name="durationUnit"
               label="Duration unit"
-              options={DURATION_UNITS.map((value) => ({ value, label: value.replace(/_/g, ' ') }))}
+              options={DURATION_UNITS.map((value) => ({ value, label: formatEnumLabel(value) }))}
             />
           </div>
           <TagsField control={form.control} name="secondaryLanguages" label="Secondary languages" />
@@ -225,7 +221,7 @@ export function CourseEditForm({ course, onDone }: { course: AdminCourse; onDone
               control={form.control}
               name="pricing.pricingType"
               label="Pricing type"
-              options={PRICING_TYPES.map((value) => ({ value, label: value.replace(/_/g, ' ') }))}
+              options={PRICING_TYPES.map((value) => ({ value, label: formatEnumLabel(value) }))}
             />
             <SelectField
               control={form.control}
@@ -275,7 +271,7 @@ export function CourseEditForm({ course, onDone }: { course: AdminCourse; onDone
             label="Visibility"
             options={COURSE_VISIBILITIES.map((value) => ({
               value,
-              label: value.replace(/_/g, ' '),
+              label: formatEnumLabel(value),
             }))}
           />
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

@@ -25,19 +25,23 @@ export function Sidebar({ sections, areaRoot }: SidebarProps) {
   return (
     <aside
       className={cn(
-        'border-border bg-sidebar sticky top-0 hidden h-svh shrink-0 flex-col border-r transition-[width] duration-200 lg:flex',
+        'dark-surface border-border bg-background text-foreground sticky top-0 hidden h-svh shrink-0 flex-col border-r transition-[width] duration-200 lg:flex',
         isCollapsed ? 'w-[72px]' : 'w-64',
       )}
     >
       <div
         className={cn(
-          'border-border flex shrink-0 items-center gap-2 border-b px-3 py-2',
+          'border-border flex h-16 shrink-0 items-center gap-2 border-b px-3',
           isCollapsed && 'justify-center px-2',
         )}
       >
         {!isCollapsed && (
-          <Link to="/" aria-label="Daisy Minds home" className="flex min-w-0 items-center">
-            <Logo className="h-16" />
+          <Link
+            to="/"
+            aria-label="Daisy Minds home"
+            className="bg-card flex min-w-0 items-center rounded-lg px-2.5 py-1.5"
+          >
+            <Logo className="h-10" />
           </Link>
         )}
         <Button
@@ -48,9 +52,9 @@ export function Sidebar({ sections, areaRoot }: SidebarProps) {
           aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
           {isCollapsed ? (
-            <PanelLeftOpen className="size-6" />
+            <PanelLeftOpen className="size-5" />
           ) : (
-            <PanelLeftClose className="size-6" />
+            <PanelLeftClose className="size-5" />
           )}
         </Button>
       </div>

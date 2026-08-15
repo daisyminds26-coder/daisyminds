@@ -1,3 +1,4 @@
+import { formatEnumLabel } from '@/shared/lib/utils'
 import { Award, BookOpen, Clock, Globe } from 'lucide-react'
 
 import { Badge } from '@/shared/components/ui/badge'
@@ -23,7 +24,7 @@ export function CoursePreview({ course }: { course: AdminCourse }) {
       <div className="flex flex-col gap-3 p-5">
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="outline">{course.category}</Badge>
-          <Badge variant="outline">{course.level.replace(/_/g, ' ')}</Badge>
+          <Badge variant="outline">{formatEnumLabel(course.level)}</Badge>
           {course.certificateEnabled && (
             <Badge variant="secondary" className="gap-1">
               <Award className="size-3" />

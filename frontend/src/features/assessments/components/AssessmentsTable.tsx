@@ -1,4 +1,4 @@
-import { FileQuestion } from 'lucide-react'
+import { FileQuestion, Pencil } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 import { DataTable, type DataTableColumn } from '@/shared/components/data-display/data-table'
@@ -43,14 +43,20 @@ export function AssessmentsTable({
     {
       id: 'course',
       header: 'Course',
-      cell: (row) => (
-        <div className="flex flex-col gap-0.5">
-          <span className="text-body-sm">{row.courseTitle}</span>
-          <span className="text-caption text-muted-foreground">
-            {row.batches.map((batch) => batch.name).join(', ') || '—'}
-          </span>
-        </div>
-      ),
+      cell: (row) => {
+        const batchNames = row.batches.map((batch) => batch.name).join(', ') || '—'
+        return (
+          <div className="flex min-w-0 flex-col gap-0.5">
+            <span className="text-body-sm">{row.courseTitle}</span>
+            <span
+              title={batchNames}
+              className="text-caption text-muted-foreground block max-w-[20ch] truncate"
+            >
+              {batchNames}
+            </span>
+          </div>
+        )
+      },
     },
     {
       id: 'questions',
@@ -74,10 +80,12 @@ export function AssessmentsTable({
     {
       id: 'actions',
       header: '',
-      className: 'text-right',
+      className: 'w-10 text-right',
       cell: (row) => (
-        <Button asChild variant="ghost" size="sm">
-          <Link to={`${detailBasePath}/${row.id}`}>Manage</Link>
+        <Button asChild variant="ghost" size="icon-sm" aria-label={`Manage ${row.assessmentCode}`}>
+          <Link to={`${detailBasePath}/${row.id}`} title="Manage">
+            <Pencil className="size-4" />
+          </Link>
         </Button>
       ),
     },

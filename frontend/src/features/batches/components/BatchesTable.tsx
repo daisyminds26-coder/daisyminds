@@ -164,8 +164,11 @@ export function BatchesTable({
           <div className="bg-muted flex size-9 shrink-0 items-center justify-center rounded-md">
             <Layers className="text-muted-foreground size-4" />
           </div>
-          <span>
-            <span className="text-body-sm hover:text-primary-foreground/80 block font-medium hover:underline">
+          <span className="min-w-0">
+            <span
+              title={row.name}
+              className="text-body-sm hover:text-primary-foreground/80 block max-w-[20ch] truncate font-medium hover:underline"
+            >
               {row.name}
             </span>
             <span className="text-caption text-muted-foreground block font-mono">
@@ -305,16 +308,16 @@ export function BatchesTable({
                 {(row.status === 'DRAFT' ||
                   row.status === 'SCHEDULED' ||
                   row.status === 'ACTIVE') && (
-                  <DropdownMenuItem
-                    variant="destructive"
-                    onSelect={() => {
-                      onCancel(row)
-                    }}
-                  >
-                    <Ban />
-                    Cancel
-                  </DropdownMenuItem>
-                )}
+                    <DropdownMenuItem
+                      variant="destructive"
+                      onSelect={() => {
+                        onCancel(row)
+                      }}
+                    >
+                      <Ban />
+                      Cancel
+                    </DropdownMenuItem>
+                  )}
                 {(row.status === 'COMPLETED' || row.status === 'CANCELLED') && (
                   <DropdownMenuItem
                     onSelect={() => {

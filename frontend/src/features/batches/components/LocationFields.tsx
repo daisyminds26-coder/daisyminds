@@ -1,3 +1,4 @@
+import { formatEnumLabel } from '@/shared/lib/utils'
 import { useWatch, type Control, type FieldValues } from 'react-hook-form'
 
 import { TextField } from '@/shared/components/forms/text-field'
@@ -38,7 +39,7 @@ export function LocationFields<
               label="Meeting provider"
               options={MEETING_PROVIDERS.map((provider) => ({
                 value: provider,
-                label: provider.replace(/_/g, ' '),
+                label: formatEnumLabel(provider),
               }))}
             />
           </div>

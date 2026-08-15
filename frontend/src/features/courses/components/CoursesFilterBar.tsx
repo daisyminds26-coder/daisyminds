@@ -1,3 +1,4 @@
+import { formatEnumLabel } from '@/shared/lib/utils'
 import { SearchBox } from '@/shared/components/data-display/search-box'
 import { FilterBar, type FilterDef } from '@/shared/components/data-display/filter-bar'
 import { Button } from '@/shared/components/ui/button'
@@ -73,7 +74,7 @@ export function CoursesFilterBar({
       onChange: (value) => {
         onStatusChange(value as CourseStatus | undefined)
       },
-      options: COURSE_STATUSES.map((value) => ({ value, label: value.replace(/_/g, ' ') })),
+      options: COURSE_STATUSES.map((value) => ({ value, label: formatEnumLabel(value) })),
     },
     {
       id: 'level',
@@ -82,7 +83,7 @@ export function CoursesFilterBar({
       onChange: (value) => {
         onLevelChange(value as CourseLevel | undefined)
       },
-      options: COURSE_LEVELS.map((value) => ({ value, label: value.replace(/_/g, ' ') })),
+      options: COURSE_LEVELS.map((value) => ({ value, label: formatEnumLabel(value) })),
     },
     {
       id: 'deliveryMode',
@@ -91,7 +92,7 @@ export function CoursesFilterBar({
       onChange: (value) => {
         onDeliveryModeChange(value as DeliveryMode | undefined)
       },
-      options: DELIVERY_MODES.map((value) => ({ value, label: value.replace(/_/g, ' ') })),
+      options: DELIVERY_MODES.map((value) => ({ value, label: formatEnumLabel(value) })),
     },
     {
       id: 'pricingType',
@@ -100,7 +101,7 @@ export function CoursesFilterBar({
       onChange: (value) => {
         onPricingTypeChange(value as PricingType | undefined)
       },
-      options: PRICING_TYPES.map((value) => ({ value, label: value.replace(/_/g, ' ') })),
+      options: PRICING_TYPES.map((value) => ({ value, label: formatEnumLabel(value) })),
     },
   ]
 

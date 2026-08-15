@@ -43,7 +43,7 @@ export function BatchWaitlistPanel({ batchId }: { batchId: string }) {
       {entries.map((entry) => (
         <div
           key={entry.id}
-          className="border-border flex items-center justify-between gap-3 rounded-lg border p-3"
+          className="border-border bg-card flex items-center justify-between gap-3 rounded-lg border p-3"
         >
           <div className="flex items-center gap-3">
             <span className="bg-accent text-caption flex size-7 shrink-0 items-center justify-center rounded-full font-semibold">

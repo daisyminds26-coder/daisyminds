@@ -61,7 +61,7 @@ describe('LiveClassesPage', () => {
     await renderAsSuperAdmin()
 
     await screen.findByText('Week 2 — Live Session')
-    const manageLinks = screen.getAllByRole('link', { name: 'Manage' })
+    const manageLinks = screen.getAllByRole('link', { name: /^Manage / })
     expect(manageLinks.length).toBeGreaterThan(0)
     expect(manageLinks[0]).toHaveAttribute('href', expect.stringContaining('/admin/live-classes/'))
   })

@@ -15,14 +15,11 @@ import {
 function validDefaults(): UpdateTrainerFormValues {
   return {
     firstName: 'Kabir',
-    middleName: '',
     lastName: 'Singh',
-    displayName: '',
     preferredLanguage: '',
     bio: '',
     phone: '+91 90000 00000',
     alternatePhone: '',
-    emergencyContacts: [],
     designation: '',
     department: '',
     totalYearsExperience: '',
@@ -30,8 +27,6 @@ function validDefaults(): UpdateTrainerFormValues {
     industryYearsExperience: '',
     expertiseAreas: [],
     secondaryExpertise: [],
-    skills: [],
-    technologies: [],
     specializations: [],
     linkedinUrl: '',
     portfolioUrl: '',
@@ -42,7 +37,6 @@ function validDefaults(): UpdateTrainerFormValues {
     employmentStatus: 'ACTIVE',
     employeeCode: '',
     workLocation: '',
-    noticePeriodDays: '',
     preferredTeachingModes: [],
     preferredTimeSlots: [],
     maxConcurrentBatches: '',
@@ -53,7 +47,6 @@ function validDefaults(): UpdateTrainerFormValues {
     qualifiedToTeachSubjects: [],
     availability: [],
     notes: '',
-    tags: [],
   }
 }
 

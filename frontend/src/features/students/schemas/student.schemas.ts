@@ -31,7 +31,6 @@ const emergencyContactSchema = z.object({
   name: z.string().trim().min(1, 'Name is required').max(150),
   phone: phoneSchema,
   relationship: z.string().trim().min(1, 'Relationship is required').max(60),
-  alternatePhone: phoneSchema.optional().or(z.literal('')),
   email: z.email('Enter a valid email').optional().or(z.literal('')),
 })
 

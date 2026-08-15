@@ -1,13 +1,15 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { LayoutList, Sparkles } from 'lucide-react'
+import { Clock, Globe, LayoutList, Sparkles } from 'lucide-react'
 
 import { Drawer } from '@/shared/components/overlays/drawer'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs'
 import { Badge } from '@/shared/components/ui/badge'
 import { buttonVariants } from '@/shared/components/ui/button'
+import { Separator } from '@/shared/components/ui/separator'
+import { DetailField, DetailSection } from '@/shared/components/data-display/detail-section'
 import { EmptyState } from '@/shared/components/feedback/empty-state'
-import { cn } from '@/shared/lib/utils'
+import { cn, formatEnumLabel } from '@/shared/lib/utils'
 import { CourseStatusBadge } from '@/features/courses/components/CourseStatusBadge'
 import { VisibilityBadge } from '@/features/courses/components/VisibilityBadge'
 import { ReadinessPanel } from '@/features/courses/components/ReadinessPanel'
@@ -73,7 +75,7 @@ export function CourseDetailDrawer({ open, onOpenChange, course }: CourseDetailD
         <ReadinessPanel readiness={readinessQuery.data} isLoading={readinessQuery.isLoading} />
 
         <Tabs defaultValue="overview">
-          <TabsList className="flex-wrap">
+          <TabsList className="w-full justify-start overflow-x-auto [&_[data-slot=tabs-trigger]]:flex-none">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="learning">Learning</TabsTrigger>
             <TabsTrigger value="pricing">Pricing</TabsTrigger>
@@ -90,54 +92,47 @@ export function CourseDetailDrawer({ open, onOpenChange, course }: CourseDetailD
             ))}
           </TabsList>
 
-          <TabsContent value="overview" className="flex flex-col gap-4">
-            <dl className="grid grid-cols-2 gap-3 text-sm">
-              <div>
-                <dt className="text-caption text-muted-foreground">Category</dt>
-                <dd className="text-body-sm">{course.category}</dd>
-              </div>
-              <div>
-                <dt className="text-caption text-muted-foreground">Subcategory</dt>
-                <dd className="text-body-sm">{course.subcategory ?? '—'}</dd>
-              </div>
-              <div>
-                <dt className="text-caption text-muted-foreground">Level</dt>
-                <dd className="text-body-sm">{course.level.replace(/_/g, ' ')}</dd>
-              </div>
-              <div>
-                <dt className="text-caption text-muted-foreground">Delivery mode</dt>
-                <dd className="text-body-sm">{course.deliveryMode.replace(/_/g, ' ')}</dd>
-              </div>
-              <div>
-                <dt className="text-caption text-muted-foreground">Duration</dt>
-                <dd className="text-body-sm">
-                  {course.durationValue && course.durationUnit
-                    ? `${String(course.durationValue)} ${course.durationUnit.toLowerCase()}`
-                    : '—'}
-                </dd>
-              </div>
-              <div>
-                <dt className="text-caption text-muted-foreground">Language</dt>
-                <dd className="text-body-sm">{course.language}</dd>
-              </div>
-              {course.description && (
-                <div className="col-span-2">
-                  <dt className="text-caption text-muted-foreground">Description</dt>
-                  <dd className="text-body-sm whitespace-pre-wrap">{course.description}</dd>
-                </div>
-              )}
-              {course.tags.length > 0 && (
-                <div className="col-span-2">
-                  <dt className="text-caption text-muted-foreground">Tags</dt>
-                  <dd className="text-body-sm">{course.tags.join(', ')}</dd>
-                </div>
-              )}
-            </dl>
+          <TabsContent value="overview" className="flex flex-col gap-6">
+            <DetailSection title="Details">
+              <dl className="grid grid-cols-2 gap-4">
+                <DetailField label="Category" value={course.category} />
+                <DetailField label="Subcategory" value={course.subcategory ?? '—'} />
+                <DetailField label="Level" value={formatEnumLabel(course.level)} />
+                <DetailField label="Delivery mode" value={formatEnumLabel(course.deliveryMode)} />
+                <DetailField
+                  icon={Clock}
+                  label="Duration"
+                  value={
+                    course.durationValue && course.durationUnit
+                      ? `${String(course.durationValue)} ${course.durationUnit.toLowerCase()}`
+                      : '—'
+                  }
+                />
+                <DetailField icon={Globe} label="Language" value={course.language} />
+              </dl>
+            </DetailSection>
+
+            {course.description && (
+              <>
+                <Separator />
+                <DetailSection title="Description">
+                  <p className="text-body-sm whitespace-pre-wrap">{course.description}</p>
+                </DetailSection>
+              </>
+            )}
+
+            {course.tags.length > 0 && (
+              <>
+                <Separator />
+                <DetailSection title="Tags">
+                  <p className="text-body-sm">{course.tags.join(', ')}</p>
+                </DetailSection>
+              </>
+            )}
           </TabsContent>
 
-          <TabsContent value="learning" className="flex flex-col gap-4">
-            <div>
-              <h4 className="text-body-sm mb-2 font-semibold">Learning outcomes</h4>
+          <TabsContent value="learning" className="flex flex-col gap-6">
+            <DetailSection title="Learning outcomes">
               {course.learningOutcomes.length === 0 ? (
                 <EmptyState icon={Sparkles} title="No learning outcomes on file" />
               ) : (
@@ -147,64 +142,68 @@ export function CourseDetailDrawer({ open, onOpenChange, course }: CourseDetailD
                   ))}
                 </ul>
               )}
-            </div>
-            <div>
-              <h4 className="text-body-sm mb-2 font-semibold">Skills gained</h4>
+            </DetailSection>
+
+            <Separator />
+
+            <DetailSection title="Skills gained">
               <p className="text-body-sm text-muted-foreground">
                 {course.skills.join(', ') || '—'}
               </p>
-            </div>
-            <div>
-              <h4 className="text-body-sm mb-2 font-semibold">Prerequisites</h4>
+            </DetailSection>
+
+            <Separator />
+
+            <DetailSection title="Prerequisites">
               <p className="text-body-sm text-muted-foreground">
                 {course.prerequisites.join(', ') || '—'}
               </p>
-            </div>
-            <div>
-              <h4 className="text-body-sm mb-2 font-semibold">Target audience</h4>
+            </DetailSection>
+
+            <Separator />
+
+            <DetailSection title="Target audience">
               <p className="text-body-sm text-muted-foreground">{course.targetAudience ?? '—'}</p>
-            </div>
+            </DetailSection>
           </TabsContent>
 
-          <TabsContent value="pricing" className="flex flex-col gap-2 text-sm">
-            <dl className="grid grid-cols-2 gap-3">
-              <div>
-                <dt className="text-caption text-muted-foreground">Pricing type</dt>
-                <dd className="text-body-sm">{course.pricing.pricingType}</dd>
-              </div>
-              <div>
-                <dt className="text-caption text-muted-foreground">Display price</dt>
-                <dd className="text-body-sm">
-                  {course.pricing.currency} {course.pricing.displayPrice.toLocaleString()}
-                </dd>
-              </div>
-              {course.pricing.pricingType === 'PAID' && (
-                <>
-                  <div>
-                    <dt className="text-caption text-muted-foreground">Base price</dt>
-                    <dd className="text-body-sm">
-                      {course.pricing.currency} {course.pricing.basePrice.toLocaleString()}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt className="text-caption text-muted-foreground">Discount price</dt>
-                    <dd className="text-body-sm">
-                      {course.pricing.discountPrice !== null
-                        ? `${course.pricing.currency} ${course.pricing.discountPrice.toLocaleString()}`
-                        : '—'}
-                    </dd>
-                  </div>
-                </>
-              )}
-              <div>
-                <dt className="text-caption text-muted-foreground">Certificate eligible</dt>
-                <dd className="text-body-sm">{course.certificateEnabled ? 'Yes' : 'No'}</dd>
-              </div>
-              <div>
-                <dt className="text-caption text-muted-foreground">Max capacity</dt>
-                <dd className="text-body-sm">{course.maxStudentCapacity ?? 'Unlimited'}</dd>
-              </div>
-            </dl>
+          <TabsContent value="pricing" className="flex flex-col gap-6">
+            <DetailSection title="Pricing">
+              <dl className="grid grid-cols-2 gap-4">
+                <DetailField
+                  label="Pricing type"
+                  value={formatEnumLabel(course.pricing.pricingType)}
+                />
+                <DetailField
+                  label="Display price"
+                  value={`${course.pricing.currency} ${course.pricing.displayPrice.toLocaleString()}`}
+                />
+                {course.pricing.pricingType === 'PAID' && (
+                  <>
+                    <DetailField
+                      label="Base price"
+                      value={`${course.pricing.currency} ${course.pricing.basePrice.toLocaleString()}`}
+                    />
+                    <DetailField
+                      label="Discount price"
+                      value={
+                        course.pricing.discountPrice !== null
+                          ? `${course.pricing.currency} ${course.pricing.discountPrice.toLocaleString()}`
+                          : '—'
+                      }
+                    />
+                  </>
+                )}
+                <DetailField
+                  label="Certificate eligible"
+                  value={course.certificateEnabled ? 'Yes' : 'No'}
+                />
+                <DetailField
+                  label="Max capacity"
+                  value={course.maxStudentCapacity ?? 'Unlimited'}
+                />
+              </dl>
+            </DetailSection>
           </TabsContent>
 
           <TabsContent value="media">
@@ -256,25 +255,18 @@ export function CourseDetailDrawer({ open, onOpenChange, course }: CourseDetailD
             )}
           </TabsContent>
 
-          <TabsContent value="seo" className="flex flex-col gap-2 text-sm">
-            <dl className="flex flex-col gap-3">
-              <div>
-                <dt className="text-caption text-muted-foreground">Slug</dt>
-                <dd className="text-body-sm font-mono">{course.slug}</dd>
-              </div>
-              <div>
-                <dt className="text-caption text-muted-foreground">Meta title</dt>
-                <dd className="text-body-sm">{course.metaTitle ?? '—'}</dd>
-              </div>
-              <div>
-                <dt className="text-caption text-muted-foreground">Meta description</dt>
-                <dd className="text-body-sm">{course.metaDescription ?? '—'}</dd>
-              </div>
-              <div>
-                <dt className="text-caption text-muted-foreground">Canonical URL</dt>
-                <dd className="text-body-sm">{course.canonicalUrl ?? '—'}</dd>
-              </div>
-            </dl>
+          <TabsContent value="seo" className="flex flex-col gap-6">
+            <DetailSection title="SEO">
+              <dl className="flex flex-col gap-4">
+                <DetailField
+                  label="Slug"
+                  value={<span className="font-mono">{course.slug}</span>}
+                />
+                <DetailField label="Meta title" value={course.metaTitle ?? '—'} />
+                <DetailField label="Meta description" value={course.metaDescription ?? '—'} />
+                <DetailField label="Canonical URL" value={course.canonicalUrl ?? '—'} />
+              </dl>
+            </DetailSection>
           </TabsContent>
 
           <TabsContent value="preview">

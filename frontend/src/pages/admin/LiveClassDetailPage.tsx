@@ -8,7 +8,7 @@ import { Card, CardContent } from '@/shared/components/ui/card'
 import { PageLoader } from '@/shared/components/feedback/page-loader'
 import { ErrorState } from '@/shared/components/feedback/error-state'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs'
-import { cn } from '@/shared/lib/utils'
+import { cn, formatEnumLabel } from '@/shared/lib/utils'
 import { toast } from '@/shared/lib/toast'
 import { getSafeErrorMessage } from '@/features/auth/utils/error-messages'
 import { LiveClassStatusBadge } from '@/features/live-classes/components/LiveClassStatusBadge'
@@ -169,7 +169,7 @@ export default function LiveClassDetailPage() {
               <div>
                 <p className="text-caption text-muted-foreground">Delivery</p>
                 <p className="text-body-sm">
-                  {session.deliveryMode} · {session.provider.replace(/_/g, ' ')}
+                  {formatEnumLabel(session.deliveryMode)} · {formatEnumLabel(session.provider)}
                 </p>
               </div>
               <div>

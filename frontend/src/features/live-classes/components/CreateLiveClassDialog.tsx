@@ -1,21 +1,15 @@
+import { formatEnumLabel } from '@/shared/lib/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
 import { Modal } from '@/shared/components/overlays/modal'
 import { Button } from '@/shared/components/ui/button'
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/shared/components/ui/form'
-import { Input } from '@/shared/components/ui/input'
+import { Form } from '@/shared/components/ui/form'
 import { TextField } from '@/shared/components/forms/text-field'
 import { TextareaField } from '@/shared/components/forms/textarea-field'
 import { SelectField } from '@/shared/components/forms/select-field'
+import { DateTimePickerField } from '@/shared/components/forms/date-time-picker-field'
 import { toast } from '@/shared/lib/toast'
 import { getSafeErrorMessage } from '@/features/auth/utils/error-messages'
 import { useCreateLiveClass } from '@/features/live-classes/hooks/use-create-live-class'
@@ -120,6 +114,7 @@ export function CreateLiveClassDialog({
       onOpenChange={onOpenChange}
       title="Create a live class"
       description="Schedule a single session for this batch. Trainer conflicts and batch-range checks run on save."
+      className="sm:max-w-2xl"
     >
       <Form {...form}>
         <form
@@ -135,31 +130,15 @@ export function CreateLiveClassDialog({
           <TextareaField control={form.control} name="description" label="Description" rows={2} />
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <FormField
+            <DateTimePickerField
               control={form.control}
               name="startDateTime"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Start ({batchTimezone})</FormLabel>
-                  <FormControl>
-                    <Input type="datetime-local" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label={`Start (${batchTimezone})`}
             />
-            <FormField
+            <DateTimePickerField
               control={form.control}
               name="endDateTime"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>End ({batchTimezone})</FormLabel>
-                  <FormControl>
-                    <Input type="datetime-local" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label={`End (${batchTimezone})`}
             />
           </div>
 
@@ -176,7 +155,7 @@ export function CreateLiveClassDialog({
               label="Meeting provider"
               options={LIVE_CLASS_PROVIDERS.map((value) => ({
                 value,
-                label: value.replace(/_/g, ' '),
+                label: formatEnumLabel(value),
               }))}
             />
           </div>

@@ -1,3 +1,4 @@
+import { formatEnumLabel } from '@/shared/lib/utils'
 import { USER_STATUSES } from '@/features/auth/types'
 import { SearchBox } from '@/shared/components/data-display/search-box'
 import { FilterBar, type FilterDef } from '@/shared/components/data-display/filter-bar'
@@ -54,7 +55,7 @@ export function UsersFilterBar({
       onChange: (value) => {
         onStatusChange(value as AccountStatus | undefined)
       },
-      options: USER_STATUSES.map((value) => ({ value, label: value.replace(/_/g, ' ') })),
+      options: USER_STATUSES.map((value) => ({ value, label: formatEnumLabel(value) })),
     },
     {
       id: 'role',

@@ -29,9 +29,9 @@ export function Stepper({ steps, currentStepId, className }: StepperProps) {
             <div className="flex w-full items-center">
               <div
                 className={cn(
-                  'text-caption flex size-8 shrink-0 items-center justify-center rounded-full border-2 font-semibold',
-                  isComplete && 'border-primary bg-primary text-primary-foreground',
-                  isCurrent && 'border-primary text-foreground bg-background',
+                  'flex size-9 shrink-0 items-center justify-center rounded-full border-2 text-sm font-semibold transition-all duration-300',
+                  (isComplete || isCurrent) && 'border-primary bg-primary text-primary-foreground',
+                  isCurrent && 'ring-primary/20 shadow-primary/25 shadow-md ring-4',
                   !isComplete && !isCurrent && 'border-border text-muted-foreground bg-background',
                 )}
                 aria-current={isCurrent ? 'step' : undefined}
@@ -39,14 +39,21 @@ export function Stepper({ steps, currentStepId, className }: StepperProps) {
                 {isComplete ? <Check className="size-4" /> : index + 1}
               </div>
               {index < steps.length - 1 && (
-                <div className={cn('mx-2 h-0.5 flex-1', isComplete ? 'bg-primary' : 'bg-border')} />
+                <div
+                  className={cn(
+                    'mx-2 h-1 flex-1 rounded-full transition-colors duration-300',
+                    isComplete ? 'bg-primary' : 'bg-border',
+                  )}
+                />
               )}
             </div>
-            <div className="mt-2 max-w-28 text-center">
+            <div className="mt-3 max-w-28 text-center">
               <p
                 className={cn(
-                  'text-body-sm font-medium',
-                  !isCurrent && !isComplete && 'text-muted-foreground',
+                  'text-body-sm text-nowrap transition-colors duration-300',
+                  isCurrent && 'text-foreground font-semibold',
+                  isComplete && 'text-foreground font-medium',
+                  !isCurrent && !isComplete && 'text-muted-foreground font-medium',
                 )}
               >
                 {step.label}

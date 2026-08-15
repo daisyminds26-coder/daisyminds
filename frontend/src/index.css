@@ -126,6 +126,27 @@
 }
 
 /*
+  Admin chrome (header, sidebar, mobile nav drawer) uses a dark surface for
+  a richer, premium admin-console feel (dark chrome around a light
+  workspace) — reuses the existing Dark Charcoal/Warm White brand tokens
+  rather than introducing new colors, scoped to these elements only so the
+  rest of V1 stays light per UI-DESIGN-SYSTEM.md §10. Any element inside
+  that reads `--muted`/`--muted-foreground`/`--border` picks up these
+  values instead; Radix popovers/dropdowns/menus opened from this chrome
+  portal to `document.body` and are unaffected. `--card` is deliberately
+  left untouched so `bg-card` still resolves to white — used to give the
+  (opaque, light-backed) logo image a deliberate chip rather than letting
+  it float as a stray rectangle against the dark surface.
+*/
+.dark-surface {
+  --background: #2a2622; /* Dark Charcoal */
+  --foreground: #fffcf5; /* Warm White */
+  --muted: #3d382f;
+  --muted-foreground: #b8b0a0;
+  --border: #3d382f;
+}
+
+/*
   Dark mode is out of scope for V1 (UI-DESIGN-SYSTEM.md §10). These variables
   are left as shadcn's generic defaults — inert unless a `.dark` class is
   applied, which nothing in the app does yet — so a future dark theme is

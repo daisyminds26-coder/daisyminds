@@ -113,13 +113,7 @@ describe('BatchCreatePage', () => {
     await user.type(screen.getByLabelText('Max students'), '30')
     await user.click(screen.getByRole('button', { name: 'Next' }))
 
-    // Step 7: calendar exceptions (optional)
-    await waitFor(() => {
-      expect(screen.getByText('Calendar Exceptions')).toBeInTheDocument()
-    })
-    await user.click(screen.getByRole('button', { name: 'Next' }))
-
-    // Step 8: review + submit
+    // Step 7: review + submit
     await waitFor(() => {
       expect(screen.getByText(/this batch will be created as draft/i)).toBeInTheDocument()
     })

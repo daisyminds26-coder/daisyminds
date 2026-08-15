@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 
 import { PageContainer } from '@/shared/components/containers/page-container'
 import { buttonVariants } from '@/shared/components/ui/button'
+import { Card, CardContent } from '@/shared/components/ui/card'
 import { cn } from '@/shared/lib/utils'
 import { CreateEnrollmentWizard } from '@/features/enrollments/components/CreateEnrollmentWizard'
 
@@ -25,12 +26,16 @@ export default function EnrollmentCreatePage() {
         </Link>
       }
     >
-      <CreateEnrollmentWizard
-        initialBatchId={initialBatchId}
-        onDone={(enrollmentId) => {
-          void navigate(`/admin/enrollments/${enrollmentId}`)
-        }}
-      />
+      <Card>
+        <CardContent>
+          <CreateEnrollmentWizard
+            initialBatchId={initialBatchId}
+            onDone={(enrollmentId) => {
+              void navigate(`/admin/enrollments/${enrollmentId}`)
+            }}
+          />
+        </CardContent>
+      </Card>
     </PageContainer>
   )
 }

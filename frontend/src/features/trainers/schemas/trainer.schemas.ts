@@ -34,22 +34,40 @@ const urlSchema = z
     message: 'URL must start with http:// or https://',
   })
 
-const addressSchema = z.object({
-  line1: z.string().trim().min(1, 'Address line 1 is required').max(200),
-  line2: z.string().trim().max(200).optional().or(z.literal('')),
-  city: z.string().trim().min(1, 'City is required').max(100),
-  state: z.string().trim().min(1, 'State is required').max(100),
-  postalCode: z.string().trim().min(1, 'Postal code is required').max(20),
-  country: z.string().trim().min(1, 'Country is required').max(100),
-})
-
-const emergencyContactSchema = z.object({
-  name: z.string().trim().min(1, 'Name is required').max(150),
-  phone: phoneSchema,
-  relationship: z.string().trim().min(1, 'Relationship is required').max(60),
-  alternatePhone: phoneSchema.optional().or(z.literal('')),
-  email: z.email('Enter a valid email').optional().or(z.literal('')),
-})
+/**
+ * A trainer's address as a whole is optional, but `address.*` inputs mounting on the Contact
+ * step turn `address` from `undefined` into a real (possibly all-empty) object once RHF
+ * registers them — `addressSchema.optional()` alone isn't enough, since an untouched,
+ * all-empty address would then fail every required sub-field's validation with no visible
+ * error (those fields aren't rendered on Review). See
+ * `features/students/schemas/student.schemas.ts` for the same landmine, hit once already.
+ *
+ * Every field is optional-or-empty here, with a refine requiring all-or-nothing: either every
+ * field is blank (matches the backend's `address` being entirely absent) or every required
+ * field is filled (matches the backend's per-field `min(1)` when `address` is sent at all) —
+ * `toPayload()` converts an all-blank result to `undefined` before the request goes out.
+ */
+const addressSchema = z
+  .object({
+    line1: z.string().trim().max(200).optional().or(z.literal('')),
+    line2: z.string().trim().max(200).optional().or(z.literal('')),
+    city: z.string().trim().max(100).optional().or(z.literal('')),
+    state: z.string().trim().max(100).optional().or(z.literal('')),
+    postalCode: z.string().trim().max(20).optional().or(z.literal('')),
+    country: z.string().trim().max(100).optional().or(z.literal('')),
+  })
+  .refine(
+    (value) => {
+      const fields = [value.line1, value.city, value.state, value.postalCode, value.country]
+      const hasAny = fields.some((field) => Boolean(field))
+      const hasAll = fields.every((field) => Boolean(field))
+      return !hasAny || hasAll
+    },
+    {
+      message: 'Fill in all required address fields, or leave the whole address blank',
+      path: ['line1'],
+    },
+  )
 
 /** `yearOfCompletion` stays a validated string throughout the form's lifetime — see `features/students/schemas/student.schemas.ts` for why (avoids the `z.coerce` / `Control<T>` inference break). */
 const qualificationSchema = z.object({
@@ -128,9 +146,7 @@ function rejectOverlappingAvailability(
 
 export const trainerProfileSchema = z.object({
   firstName: z.string().trim().min(1, 'First name is required').max(100),
-  middleName: z.string().trim().max(100).optional().or(z.literal('')),
   lastName: z.string().trim().min(1, 'Last name is required').max(100),
-  displayName: z.string().trim().max(250).optional().or(z.literal('')),
   dateOfBirth: z
     .date()
     .refine((date) => date < new Date(), { message: 'Date of birth must be in the past' })
@@ -141,7 +157,6 @@ export const trainerProfileSchema = z.object({
   phone: phoneSchema,
   alternatePhone: phoneSchema.optional().or(z.literal('')),
   address: addressSchema.optional(),
-  emergencyContacts: z.array(emergencyContactSchema).max(5),
 
   designation: z.string().trim().max(150).optional().or(z.literal('')),
   department: z.string().trim().max(150).optional().or(z.literal('')),
@@ -165,8 +180,6 @@ export const trainerProfileSchema = z.object({
     .or(z.literal('')),
   expertiseAreas: z.array(z.string().trim().min(1).max(60)).max(30),
   secondaryExpertise: z.array(z.string().trim().min(1).max(60)).max(30),
-  skills: z.array(z.string().trim().min(1).max(60)).max(30),
-  technologies: z.array(z.string().trim().min(1).max(60)).max(30),
   specializations: z.array(z.string().trim().min(1).max(60)).max(30),
   linkedinUrl: urlSchema.optional().or(z.literal('')),
   portfolioUrl: urlSchema.optional().or(z.literal('')),
@@ -182,7 +195,6 @@ export const trainerProfileSchema = z.object({
   employeeCode: z.string().trim().max(60).optional().or(z.literal('')),
   workLocation: z.string().trim().max(200).optional().or(z.literal('')),
   probationEndDate: z.date().optional(),
-  noticePeriodDays: z.string().trim().regex(/^\d*$/, 'Numbers only').optional().or(z.literal('')),
 
   preferredTeachingModes: z.array(z.enum(TEACHING_MODES)).max(3),
   preferredTimeSlots: z.array(z.enum(PREFERRED_TIME_SLOTS)).max(4),
@@ -207,7 +219,6 @@ export const trainerProfileSchema = z.object({
 
   source: z.enum(TRAINER_SOURCES).optional(),
   notes: z.string().trim().max(2000).optional().or(z.literal('')),
-  tags: z.array(z.string().trim().min(1).max(40)).max(20),
 })
 
 export const createTrainerSchema = trainerProfileSchema.extend({

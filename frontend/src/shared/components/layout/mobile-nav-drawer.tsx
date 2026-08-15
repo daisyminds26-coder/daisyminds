@@ -25,11 +25,15 @@ export function MobileNavDrawer({ sections, areaRoot }: MobileNavDrawerProps) {
         }
       }}
     >
-      <SheetContent side="left" className="w-72 p-0">
+      <SheetContent side="left" className="dark-surface bg-background text-foreground w-72 p-0">
         <SheetHeader className="border-border h-16 justify-center border-b px-4">
           <SheetTitle asChild>
-            <Link to="/" onClick={closeMobileNav} className="flex items-center">
-              <Logo className="h-8" alt="Daisy Minds" />
+            <Link
+              to="/"
+              onClick={closeMobileNav}
+              className="bg-card flex w-fit items-center rounded-lg px-3 py-2"
+            >
+              <Logo className="h-6" alt="Daisy Minds" />
             </Link>
           </SheetTitle>
         </SheetHeader>

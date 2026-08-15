@@ -1,3 +1,4 @@
+import { formatEnumLabel } from '@/shared/lib/utils'
 import { useMemo } from 'react'
 import { useFieldArray, useWatch, type Control, type FieldValues } from 'react-hook-form'
 import { CalendarOff, Plus, Trash2 } from 'lucide-react'
@@ -66,7 +67,7 @@ export function CalendarExceptionsEditor<
             return (
               <li
                 key={field.id}
-                className="border-border flex flex-col gap-3 rounded-lg border p-4"
+                className="border-border bg-card flex flex-col gap-3 rounded-lg border p-4"
               >
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   <DatePickerField
@@ -80,7 +81,7 @@ export function CalendarExceptionsEditor<
                     label="Type"
                     options={CALENDAR_EXCEPTION_TYPES.map((type) => ({
                       value: type,
-                      label: type.replace(/_/g, ' '),
+                      label: formatEnumLabel(type),
                     }))}
                   />
                   <TextField

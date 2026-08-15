@@ -48,7 +48,6 @@ export interface EmergencyContactInput {
   name: string
   phone: string
   relationship: string
-  alternatePhone?: string
   email?: string
 }
 
@@ -83,7 +82,7 @@ export interface StudentProfileFields {
 export interface CreateStudentPayload extends StudentProfileFields {
   email: string
   password: string
-  sendInvitation: boolean
+  sendInvitation: boolean   
 }
 
 export type UpdateStudentPayload = Partial<StudentProfileFields>

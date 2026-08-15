@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom'
 import { Button } from '@/shared/components/ui/button'
 import { Card, CardContent } from '@/shared/components/ui/card'
 import { Checkbox } from '@/shared/components/ui/checkbox'
+import { Form } from '@/shared/components/ui/form'
 import { Input } from '@/shared/components/ui/input'
 import { Label } from '@/shared/components/ui/label'
 import { TextField } from '@/shared/components/forms/text-field'
@@ -32,24 +33,80 @@ function numericString(message: string) {
 }
 
 const optionSchema = z.object({
-  text: z.string().trim().min(1, 'Option text is required').max(1000),
+  text: z.string().trim().max(1000),
   isCorrect: z.boolean(),
 })
 
-const formSchema = z.object({
-  courseId: z.string().min(1, 'Course is required'),
-  questionType: z.enum(QUESTION_TYPES),
-  difficulty: z.union([z.enum(QUESTION_DIFFICULTIES), z.literal('')]),
-  questionText: z.string().trim().min(1, 'Question text is required').max(5000),
-  explanation: z.string().trim().max(3000),
-  marks: numericString('Enter a valid number of marks'),
-  negativeMarks: z.union([numericString('Enter a valid number'), z.literal('')]),
-  options: z.array(optionSchema).max(10),
-  correctBoolean: z.union([z.literal('true'), z.literal('false'), z.literal('')]),
-  acceptedAnswers: z.string().trim().max(1000),
-  correctNumericAnswer: z.union([numericString('Enter a valid number'), z.literal('')]),
-  tags: z.string().trim().max(400),
-})
+const CHOICE_TYPES = ['SINGLE_CHOICE', 'MULTIPLE_CHOICE'] as const
+
+const formSchema = z
+  .object({
+    courseId: z.string().min(1, 'Course is required'),
+    questionType: z.enum(QUESTION_TYPES),
+    difficulty: z.union([z.enum(QUESTION_DIFFICULTIES), z.literal('')]),
+    questionText: z.string().trim().min(1, 'Question text is required').max(5000),
+    explanation: z.string().trim().max(3000),
+    marks: numericString('Enter a valid number of marks'),
+    negativeMarks: z.union([numericString('Enter a valid number'), z.literal('')]),
+    options: z.array(optionSchema).max(10),
+    correctBoolean: z.union([z.literal('true'), z.literal('false'), z.literal('')]),
+    acceptedAnswers: z.string().trim().max(1000),
+    correctNumericAnswer: z.union([numericString('Enter a valid number'), z.literal('')]),
+    tags: z.string().trim().max(400),
+  })
+  /**
+   * Options/correctBoolean/correctNumericAnswer are only meaningful for
+   * some question types, so this rule set mirrors the backend's own
+   * `checkQuestionShape` (`backend/src/validators/question.validator.ts`)
+   * exactly — matching type-specific fields must stay conditional, or a
+   * user picking e.g. "Short answer" gets blocked by validation on fields
+   * they never see (the earlier bug: hidden default options with blank
+   * text failed unconditional `min(1)` validation with no visible error).
+   */
+  .superRefine((value, ctx) => {
+    if (CHOICE_TYPES.includes(value.questionType as (typeof CHOICE_TYPES)[number])) {
+      value.options.forEach((option, index) => {
+        if (!option.text.trim()) {
+          ctx.addIssue({
+            code: 'custom',
+            path: ['options', index, 'text'],
+            message: 'Option text is required',
+          })
+        }
+      })
+      const correctCount = value.options.filter((option) => option.isCorrect).length
+      if (correctCount === 0) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['options'],
+          message: 'At least one option must be marked correct',
+        })
+      }
+      if (value.questionType === 'SINGLE_CHOICE' && correctCount > 1) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['options'],
+          message: 'Single choice allows exactly one correct option',
+        })
+      }
+    }
+
+    if (value.questionType === 'TRUE_FALSE' && value.correctBoolean === '') {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['correctBoolean'],
+        message: 'Select the correct answer',
+      })
+    }
+
+    if (value.questionType === 'NUMERIC' && value.correctNumericAnswer === '') {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['correctNumericAnswer'],
+        message: 'Correct numeric answer is required',
+      })
+    }
+  })
 
 type FormValues = z.input<typeof formSchema>
 
@@ -120,9 +177,9 @@ export function QuestionForm({ existing }: QuestionFormProps) {
       acceptedAnswers:
         questionType === 'FILL_IN_THE_BLANK'
           ? values.acceptedAnswers
-            .split(',')
-            .map((item) => item.trim())
-            .filter(Boolean)
+              .split(',')
+              .map((item) => item.trim())
+              .filter(Boolean)
           : undefined,
       correctNumericAnswer:
         values.correctNumericAnswer === '' ? undefined : Number(values.correctNumericAnswer),
@@ -149,180 +206,201 @@ export function QuestionForm({ existing }: QuestionFormProps) {
 
   const isPending = createQuestion.isPending || updateQuestion.isPending
 
+  function onInvalid() {
+    toast.error('Check the highlighted fields', 'Some required fields are missing or invalid.')
+  }
+
   return (
-    <form
-      onSubmit={(event) => void form.handleSubmit(handleSubmit)(event)}
-      className="flex flex-col gap-6"
-    >
-      <Card>
-        <CardContent className="grid grid-cols-1 gap-4 pt-6 sm:grid-cols-2">
-          <SelectField
-            control={form.control}
-            name="courseId"
-            label="Course"
-            options={(coursesQuery.data?.data ?? []).map((course) => ({
-              value: course.id,
-              label: course.title,
-            }))}
-          />
-          <SelectField
-            control={form.control}
-            name="questionType"
-            label="Question type"
-            options={QUESTION_TYPES.map((value) => ({ value, label: QUESTION_TYPE_LABEL[value] }))}
-          />
-          <SelectField
-            control={form.control}
-            name="difficulty"
-            label="Difficulty"
-            placeholder="Not set"
-            options={QUESTION_DIFFICULTIES.map((value) => ({ value, label: value }))}
-          />
-          <TextField control={form.control} name="marks" label="Marks" />
-          <TextField
-            control={form.control}
-            name="negativeMarks"
-            label="Negative marks (optional)"
-            description="Applied only when the assessment has negative marking enabled"
-          />
-          <TextField control={form.control} name="tags" label="Tags (comma separated)" />
-          <div className="sm:col-span-2">
-            <TextareaField
-              control={form.control}
-              name="questionText"
-              label="Question text"
-              rows={3}
-            />
-          </div>
-          <div className="sm:col-span-2">
-            <TextareaField
-              control={form.control}
-              name="explanation"
-              label="Explanation (optional)"
-              rows={2}
-              description="Shown to the student only after their result is visible"
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      {isChoiceType && (
+    <Form {...form}>
+      <form
+        onSubmit={(event) => void form.handleSubmit(handleSubmit, onInvalid)(event)}
+        className="flex flex-col gap-6"
+      >
         <Card>
-          <CardContent className="flex flex-col gap-3 pt-6">
-            <Label>Options</Label>
-            {optionsArray.fields.map((field, index) => (
-              <div key={field.id} className="flex items-center gap-3">
-                <Checkbox
-                  // eslint-disable-next-line @typescript-eslint/restrict-template-expressions, react-hooks/incompatible-library -- RHF's FieldPath type requires a literal `options.${number}.isCorrect` template (not a stringified index); `watch()` is RHF's documented API, see `CreateEnrollllmentWizard.tsx`'s identical comment
-                  checked={form.watch(`options.${index}.isCorrect`)}
-                  onCheckedChange={(checked) => {
-                    if (questionType === 'SINGLE_CHOICE' && checked) {
-                      optionsArray.fields.forEach((_, otherIndex) => {
-                        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions -- see the `watch()` call above
-                        form.setValue(`options.${otherIndex}.isCorrect`, otherIndex === index)
-                      })
-                    } else {
-                      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions -- see the `watch()` call above
-                      form.setValue(`options.${index}.isCorrect`, checked === true)
-                    }
-                  }}
-                  aria-label={`Option ${String(index + 1)} is correct`}
-                />
-                <Input
-                  // eslint-disable-next-line @typescript-eslint/restrict-template-expressions -- see the `watch()` call above
-                  {...form.register(`options.${index}.text`)}
-                  placeholder={`Option ${String(index + 1)}`}
-                  className="flex-1"
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  aria-label={`Remove option ${String(index + 1)}`}
-                  disabled={optionsArray.fields.length <= 2}
-                  onClick={() => {
-                    optionsArray.remove(index)
-                  }}
-                >
-                  <Trash2 className="size-4" />
-                </Button>
-              </div>
-            ))}
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="w-fit gap-1.5"
-              disabled={optionsArray.fields.length >= 10}
-              onClick={() => {
-                optionsArray.append({ text: '', isCorrect: false })
-              }}
-            >
-              <Plus className="size-3.5" />
-              Add option
-            </Button>
-            <p className="text-caption text-muted-foreground">
-              {questionType === 'SINGLE_CHOICE'
-                ? 'Exactly one option must be marked correct.'
-                : 'Mark every correct option — grading is all-or-nothing.'}
-            </p>
-          </CardContent>
-        </Card>
-      )}
-
-      {questionType === 'TRUE_FALSE' && (
-        <Card>
-          <CardContent className="pt-6">
+          <CardContent className="grid grid-cols-1 gap-4 pt-6 sm:grid-cols-2">
             <SelectField
               control={form.control}
-              name="correctBoolean"
-              label="Correct answer"
-              options={[
-                { value: 'true', label: 'True' },
-                { value: 'false', label: 'False' },
-              ]}
+              name="courseId"
+              label="Course"
+              options={(coursesQuery.data?.data ?? []).map((course) => ({
+                value: course.id,
+                label: course.title,
+              }))}
             />
-          </CardContent>
-        </Card>
-      )}
-
-      {questionType === 'FILL_IN_THE_BLANK' && (
-        <Card>
-          <CardContent className="pt-6">
+            <SelectField
+              control={form.control}
+              name="questionType"
+              label="Question type"
+              options={QUESTION_TYPES.map((value) => ({
+                value,
+                label: QUESTION_TYPE_LABEL[value],
+              }))}
+            />
+            <SelectField
+              control={form.control}
+              name="difficulty"
+              label="Difficulty"
+              placeholder="Not set"
+              options={QUESTION_DIFFICULTIES.map((value) => ({ value, label: value }))}
+            />
+            <TextField control={form.control} name="marks" label="Marks" />
             <TextField
               control={form.control}
-              name="acceptedAnswers"
-              label="Accepted answers (comma separated, optional)"
-              description="Leave empty for manual grading — set this to auto-grade on an exact (case-insensitive) match"
+              name="negativeMarks"
+              label="Negative marks (optional)"
+              description="Applied only when the assessment has negative marking enabled"
             />
+            <TextField control={form.control} name="tags" label="Tags (comma separated)" />
+            <div className="sm:col-span-2">
+              <TextareaField
+                control={form.control}
+                name="questionText"
+                label="Question text"
+                rows={3}
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <TextareaField
+                control={form.control}
+                name="explanation"
+                label="Explanation (optional)"
+                rows={2}
+                description="Shown to the student only after their result is visible"
+              />
+            </div>
           </CardContent>
         </Card>
-      )}
 
-      {questionType === 'NUMERIC' && (
-        <Card>
-          <CardContent className="pt-6">
-            <TextField
-              control={form.control}
-              name="correctNumericAnswer"
-              label="Correct numeric answer"
-            />
-          </CardContent>
-        </Card>
-      )}
+        {isChoiceType && (
+          <Card>
+            <CardContent className="flex flex-col gap-3 pt-6">
+              <Label>Options</Label>
+              {optionsArray.fields.map((field, index) => (
+                <div key={field.id} className="flex flex-col gap-1">
+                  <div className="flex items-center gap-3">
+                    <Checkbox
+                      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions, react-hooks/incompatible-library -- RHF's FieldPath type requires a literal `options.${number}.isCorrect` template (not a stringified index); `watch()` is RHF's documented API, see `CreateEnrollllmentWizard.tsx`'s identical comment
+                      checked={form.watch(`options.${index}.isCorrect`)}
+                      onCheckedChange={(checked) => {
+                        if (questionType === 'SINGLE_CHOICE' && checked) {
+                          optionsArray.fields.forEach((_, otherIndex) => {
+                            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions -- see the `watch()` call above
+                            form.setValue(`options.${otherIndex}.isCorrect`, otherIndex === index)
+                          })
+                        } else {
+                          // eslint-disable-next-line @typescript-eslint/restrict-template-expressions -- see the `watch()` call above
+                          form.setValue(`options.${index}.isCorrect`, checked === true)
+                        }
+                      }}
+                      aria-label={`Option ${String(index + 1)} is correct`}
+                    />
+                    <Input
+                      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions -- see the `watch()` call above
+                      {...form.register(`options.${index}.text`)}
+                      placeholder={`Option ${String(index + 1)}`}
+                      className="flex-1"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      aria-label={`Remove option ${String(index + 1)}`}
+                      disabled={optionsArray.fields.length <= 2}
+                      onClick={() => {
+                        optionsArray.remove(index)
+                      }}
+                    >
+                      <Trash2 className="size-4" />
+                    </Button>
+                  </div>
+                  {form.formState.errors.options?.[index]?.text && (
+                    <p className="text-caption text-destructive pl-8">
+                      {form.formState.errors.options[index].text.message}
+                    </p>
+                  )}
+                </div>
+              ))}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="w-fit gap-1.5"
+                disabled={optionsArray.fields.length >= 10}
+                onClick={() => {
+                  optionsArray.append({ text: '', isCorrect: false })
+                }}
+              >
+                <Plus className="size-3.5" />
+                Add option
+              </Button>
+              {form.formState.errors.options?.root?.message && (
+                <p className="text-caption text-destructive">
+                  {form.formState.errors.options.root.message}
+                </p>
+              )}
+              <p className="text-caption text-muted-foreground">
+                {questionType === 'SINGLE_CHOICE'
+                  ? 'Exactly one option must be marked correct.'
+                  : 'Mark every correct option — grading is all-or-nothing.'}
+              </p>
+            </CardContent>
+          </Card>
+        )}
 
-      <div className="flex justify-end gap-2">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => void navigate('/admin/question-bank')}
-        >
-          Cancel
-        </Button>
-        <Button type="submit" disabled={isPending}>
-          {isPending ? 'Saving…' : existing ? 'Save changes' : 'Create question'}
-        </Button>
-      </div>
-    </form>
+        {questionType === 'TRUE_FALSE' && (
+          <Card>
+            <CardContent className="pt-6">
+              <SelectField
+                control={form.control}
+                name="correctBoolean"
+                label="Correct answer"
+                options={[
+                  { value: 'true', label: 'True' },
+                  { value: 'false', label: 'False' },
+                ]}
+              />
+            </CardContent>
+          </Card>
+        )}
+
+        {questionType === 'FILL_IN_THE_BLANK' && (
+          <Card>
+            <CardContent className="pt-6">
+              <TextField
+                control={form.control}
+                name="acceptedAnswers"
+                label="Accepted answers (comma separated, optional)"
+                description="Leave empty for manual grading — set this to auto-grade on an exact (case-insensitive) match"
+              />
+            </CardContent>
+          </Card>
+        )}
+
+        {questionType === 'NUMERIC' && (
+          <Card>
+            <CardContent className="pt-6">
+              <TextField
+                control={form.control}
+                name="correctNumericAnswer"
+                label="Correct numeric answer"
+              />
+            </CardContent>
+          </Card>
+        )}
+
+        <div className="flex justify-end gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => void navigate('/admin/question-bank')}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" disabled={isPending}>
+            {isPending ? 'Saving…' : existing ? 'Save changes' : 'Create question'}
+          </Button>
+        </div>
+      </form>
+    </Form>
   )
 }

@@ -9,6 +9,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/shared/components/ui/breadcrumb'
+import { useBreadcrumbStore } from '@/shared/stores/breadcrumb-store'
 
 export interface BreadcrumbSegment {
   label: string
@@ -21,14 +22,18 @@ function humanize(segment: string): string {
 
 /**
  * Auto-derives crumbs from the URL when `segments` isn't supplied (each path
- * segment title-cased), or renders an explicit trail when a page needs
- * custom labels (e.g. a resource name instead of its ID).
+ * segment title-cased). A page can override this — e.g. a resource name
+ * instead of its id — via `usePageBreadcrumb`, which stores an explicit
+ * trail in `useBreadcrumbStore`; that takes precedence over auto-derivation
+ * whenever no `segments` prop is passed directly.
  */
 export function PageBreadcrumb({ segments }: { segments?: readonly BreadcrumbSegment[] }) {
   const location = useLocation()
+  const storeSegments = useBreadcrumbStore((state) => state.segments)
 
   const crumbs =
     segments ??
+    storeSegments ??
     location.pathname
       .split('/')
       .filter(Boolean)

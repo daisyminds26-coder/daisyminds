@@ -1,3 +1,4 @@
+import { formatEnumLabel } from '@/shared/lib/utils'
 import { useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useFieldArray, useForm } from 'react-hook-form'
@@ -43,7 +44,7 @@ const DEFAULT_VALUES: CreateStudentFormValues = {
   preferredLanguage: '',
   phone: '',
   address: { line1: '', line2: '', city: '', state: '', postalCode: '', country: 'India' },
-  emergencyContacts: [{ name: '', phone: '', relationship: '', alternatePhone: '', email: '' }],
+  emergencyContacts: [{ name: '', phone: '', relationship: '', email: '' }],
   educationRecords: [],
   notes: '',
   tags: [],
@@ -178,7 +179,7 @@ export function StudentCreateWizard({ onDone }: { onDone: () => void }) {
                   control={form.control}
                   name="gender"
                   label="Gender"
-                  options={GENDERS.map((value) => ({ value, label: value.replace(/_/g, ' ') }))}
+                  options={GENDERS.map((value) => ({ value, label: formatEnumLabel(value) }))}
                 />
                 <TextField
                   control={form.control}
@@ -191,7 +192,7 @@ export function StudentCreateWizard({ onDone }: { onDone: () => void }) {
 
           {currentStep?.id === 'contact' && (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <TextField control={form.control} name="phone" label="Primary phone" />
+              <TextField control={form.control} name="phone" label="Phone" />
               <div className="sm:col-span-2">
                 <TextField control={form.control} name="address.line1" label="Address line 1" />
               </div>
@@ -230,11 +231,6 @@ export function StudentCreateWizard({ onDone }: { onDone: () => void }) {
                     />
                     <TextField
                       control={form.control}
-                      name={emergencyContactField(index, 'alternatePhone')}
-                      label="Alternate phone"
-                    />
-                    <TextField
-                      control={form.control}
                       name={emergencyContactField(index, 'email')}
                       label="Email"
                       type="email"
@@ -266,7 +262,6 @@ export function StudentCreateWizard({ onDone }: { onDone: () => void }) {
                       name: '',
                       phone: '',
                       relationship: '',
-                      alternatePhone: '',
                       email: '',
                     })
                   }}
@@ -354,19 +349,14 @@ export function StudentCreateWizard({ onDone }: { onDone: () => void }) {
           {currentStep?.id === 'admin' && (
             <div className="flex flex-col gap-4">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <DatePickerField
-                  control={form.control}
-                  name="admissionDate"
-                  label="Admission date"
-                  description="Defaults to today if left blank."
-                />
+                <DatePickerField control={form.control} name="admissionDate" label="Admission date" />
                 <SelectField
                   control={form.control}
                   name="source"
                   label="Source"
                   options={STUDENT_SOURCES.map((value) => ({
                     value,
-                    label: value.replace(/_/g, ' '),
+                    label: formatEnumLabel(value),
                   }))}
                 />
               </div>

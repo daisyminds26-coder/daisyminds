@@ -18,7 +18,12 @@ const OVERRIDE_MESSAGES: Partial<Record<string, string>> = {
 /** Never renders a raw backend stack/internal message — always routes through this. */
 export function getSafeErrorMessage(error: unknown): string {
   if (isApiClientError(error)) {
-    return OVERRIDE_MESSAGES[error.code] ?? error.message
+    const base = OVERRIDE_MESSAGES[error.code] ?? error.message
+    if (error.errors && error.errors.length > 0) {
+      const details = error.errors.map((detail) => detail.message).join('; ')
+      return `${base}: ${details}`
+    }
+    return base
   }
   return 'An unexpected error occurred. Please try again.'
 }

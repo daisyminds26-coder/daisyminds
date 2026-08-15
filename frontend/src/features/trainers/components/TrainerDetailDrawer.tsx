@@ -1,8 +1,10 @@
 import { useState } from 'react'
-import { Sparkles } from 'lucide-react'
+import { Calendar, Mail, MapPin, Phone, Sparkles } from 'lucide-react'
 
 import { Drawer } from '@/shared/components/overlays/drawer'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs'
+import { Separator } from '@/shared/components/ui/separator'
+import { DetailField, DetailSection } from '@/shared/components/data-display/detail-section'
 import { EmptyState } from '@/shared/components/feedback/empty-state'
 import { useCurrentUser } from '@/features/auth/hooks/use-current-user'
 import { TrainerStatusBadge } from '@/features/trainers/components/TrainerStatusBadge'
@@ -65,7 +67,7 @@ export function TrainerDetailDrawer({ open, onOpenChange, trainer }: TrainerDeta
         </div>
 
         <Tabs defaultValue="overview">
-          <TabsList className="flex-wrap">
+          <TabsList className="w-full justify-start overflow-x-auto [&_[data-slot=tabs-trigger]]:flex-none">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="qualifications">Qualifications</TabsTrigger>
             <TabsTrigger value="employment">Employment</TabsTrigger>
@@ -79,78 +81,95 @@ export function TrainerDetailDrawer({ open, onOpenChange, trainer }: TrainerDeta
             ))}
           </TabsList>
 
-          <TabsContent value="overview" className="flex flex-col gap-4">
-            <dl className="grid grid-cols-2 gap-3 text-sm">
-              <div>
-                <dt className="text-caption text-muted-foreground">Email</dt>
-                <dd className="text-body-sm">{trainer.email}</dd>
-              </div>
-              <div>
-                <dt className="text-caption text-muted-foreground">Phone</dt>
-                <dd className="text-body-sm">{trainer.phone ?? '—'}</dd>
-              </div>
-              <div>
-                <dt className="text-caption text-muted-foreground">Alternate phone</dt>
-                <dd className="text-body-sm">{trainer.alternatePhone ?? '—'}</dd>
-              </div>
-              <div>
-                <dt className="text-caption text-muted-foreground">Date of birth</dt>
-                <dd className="text-body-sm">
-                  {trainer.dateOfBirth ? new Date(trainer.dateOfBirth).toLocaleDateString() : '—'}
-                </dd>
-              </div>
-              <div className="col-span-2">
-                <dt className="text-caption text-muted-foreground">Address</dt>
-                <dd className="text-body-sm">
-                  {trainer.address
-                    ? `${trainer.address.line1}, ${trainer.address.city}, ${trainer.address.state} ${trainer.address.postalCode}, ${trainer.address.country}`
-                    : '—'}
-                </dd>
-              </div>
-              {trainer.bio && (
-                <div className="col-span-2">
-                  <dt className="text-caption text-muted-foreground">Bio</dt>
-                  <dd className="text-body-sm whitespace-pre-wrap">{trainer.bio}</dd>
-                </div>
-              )}
-              {trainer.expertiseAreas.length > 0 && (
-                <div className="col-span-2">
-                  <dt className="text-caption text-muted-foreground">Expertise</dt>
-                  <dd className="text-body-sm">{trainer.expertiseAreas.join(', ')}</dd>
-                </div>
-              )}
-              {trainer.tags.length > 0 && (
-                <div className="col-span-2">
-                  <dt className="text-caption text-muted-foreground">Tags</dt>
-                  <dd className="text-body-sm">{trainer.tags.join(', ')}</dd>
-                </div>
-              )}
-            </dl>
+          <TabsContent value="overview" className="flex flex-col gap-6">
+            <DetailSection title="Contact">
+              <dl className="grid grid-cols-2 gap-4">
+                <DetailField icon={Mail} label="Email" value={trainer.email} />
+                <DetailField icon={Phone} label="Phone" value={trainer.phone ?? '—'} />
+                <DetailField
+                  icon={Phone}
+                  label="Alternate phone"
+                  value={trainer.alternatePhone ?? '—'}
+                />
+                <DetailField
+                  icon={Calendar}
+                  label="Date of birth"
+                  value={
+                    trainer.dateOfBirth ? new Date(trainer.dateOfBirth).toLocaleDateString() : '—'
+                  }
+                />
+              </dl>
+            </DetailSection>
+
+            <Separator />
+
+            <DetailSection title="Address">
+              <p className="text-body-sm flex items-start gap-1.5">
+                <MapPin className="text-muted-foreground mt-0.5 size-3.5 shrink-0" />
+                {trainer.address
+                  ? `${trainer.address.line1}, ${trainer.address.city}, ${trainer.address.state} ${trainer.address.postalCode}, ${trainer.address.country}`
+                  : '—'}
+              </p>
+            </DetailSection>
+
+            {trainer.bio && (
+              <>
+                <Separator />
+                <DetailSection title="Bio">
+                  <p className="text-body-sm whitespace-pre-wrap">{trainer.bio}</p>
+                </DetailSection>
+              </>
+            )}
+
+            {(trainer.expertiseAreas.length > 0 || trainer.tags.length > 0) && (
+              <>
+                <Separator />
+                <DetailSection title="Additional details">
+                  <dl className="grid grid-cols-2 gap-4">
+                    {trainer.expertiseAreas.length > 0 && (
+                      <DetailField
+                        label="Expertise"
+                        value={trainer.expertiseAreas.join(', ')}
+                        className="col-span-2"
+                      />
+                    )}
+                    {trainer.tags.length > 0 && (
+                      <DetailField
+                        label="Tags"
+                        value={trainer.tags.join(', ')}
+                        className="col-span-2"
+                      />
+                    )}
+                  </dl>
+                </DetailSection>
+              </>
+            )}
 
             {trainer.emergencyContacts.length > 0 && (
-              <div>
-                <h4 className="text-body-sm mb-2 font-semibold">Emergency contacts</h4>
-                <div className="flex flex-col gap-2">
-                  {trainer.emergencyContacts.map((contact) => (
-                    <div
-                      key={`${contact.name}-${contact.phone}`}
-                      className="border-border rounded-lg border p-3"
-                    >
-                      <p className="text-body-sm font-medium">
-                        {contact.name}{' '}
-                        <span className="text-muted-foreground">({contact.relationship})</span>
-                      </p>
-                      <p className="text-caption text-muted-foreground">{contact.phone}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <>
+                <Separator />
+                <DetailSection title="Emergency contacts">
+                  <div className="flex flex-col gap-2">
+                    {trainer.emergencyContacts.map((contact) => (
+                      <div
+                        key={`${contact.name}-${contact.phone}`}
+                        className="border-border rounded-lg border p-3"
+                      >
+                        <p className="text-body-sm font-medium">
+                          {contact.name}{' '}
+                          <span className="text-muted-foreground">({contact.relationship})</span>
+                        </p>
+                        <p className="text-caption text-muted-foreground">{contact.phone}</p>
+                      </div>
+                    ))}
+                  </div>
+                </DetailSection>
+              </>
             )}
           </TabsContent>
 
-          <TabsContent value="qualifications" className="flex flex-col gap-4">
-            <div>
-              <h4 className="text-body-sm mb-2 font-semibold">Qualifications</h4>
+          <TabsContent value="qualifications" className="flex flex-col gap-6">
+            <DetailSection title="Qualifications">
               {trainer.qualifications.length === 0 ? (
                 <EmptyState icon={Sparkles} title="No qualifications on file" />
               ) : (
@@ -171,9 +190,11 @@ export function TrainerDetailDrawer({ open, onOpenChange, trainer }: TrainerDeta
                   ))}
                 </div>
               )}
-            </div>
-            <div>
-              <h4 className="text-body-sm mb-2 font-semibold">Certifications</h4>
+            </DetailSection>
+
+            <Separator />
+
+            <DetailSection title="Certifications">
               {trainer.certifications.length === 0 ? (
                 <EmptyState icon={Sparkles} title="No certifications on file" />
               ) : (
@@ -192,59 +213,53 @@ export function TrainerDetailDrawer({ open, onOpenChange, trainer }: TrainerDeta
                   ))}
                 </div>
               )}
-            </div>
+            </DetailSection>
           </TabsContent>
 
-          <TabsContent value="employment" className="flex flex-col gap-2 text-sm">
-            <dl className="grid grid-cols-2 gap-3">
-              <div>
-                <dt className="text-caption text-muted-foreground">Joining date</dt>
-                <dd className="text-body-sm">
-                  {trainer.joiningDate ? new Date(trainer.joiningDate).toLocaleDateString() : '—'}
-                </dd>
-              </div>
-              <div>
-                <dt className="text-caption text-muted-foreground">Employment type</dt>
-                <dd className="text-body-sm">{trainer.employmentType ?? '—'}</dd>
-              </div>
-              <div>
-                <dt className="text-caption text-muted-foreground">Employment status</dt>
-                <dd className="text-body-sm">{trainer.employmentStatus}</dd>
-              </div>
-              <div>
-                <dt className="text-caption text-muted-foreground">Work location</dt>
-                <dd className="text-body-sm">{trainer.workLocation ?? '—'}</dd>
-              </div>
-              <div>
-                <dt className="text-caption text-muted-foreground">Employee code</dt>
-                <dd className="text-body-sm">{trainer.employeeCode ?? '—'}</dd>
-              </div>
-            </dl>
+          <TabsContent value="employment" className="flex flex-col gap-6">
+            <DetailSection title="Employment details">
+              <dl className="grid grid-cols-2 gap-4">
+                <DetailField
+                  icon={Calendar}
+                  label="Joining date"
+                  value={
+                    trainer.joiningDate ? new Date(trainer.joiningDate).toLocaleDateString() : '—'
+                  }
+                />
+                <DetailField label="Employment type" value={trainer.employmentType ?? '—'} />
+                <DetailField label="Employment status" value={trainer.employmentStatus} />
+                <DetailField label="Work location" value={trainer.workLocation ?? '—'} />
+                <DetailField label="Employee code" value={trainer.employeeCode ?? '—'} />
+              </dl>
+            </DetailSection>
           </TabsContent>
 
-          <TabsContent value="availability" className="flex flex-col gap-3">
-            <p className="text-body-sm text-muted-foreground">
-              Status: <span className="font-medium">{trainer.availabilityStatus}</span>
-              {trainer.maxWeeklyTeachingHours !== null &&
-                ` · Max ${String(trainer.maxWeeklyTeachingHours)} hrs/week`}
-            </p>
-            {trainer.availability.length === 0 ? (
-              <EmptyState icon={Sparkles} title="No weekly availability set" />
-            ) : (
-              <div className="flex flex-col gap-2">
-                {trainer.availability.map((slot) => (
-                  <div
-                    key={`${slot.dayOfWeek}-${slot.startTime}-${slot.type}`}
-                    className="border-border rounded-lg border p-3"
-                  >
-                    <p className="text-body-sm font-medium">
-                      {slot.dayOfWeek} {slot.startTime}–{slot.endTime} ({slot.timeZone})
-                    </p>
-                    <p className="text-caption text-muted-foreground">{slot.type}</p>
-                  </div>
-                ))}
-              </div>
-            )}
+          <TabsContent value="availability" className="flex flex-col gap-6">
+            <DetailSection title="Weekly availability">
+              <p className="text-body-sm text-muted-foreground mb-3">
+                Status:{' '}
+                <span className="text-foreground font-medium">{trainer.availabilityStatus}</span>
+                {trainer.maxWeeklyTeachingHours !== null &&
+                  ` · Max ${String(trainer.maxWeeklyTeachingHours)} hrs/week`}
+              </p>
+              {trainer.availability.length === 0 ? (
+                <EmptyState icon={Sparkles} title="No weekly availability set" />
+              ) : (
+                <div className="flex flex-col gap-2">
+                  {trainer.availability.map((slot) => (
+                    <div
+                      key={`${slot.dayOfWeek}-${slot.startTime}-${slot.type}`}
+                      className="border-border rounded-lg border p-3"
+                    >
+                      <p className="text-body-sm font-medium">
+                        {slot.dayOfWeek} {slot.startTime}–{slot.endTime} ({slot.timeZone})
+                      </p>
+                      <p className="text-caption text-muted-foreground">{slot.type}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </DetailSection>
           </TabsContent>
 
           {isSuperAdmin && (

@@ -1,3 +1,4 @@
+import { formatEnumLabel } from '@/shared/lib/utils'
 import { USER_STATUSES } from '@/features/auth/types'
 import { SearchBox } from '@/shared/components/data-display/search-box'
 import { FilterBar, type FilterDef } from '@/shared/components/data-display/filter-bar'
@@ -72,7 +73,7 @@ export function StudentsFilterBar({
       onChange: (value) => {
         onStatusChange(value as AccountStatus | undefined)
       },
-      options: USER_STATUSES.map((value) => ({ value, label: value.replace(/_/g, ' ') })),
+      options: USER_STATUSES.map((value) => ({ value, label: formatEnumLabel(value) })),
     },
     {
       id: 'gender',
@@ -81,7 +82,7 @@ export function StudentsFilterBar({
       onChange: (value) => {
         onGenderChange(value as Gender | undefined)
       },
-      options: GENDERS.map((value) => ({ value, label: value.replace(/_/g, ' ') })),
+      options: GENDERS.map((value) => ({ value, label: formatEnumLabel(value) })),
     },
     {
       id: 'source',
@@ -90,7 +91,7 @@ export function StudentsFilterBar({
       onChange: (value) => {
         onSourceChange(value as StudentSource | undefined)
       },
-      options: STUDENT_SOURCES.map((value) => ({ value, label: value.replace(/_/g, ' ') })),
+      options: STUDENT_SOURCES.map((value) => ({ value, label: formatEnumLabel(value) })),
     },
     {
       id: 'profileCompletionStatus',

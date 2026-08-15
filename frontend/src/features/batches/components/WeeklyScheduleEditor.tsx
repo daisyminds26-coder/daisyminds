@@ -132,7 +132,7 @@ export function WeeklyScheduleEditor<
             {fieldArray.fields.map((field, index) => (
               <li
                 key={field.id}
-                className="border-border flex flex-col gap-3 rounded-lg border p-4"
+                className="border-border bg-card flex flex-col gap-3 rounded-lg border p-4"
               >
                 {overlappingIndexes.has(index) && (
                   <div className="text-warning flex items-center gap-1.5 text-xs font-medium">

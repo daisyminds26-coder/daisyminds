@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import {
   DndContext,
@@ -12,6 +12,7 @@ import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { ArrowLeft, ChevronsDownUp, ChevronsUpDown, Plus } from 'lucide-react'
 
 import { PageContainer } from '@/shared/components/containers/page-container'
+import { usePageBreadcrumb } from '@/shared/hooks/use-page-breadcrumb'
 import { Button, buttonVariants } from '@/shared/components/ui/button'
 import { ConfirmDialog } from '@/shared/components/overlays/confirm-dialog'
 import { PageLoader } from '@/shared/components/feedback/page-loader'
@@ -82,6 +83,21 @@ export default function CourseCurriculumPage() {
   const curriculumQuery = useCurriculum(courseId)
   const readinessQuery = useCurriculumReadiness(courseId)
   const launchReadinessQuery = useCourseLaunchReadiness(courseId)
+
+  const courseTitle = courseQuery.data?.title
+  const breadcrumbSegments = useMemo(
+    () =>
+      courseTitle
+        ? [
+            { label: 'Admin', href: '/admin' },
+            { label: 'Courses', href: '/admin/courses' },
+            { label: courseTitle },
+            { label: 'Curriculum' },
+          ]
+        : undefined,
+    [courseTitle],
+  )
+  usePageBreadcrumb(breadcrumbSegments)
 
   const [collapsedIds, setCollapsedIds] = useState<Set<string>>(new Set())
   const [moduleFormTarget, setModuleFormTarget] = useState<ModuleFormTarget>(null)

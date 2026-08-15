@@ -18,10 +18,10 @@ const Toaster = ({ ...props }: ToasterProps) => {
       theme="light"
       className="toaster group"
       icons={{
-        success: <CircleCheckIcon className="size-4" />,
+        success: <CircleCheckIcon className="text-success size-4" />,
         info: <InfoIcon className="size-4" />,
-        warning: <TriangleAlertIcon className="size-4" />,
-        error: <OctagonXIcon className="size-4" />,
+        warning: <TriangleAlertIcon className="text-warning size-4" />,
+        error: <OctagonXIcon className="text-destructive size-4" />,
         loading: <Loader2Icon className="size-4 animate-spin" />,
       }}
       style={
@@ -30,6 +30,15 @@ const Toaster = ({ ...props }: ToasterProps) => {
           '--normal-text': 'var(--popover-foreground)',
           '--normal-border': 'var(--border)',
           '--border-radius': 'var(--radius)',
+          '--success-bg': 'color-mix(in oklch, var(--success) 12%, var(--popover))',
+          '--success-text': 'var(--popover-foreground)',
+          '--success-border': 'var(--success)',
+          '--error-bg': 'color-mix(in oklch, var(--destructive) 12%, var(--popover))',
+          '--error-text': 'var(--popover-foreground)',
+          '--error-border': 'var(--destructive)',
+          '--warning-bg': 'color-mix(in oklch, var(--warning) 15%, var(--popover))',
+          '--warning-text': 'var(--popover-foreground)',
+          '--warning-border': 'var(--warning)',
         } as React.CSSProperties
       }
       toastOptions={{

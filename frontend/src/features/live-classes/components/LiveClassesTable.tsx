@@ -1,4 +1,4 @@
-import { Video } from 'lucide-react'
+import { Settings2, Video } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 import { DataTable, type DataTableColumn } from '@/shared/components/data-display/data-table'
@@ -56,8 +56,10 @@ export function LiveClassesTable({
       id: 'batch',
       header: 'Batch / Course',
       cell: (row) => (
-        <div className="flex flex-col gap-0.5">
-          <span className="text-body-sm">{row.batchName}</span>
+        <div className="flex min-w-0 flex-col gap-0.5">
+          <span title={row.batchName} className="text-body-sm block max-w-[20ch] truncate">
+            {row.batchName}
+          </span>
           <span className="text-caption text-muted-foreground">{row.courseTitle}</span>
         </div>
       ),
@@ -87,10 +89,12 @@ export function LiveClassesTable({
     {
       id: 'actions',
       header: '',
-      className: 'text-right',
+      className: 'w-10 text-right',
       cell: (row) => (
-        <Button asChild variant="ghost" size="sm">
-          <Link to={`${detailBasePath}/${row.id}`}>Manage</Link>
+        <Button asChild variant="ghost" size="icon-sm" aria-label={`Manage ${row.sessionCode}`}>
+          <Link to={`${detailBasePath}/${row.id}`} title="Manage">
+            <Settings2 className="size-4" />
+          </Link>
         </Button>
       ),
     },

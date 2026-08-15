@@ -1,8 +1,10 @@
 import { useState } from 'react'
-import { Sparkles } from 'lucide-react'
+import { Calendar, Mail, MapPin, Phone, Sparkles } from 'lucide-react'
 
 import { Drawer } from '@/shared/components/overlays/drawer'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs'
+import { Separator } from '@/shared/components/ui/separator'
+import { DetailField, DetailSection } from '@/shared/components/data-display/detail-section'
 import { EmptyState } from '@/shared/components/feedback/empty-state'
 import { useCurrentUser } from '@/features/auth/hooks/use-current-user'
 import { StudentStatusBadge } from '@/features/students/components/StudentStatusBadge'
@@ -59,7 +61,7 @@ export function StudentDetailDrawer({ open, onOpenChange, student }: StudentDeta
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="flex-wrap">
+          <TabsList className="w-full justify-start overflow-x-auto [&_[data-slot=tabs-trigger]]:flex-none">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="academic">Academic</TabsTrigger>
             <TabsTrigger value="enrolments">Enrolments</TabsTrigger>
@@ -72,81 +74,100 @@ export function StudentDetailDrawer({ open, onOpenChange, student }: StudentDeta
             ))}
           </TabsList>
 
-          <TabsContent value="overview" className="flex flex-col gap-4">
-            <dl className="grid grid-cols-2 gap-3 text-sm">
-              <div>
-                <dt className="text-caption text-muted-foreground">Email</dt>
-                <dd className="text-body-sm">{student.email}</dd>
-              </div>
-              <div>
-                <dt className="text-caption text-muted-foreground">Phone</dt>
-                <dd className="text-body-sm">{student.phone ?? '—'}</dd>
-              </div>
-              <div>
-                <dt className="text-caption text-muted-foreground">Alternate phone</dt>
-                <dd className="text-body-sm">{student.alternatePhone ?? '—'}</dd>
-              </div>
-              <div>
-                <dt className="text-caption text-muted-foreground">Date of birth</dt>
-                <dd className="text-body-sm">
-                  {student.dateOfBirth ? new Date(student.dateOfBirth).toLocaleDateString() : '—'}
-                </dd>
-              </div>
-              <div>
-                <dt className="text-caption text-muted-foreground">Gender</dt>
-                <dd className="text-body-sm">{student.gender ?? '—'}</dd>
-              </div>
-              <div>
-                <dt className="text-caption text-muted-foreground">Admission date</dt>
-                <dd className="text-body-sm">
-                  {student.admissionDate
-                    ? new Date(student.admissionDate).toLocaleDateString()
-                    : '—'}
-                </dd>
-              </div>
-              <div>
-                <dt className="text-caption text-muted-foreground">Source</dt>
-                <dd className="text-body-sm">{student.source ?? '—'}</dd>
-              </div>
-              <div className="col-span-2">
-                <dt className="text-caption text-muted-foreground">Address</dt>
-                <dd className="text-body-sm">
-                  {student.address
-                    ? `${student.address.line1}, ${student.address.city}, ${student.address.state} ${student.address.postalCode}, ${student.address.country}`
-                    : '—'}
-                </dd>
-              </div>
-              {student.tags.length > 0 && (
-                <div className="col-span-2">
-                  <dt className="text-caption text-muted-foreground">Tags</dt>
-                  <dd className="text-body-sm">{student.tags.join(', ')}</dd>
-                </div>
-              )}
-              {student.notes && (
-                <div className="col-span-2">
-                  <dt className="text-caption text-muted-foreground">Notes</dt>
-                  <dd className="text-body-sm whitespace-pre-wrap">{student.notes}</dd>
-                </div>
-              )}
-            </dl>
+          <TabsContent value="overview" className="flex flex-col gap-6">
+            <DetailSection title="Contact">
+              <dl className="grid grid-cols-2 gap-4">
+                <DetailField icon={Mail} label="Email" value={student.email} />
+                <DetailField icon={Phone} label="Phone" value={student.phone ?? '—'} />
+                <DetailField
+                  icon={Phone}
+                  label="Alternate phone"
+                  value={student.alternatePhone ?? '—'}
+                />
+                <DetailField
+                  icon={Calendar}
+                  label="Date of birth"
+                  value={
+                    student.dateOfBirth ? new Date(student.dateOfBirth).toLocaleDateString() : '—'
+                  }
+                />
+                <DetailField label="Gender" value={student.gender ?? '—'} />
+              </dl>
+            </DetailSection>
 
-            <div>
-              <h4 className="text-body-sm mb-2 font-semibold">Emergency contacts</h4>
-              <div className="flex flex-col gap-2">
-                {student.emergencyContacts.map((contact) => (
-                  <div
-                    key={`${contact.name}-${contact.phone}`}
-                    className="border-border rounded-lg border p-3"
-                  >
-                    <p className="text-body-sm font-medium">
-                      {contact.name}{' '}
-                      <span className="text-muted-foreground">({contact.relationship})</span>
-                    </p>
-                    <p className="text-caption text-muted-foreground">{contact.phone}</p>
+            <Separator />
+
+            <DetailSection title="Enrollment">
+              <dl className="grid grid-cols-2 gap-4">
+                <DetailField
+                  icon={Calendar}
+                  label="Admission date"
+                  value={
+                    student.admissionDate
+                      ? new Date(student.admissionDate).toLocaleDateString()
+                      : '—'
+                  }
+                />
+                <DetailField label="Source" value={student.source ?? '—'} />
+              </dl>
+            </DetailSection>
+
+            <Separator />
+
+            <DetailSection title="Address">
+              <p className="text-body-sm flex items-start gap-1.5">
+                <MapPin className="text-muted-foreground mt-0.5 size-3.5 shrink-0" />
+                {student.address
+                  ? `${student.address.line1}, ${student.address.city}, ${student.address.state} ${student.address.postalCode}, ${student.address.country}`
+                  : '—'}
+              </p>
+            </DetailSection>
+
+            {(student.tags.length > 0 || student.notes) && (
+              <>
+                <Separator />
+                <DetailSection title="Additional details">
+                  <dl className="grid grid-cols-2 gap-4">
+                    {student.tags.length > 0 && (
+                      <DetailField
+                        label="Tags"
+                        value={student.tags.join(', ')}
+                        className="col-span-2"
+                      />
+                    )}
+                    {student.notes && (
+                      <DetailField
+                        label="Notes"
+                        value={<span className="whitespace-pre-wrap">{student.notes}</span>}
+                        className="col-span-2"
+                      />
+                    )}
+                  </dl>
+                </DetailSection>
+              </>
+            )}
+
+            {student.emergencyContacts.length > 0 && (
+              <>
+                <Separator />
+                <DetailSection title="Emergency contacts">
+                  <div className="flex flex-col gap-2">
+                    {student.emergencyContacts.map((contact) => (
+                      <div
+                        key={`${contact.name}-${contact.phone}`}
+                        className="border-border rounded-lg border p-3"
+                      >
+                        <p className="text-body-sm font-medium">
+                          {contact.name}{' '}
+                          <span className="text-muted-foreground">({contact.relationship})</span>
+                        </p>
+                        <p className="text-caption text-muted-foreground">{contact.phone}</p>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            </div>
+                </DetailSection>
+              </>
+            )}
           </TabsContent>
 
           <TabsContent value="academic" className="flex flex-col gap-3">

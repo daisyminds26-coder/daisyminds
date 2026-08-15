@@ -48,35 +48,25 @@ export interface AddressInput {
   country: string
 }
 
-export interface EmergencyContactInput {
-  name: string
-  phone: string
-  relationship: string
-  alternatePhone?: string
-  email?: string
-}
-
+/** No `documentUrl`/`documentPublicId` — backend only ever sets those via the confirm-upload endpoint, never as raw client input on the record itself. */
 export interface QualificationInput {
   degree: string
   institution: string
-  boardOrUniversity: string | null
-  fieldOfStudy: string | null
+  boardOrUniversity?: string
+  fieldOfStudy?: string
   yearOfCompletion: number
-  gradeValue: string | null
-  gradeType: GradeType | null
-  documentUrl: string | null
-  documentPublicId: string | null
+  gradeValue?: string
+  gradeType?: GradeType
 }
 
+/** No `documentUrl`/`documentPublicId` — same reasoning as `QualificationInput`. */
 export interface CertificationInput {
   name: string
   issuingOrganization: string
-  credentialId: string | null
+  credentialId?: string
   issueDate: string
-  expiryDate: string | null
-  verificationUrl: string | null
-  documentUrl: string | null
-  documentPublicId: string | null
+  expiryDate?: string
+  verificationUrl?: string
 }
 
 export interface AvailabilitySlotInput {
@@ -91,9 +81,7 @@ export interface AvailabilitySlotInput {
 
 export interface TrainerProfileFields {
   firstName: string
-  middleName?: string
   lastName: string
-  displayName?: string
   dateOfBirth?: string
   gender?: Gender
   preferredLanguage?: string
@@ -101,7 +89,6 @@ export interface TrainerProfileFields {
   phone: string
   alternatePhone?: string
   address?: AddressInput
-  emergencyContacts?: EmergencyContactInput[]
   designation?: string
   department?: string
   totalYearsExperience?: number
@@ -109,8 +96,6 @@ export interface TrainerProfileFields {
   industryYearsExperience?: number
   expertiseAreas?: string[]
   secondaryExpertise?: string[]
-  skills?: string[]
-  technologies?: string[]
   specializations?: string[]
   linkedinUrl?: string
   portfolioUrl?: string
@@ -125,7 +110,6 @@ export interface TrainerProfileFields {
   reportingManagerId?: string
   workLocation?: string
   probationEndDate?: string
-  noticePeriodDays?: number
   preferredTeachingModes?: TeachingMode[]
   preferredTimeSlots?: PreferredTimeSlot[]
   maxConcurrentBatches?: number
@@ -138,7 +122,6 @@ export interface TrainerProfileFields {
   availability?: AvailabilitySlotInput[]
   source?: TrainerSource
   notes?: string
-  tags?: string[]
 }
 
 export interface CreateTrainerPayload extends TrainerProfileFields {

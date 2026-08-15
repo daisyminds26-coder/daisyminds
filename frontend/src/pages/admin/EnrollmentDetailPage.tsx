@@ -10,7 +10,8 @@ import { ConfirmDialog } from '@/shared/components/overlays/confirm-dialog'
 import { PageLoader } from '@/shared/components/feedback/page-loader'
 import { ErrorState } from '@/shared/components/feedback/error-state'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs'
-import { cn } from '@/shared/lib/utils'
+import { Card, CardContent } from '@/shared/components/ui/card'
+import { cn, formatEnumLabel } from '@/shared/lib/utils'
 import { toast } from '@/shared/lib/toast'
 import { getSafeErrorMessage } from '@/features/auth/utils/error-messages'
 import { getStudent } from '@/features/students/api/students.api'
@@ -70,114 +71,116 @@ function OverviewTab({ enrollment }: { enrollment: AdminEnrollment }) {
   })
 
   return (
-    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-      <div className="flex flex-col gap-4">
-        <div>
-          <p className="text-caption text-muted-foreground">Student</p>
-          <p className="text-body-sm font-medium">
-            {studentQuery.isLoading
-              ? 'Loading…'
-              : (studentQuery.data?.displayName ??
-                `${studentQuery.data?.firstName ?? ''} ${studentQuery.data?.lastName ?? ''}`)}
-          </p>
-          <p className="text-caption text-muted-foreground">{studentQuery.data?.email}</p>
-        </div>
-        <div>
-          <p className="text-caption text-muted-foreground">Course</p>
-          <p className="text-body-sm font-medium">
-            {courseQuery.isLoading ? 'Loading…' : (courseQuery.data?.title ?? 'Unknown course')}
-          </p>
-        </div>
-        <div>
-          <p className="text-caption text-muted-foreground">Batch</p>
-          <Link
-            to={`/admin/batches/${enrollment.batchId}`}
-            className="text-body-sm font-medium hover:underline"
-          >
-            {batchQuery.isLoading ? 'Loading…' : (batchQuery.data?.name ?? 'Unknown batch')}
-          </Link>
-        </div>
-        <div>
-          <p className="text-caption text-muted-foreground">Source</p>
-          <p className="text-body-sm">{enrollment.source.replace(/_/g, ' ')}</p>
-        </div>
-        <div>
-          <p className="text-caption text-muted-foreground">Enrollment date</p>
-          <p className="text-body-sm">
-            {format(new Date(enrollment.enrollmentDate), 'MMM d, yyyy')}
-          </p>
-        </div>
-        {enrollment.waitlistPosition !== null && (
+    <Card>
+      <CardContent className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div className="flex flex-col gap-4">
           <div>
-            <p className="text-caption text-muted-foreground">Waitlist position</p>
-            <p className="text-body-sm">#{enrollment.waitlistPosition}</p>
-          </div>
-        )}
-        {enrollment.tags.length > 0 && (
-          <div>
-            <p className="text-caption text-muted-foreground">Tags</p>
-            <p className="text-body-sm">{enrollment.tags.join(', ')}</p>
-          </div>
-        )}
-        {enrollment.internalNotes && (
-          <div>
-            <p className="text-caption text-muted-foreground">Internal notes</p>
-            <p className="text-body-sm whitespace-pre-wrap">{enrollment.internalNotes}</p>
-          </div>
-        )}
-      </div>
-      <div className="flex flex-col gap-4">
-        <div>
-          <p className="text-body-sm mb-2 font-medium">Learning access</p>
-          <AccessBadge accessState={enrollment.accessState} />
-          <div className="mt-2 flex flex-col gap-1">
-            <p className="text-caption text-muted-foreground">
-              Access starts:{' '}
-              {enrollment.accessStartsAt
-                ? format(new Date(enrollment.accessStartsAt), 'MMM d, yyyy h:mm a')
-                : 'Not yet'}
+            <p className="text-caption text-muted-foreground">Student</p>
+            <p className="text-body-sm font-medium">
+              {studentQuery.isLoading
+                ? 'Loading…'
+                : (studentQuery.data?.displayName ??
+                  `${studentQuery.data?.firstName ?? ''} ${studentQuery.data?.lastName ?? ''}`)}
             </p>
-            <p className="text-caption text-muted-foreground">
-              Access ends:{' '}
-              {enrollment.accessEndsAt
-                ? format(new Date(enrollment.accessEndsAt), 'MMM d, yyyy h:mm a')
-                : 'Lifetime (no end date)'}
+            <p className="text-caption text-muted-foreground">{studentQuery.data?.email}</p>
+          </div>
+          <div>
+            <p className="text-caption text-muted-foreground">Course</p>
+            <p className="text-body-sm font-medium">
+              {courseQuery.isLoading ? 'Loading…' : (courseQuery.data?.title ?? 'Unknown course')}
             </p>
           </div>
-        </div>
-        <div>
-          <p className="text-body-sm mb-2 font-medium">Transfer lineage</p>
-          <LinkedEnrollmentLine
-            label="Transferred from"
-            enrollmentId={enrollment.transferredFromEnrollmentId}
-          />
-          <LinkedEnrollmentLine
-            label="Transferred to"
-            enrollmentId={enrollment.transferredToEnrollmentId}
-          />
-          {!enrollment.transferredFromEnrollmentId && !enrollment.transferredToEnrollmentId && (
-            <p className="text-body-sm text-muted-foreground">No transfer history</p>
+          <div>
+            <p className="text-caption text-muted-foreground">Batch</p>
+            <Link
+              to={`/admin/batches/${enrollment.batchId}`}
+              className="text-body-sm font-medium hover:underline"
+            >
+              {batchQuery.isLoading ? 'Loading…' : (batchQuery.data?.name ?? 'Unknown batch')}
+            </Link>
+          </div>
+          <div>
+            <p className="text-caption text-muted-foreground">Source</p>
+            <p className="text-body-sm">{formatEnumLabel(enrollment.source)}</p>
+          </div>
+          <div>
+            <p className="text-caption text-muted-foreground">Enrollment date</p>
+            <p className="text-body-sm">
+              {format(new Date(enrollment.enrollmentDate), 'MMM d, yyyy')}
+            </p>
+          </div>
+          {enrollment.waitlistPosition !== null && (
+            <div>
+              <p className="text-caption text-muted-foreground">Waitlist position</p>
+              <p className="text-body-sm">#{enrollment.waitlistPosition}</p>
+            </div>
           )}
-          {enrollment.transferReason && (
-            <p className="text-caption text-muted-foreground mt-1">
-              Reason: {enrollment.transferReason}
-            </p>
+          {enrollment.tags.length > 0 && (
+            <div>
+              <p className="text-caption text-muted-foreground">Tags</p>
+              <p className="text-body-sm">{enrollment.tags.join(', ')}</p>
+            </div>
+          )}
+          {enrollment.internalNotes && (
+            <div>
+              <p className="text-caption text-muted-foreground">Internal notes</p>
+              <p className="text-body-sm whitespace-pre-wrap">{enrollment.internalNotes}</p>
+            </div>
           )}
         </div>
-        {enrollment.cancellationReason && (
+        <div className="flex flex-col gap-4">
           <div>
-            <p className="text-body-sm mb-1 font-medium">Cancellation reason</p>
-            <p className="text-body-sm text-muted-foreground">{enrollment.cancellationReason}</p>
+            <p className="text-body-sm mb-2 font-medium">Learning access</p>
+            <AccessBadge accessState={enrollment.accessState} />
+            <div className="mt-2 flex flex-col gap-1">
+              <p className="text-caption text-muted-foreground">
+                Access starts:{' '}
+                {enrollment.accessStartsAt
+                  ? format(new Date(enrollment.accessStartsAt), 'MMM d, yyyy h:mm a')
+                  : 'Not yet'}
+              </p>
+              <p className="text-caption text-muted-foreground">
+                Access ends:{' '}
+                {enrollment.accessEndsAt
+                  ? format(new Date(enrollment.accessEndsAt), 'MMM d, yyyy h:mm a')
+                  : 'Lifetime (no end date)'}
+              </p>
+            </div>
           </div>
-        )}
-        {enrollment.dropReason && (
           <div>
-            <p className="text-body-sm mb-1 font-medium">Drop reason</p>
-            <p className="text-body-sm text-muted-foreground">{enrollment.dropReason}</p>
+            <p className="text-body-sm mb-2 font-medium">Transfer lineage</p>
+            <LinkedEnrollmentLine
+              label="Transferred from"
+              enrollmentId={enrollment.transferredFromEnrollmentId}
+            />
+            <LinkedEnrollmentLine
+              label="Transferred to"
+              enrollmentId={enrollment.transferredToEnrollmentId}
+            />
+            {!enrollment.transferredFromEnrollmentId && !enrollment.transferredToEnrollmentId && (
+              <p className="text-body-sm text-muted-foreground">No transfer history</p>
+            )}
+            {enrollment.transferReason && (
+              <p className="text-caption text-muted-foreground mt-1">
+                Reason: {enrollment.transferReason}
+              </p>
+            )}
           </div>
-        )}
-      </div>
-    </div>
+          {enrollment.cancellationReason && (
+            <div>
+              <p className="text-body-sm mb-1 font-medium">Cancellation reason</p>
+              <p className="text-body-sm text-muted-foreground">{enrollment.cancellationReason}</p>
+            </div>
+          )}
+          {enrollment.dropReason && (
+            <div>
+              <p className="text-body-sm mb-1 font-medium">Drop reason</p>
+              <p className="text-body-sm text-muted-foreground">{enrollment.dropReason}</p>
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
   )
 }
 

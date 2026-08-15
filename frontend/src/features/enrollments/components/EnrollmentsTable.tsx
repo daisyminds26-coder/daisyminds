@@ -108,8 +108,13 @@ export function EnrollmentsTable({
       id: 'batch',
       header: 'Batch',
       cell: (row) => (
-        <span>
-          <span className="text-body-sm block">{row.batch?.name ?? 'Unknown'}</span>
+        <span className="min-w-0">
+          <span
+            title={row.batch?.name ?? undefined}
+            className="text-body-sm block max-w-[20ch] truncate"
+          >
+            {row.batch?.name ?? 'Unknown'}
+          </span>
           <span className="text-caption text-muted-foreground block font-mono">
             {row.batch?.batchCode}
           </span>

@@ -59,8 +59,10 @@ export function DatePickerField<TFieldValues extends FieldValues>({
                       !selected && 'text-muted-foreground',
                     )}
                   >
-                    <CalendarIcon className="size-4" />
-                    {selected ? format(selected, 'PPP') : placeholder}
+                    <CalendarIcon className="size-4 shrink-0" />
+                    <span className="min-w-0 truncate">
+                      {selected ? format(selected, 'PP') : placeholder}
+                    </span>
                   </Button>
                 </FormControl>
               </PopoverTrigger>

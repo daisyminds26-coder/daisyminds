@@ -53,7 +53,7 @@ export function BatchWeeklyTimetableSummary({
     <div className="flex flex-col gap-3">
       <div className="flex flex-col gap-2">
         {byDay.map(({ day, slots }) => (
-          <div key={day} className="border-border rounded-lg border p-3">
+          <div key={day} className="border-border bg-card rounded-lg border p-3">
             <p className="text-body-sm font-medium">{DAY_LABELS[day]}</p>
             {slots.map((slot, index) => (
               <p key={index} className="text-body-sm text-muted-foreground">

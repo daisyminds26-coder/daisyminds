@@ -1,6 +1,7 @@
+import { formatEnumLabel } from '@/shared/lib/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, type FieldErrors } from 'react-hook-form'
 
 import { Stepper, type StepperStep } from '@/shared/components/data-display/stepper'
 import { Button } from '@/shared/components/ui/button'
@@ -36,15 +37,51 @@ const STEPS: StepperStep[] = [
   { id: 'pricing', label: 'Pricing' },
   { id: 'visibility', label: 'Visibility' },
   { id: 'trainers', label: 'Trainer eligibility' },
-  { id: 'media', label: 'Media' },
   { id: 'seo', label: 'SEO' },
   { id: 'review', label: 'Review' },
 ]
 
+/**
+ * Several steps ('learning', 'visibility', 'trainers', 'seo') have no
+ * per-step `STEP_FIELDS` trigger, so a formatting mistake there (e.g. a
+ * Canonical URL missing its `https://`) never surfaces until the final
+ * full-schema submit — and since Review only shows a fixed summary, not
+ * every field, that failure is otherwise silent. This map lets `onInvalid`
+ * jump back to whichever step actually holds the first invalid field.
+ */
+const FIELD_TO_STEP: Record<string, (typeof STEPS)[number]['id']> = {
+  title: 'basic',
+  shortDescription: 'basic',
+  description: 'basic',
+  category: 'basic',
+  subcategory: 'basic',
+  level: 'classification',
+  language: 'classification',
+  secondaryLanguages: 'classification',
+  tags: 'classification',
+  durationValue: 'classification',
+  durationUnit: 'classification',
+  deliveryMode: 'classification',
+  learningOutcomes: 'learning',
+  skills: 'learning',
+  prerequisites: 'learning',
+  targetAudience: 'learning',
+  eligibilityCriteria: 'learning',
+  certificateEnabled: 'learning',
+  maxStudentCapacity: 'learning',
+  pricing: 'pricing',
+  visibility: 'visibility',
+  isFeatured: 'visibility',
+  featuredOrder: 'visibility',
+  internalNotes: 'visibility',
+  eligibleTrainerIds: 'trainers',
+  metaTitle: 'seo',
+  metaDescription: 'seo',
+  canonicalUrl: 'seo',
+}
+
 const DEFAULT_VALUES: CreateCourseFormValues = {
   title: '',
-  shortTitle: '',
-  slug: '',
   shortDescription: '',
   description: '',
   category: '',
@@ -123,7 +160,6 @@ export function CourseCreateWizard({ onDone }: { onDone: () => void }) {
     pricing: ['pricing'],
     visibility: [],
     trainers: [],
-    media: [],
     seo: [],
     review: [],
   }
@@ -151,6 +187,17 @@ export function CourseCreateWizard({ onDone }: { onDone: () => void }) {
     })
   }
 
+  function onInvalid(errors: FieldErrors<CreateCourseFormValues>) {
+    const firstInvalidField = Object.keys(errors)[0]
+    const targetStepId = firstInvalidField ? FIELD_TO_STEP[firstInvalidField] : undefined
+    const targetIndex = targetStepId ? STEPS.findIndex((step) => step.id === targetStepId) : -1
+    if (targetIndex >= 0) setStepIndex(targetIndex)
+    toast.error(
+      'Check the highlighted step',
+      'Some fields need to be fixed before this course can be created.',
+    )
+  }
+
   // eslint-disable-next-line react-hooks/incompatible-library -- `watch()` is RHF's documented API for conditionally rendering fields based on another field's live value; the React Compiler's memoization skip is expected and harmless here (this whole form already re-renders on every keystroke via RHF's own subscription model)
   const pricingType = form.watch('pricing.pricingType')
 
@@ -160,7 +207,7 @@ export function CourseCreateWizard({ onDone }: { onDone: () => void }) {
         <Stepper steps={STEPS} currentStepId={currentStep?.id ?? 'basic'} />
 
         <form
-          onSubmit={(event) => void form.handleSubmit(onSubmit)(event)}
+          onSubmit={(event) => void form.handleSubmit(onSubmit, onInvalid)(event)}
           className="flex flex-col gap-4"
           noValidate
         >
@@ -168,13 +215,6 @@ export function CourseCreateWizard({ onDone }: { onDone: () => void }) {
             <div className="flex flex-col gap-4">
               <TextField control={form.control} name="title" label="Course title" />
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <TextField control={form.control} name="shortTitle" label="Short title" />
-                <TextField
-                  control={form.control}
-                  name="slug"
-                  label="Slug"
-                  description="Leave blank to auto-generate from the title."
-                />
                 <TextField control={form.control} name="category" label="Category" />
                 <TextField control={form.control} name="subcategory" label="Subcategory" />
               </div>
@@ -197,7 +237,7 @@ export function CourseCreateWizard({ onDone }: { onDone: () => void }) {
                   label="Level"
                   options={COURSE_LEVELS.map((value) => ({
                     value,
-                    label: value.replace(/_/g, ' '),
+                    label: formatEnumLabel(value),
                   }))}
                 />
                 <SelectField
@@ -206,10 +246,9 @@ export function CourseCreateWizard({ onDone }: { onDone: () => void }) {
                   label="Delivery mode"
                   options={DELIVERY_MODES.map((value) => ({
                     value,
-                    label: value.replace(/_/g, ' '),
+                    label: formatEnumLabel(value),
                   }))}
                 />
-                <TextField control={form.control} name="language" label="Primary language" />
                 <TextField control={form.control} name="durationValue" label="Duration" />
                 <SelectField
                   control={form.control}
@@ -217,7 +256,7 @@ export function CourseCreateWizard({ onDone }: { onDone: () => void }) {
                   label="Duration unit"
                   options={DURATION_UNITS.map((value) => ({
                     value,
-                    label: value.replace(/_/g, ' '),
+                    label: formatEnumLabel(value),
                   }))}
                 />
               </div>
@@ -266,7 +305,7 @@ export function CourseCreateWizard({ onDone }: { onDone: () => void }) {
                   label="Pricing type"
                   options={PRICING_TYPES.map((value) => ({
                     value,
-                    label: value.replace(/_/g, ' '),
+                    label: formatEnumLabel(value),
                   }))}
                 />
                 <SelectField
@@ -321,7 +360,7 @@ export function CourseCreateWizard({ onDone }: { onDone: () => void }) {
                 label="Visibility"
                 options={COURSE_VISIBILITIES.map((value) => ({
                   value,
-                  label: value.replace(/_/g, ' '),
+                  label: formatEnumLabel(value),
                 }))}
               />
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -344,13 +383,6 @@ export function CourseCreateWizard({ onDone }: { onDone: () => void }) {
               label="Eligible trainers"
               description="Metadata only — does not assign a trainer to this course or create a batch/schedule."
             />
-          )}
-
-          {currentStep?.id === 'media' && (
-            <p className="text-body-sm text-muted-foreground">
-              Thumbnail and banner images can be uploaded once the course is created — open it from
-              the course list afterward.
-            </p>
           )}
 
           {currentStep?.id === 'seo' && (

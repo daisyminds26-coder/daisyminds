@@ -16,7 +16,7 @@ export function Header({ user, onSignOut }: HeaderProps) {
   const openMobileNav = useUiStore((state) => state.openMobileNav)
 
   return (
-    <header className="border-border bg-background sticky top-0 z-30 flex h-16 shrink-0 items-center gap-3 border-b px-4 md:px-6">
+    <header className="dark-surface border-border bg-background text-foreground sticky top-0 z-30 flex h-16 shrink-0 items-center gap-3 border-b px-4 md:px-6">
       <Button
         variant="ghost"
         size="icon"

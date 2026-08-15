@@ -1,3 +1,4 @@
+import { formatEnumLabel } from '@/shared/lib/utils'
 import { useEffect } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useFieldArray, useForm } from 'react-hook-form'
@@ -45,9 +46,7 @@ function toAddressFormValue(address: TrainerAddress | null): UpdateTrainerFormVa
 function toDefaultValues(trainer: AdminTrainer): UpdateTrainerFormValues {
   return {
     firstName: trainer.firstName,
-    middleName: trainer.middleName ?? '',
     lastName: trainer.lastName,
-    displayName: trainer.displayName ?? '',
     dateOfBirth: trainer.dateOfBirth ? new Date(trainer.dateOfBirth) : undefined,
     gender: trainer.gender ?? undefined,
     preferredLanguage: trainer.preferredLanguage ?? '',
@@ -55,13 +54,6 @@ function toDefaultValues(trainer: AdminTrainer): UpdateTrainerFormValues {
     phone: trainer.phone ?? '',
     alternatePhone: trainer.alternatePhone ?? '',
     address: toAddressFormValue(trainer.address),
-    emergencyContacts: trainer.emergencyContacts.map((contact) => ({
-      name: contact.name,
-      phone: contact.phone,
-      relationship: contact.relationship,
-      alternatePhone: contact.alternatePhone ?? '',
-      email: contact.email ?? '',
-    })),
     designation: trainer.designation ?? '',
     department: trainer.department ?? '',
     totalYearsExperience: trainer.totalYearsExperience?.toString() ?? '',
@@ -69,8 +61,6 @@ function toDefaultValues(trainer: AdminTrainer): UpdateTrainerFormValues {
     industryYearsExperience: trainer.industryYearsExperience?.toString() ?? '',
     expertiseAreas: trainer.expertiseAreas,
     secondaryExpertise: trainer.secondaryExpertise,
-    skills: trainer.skills,
-    technologies: trainer.technologies,
     specializations: trainer.specializations,
     linkedinUrl: trainer.linkedinUrl ?? '',
     portfolioUrl: trainer.portfolioUrl ?? '',
@@ -99,7 +89,6 @@ function toDefaultValues(trainer: AdminTrainer): UpdateTrainerFormValues {
     employeeCode: trainer.employeeCode ?? '',
     workLocation: trainer.workLocation ?? '',
     probationEndDate: trainer.probationEndDate ? new Date(trainer.probationEndDate) : undefined,
-    noticePeriodDays: trainer.noticePeriodDays?.toString() ?? '',
     preferredTeachingModes: trainer.preferredTeachingModes,
     preferredTimeSlots: trainer.preferredTimeSlots,
     maxConcurrentBatches: trainer.maxConcurrentBatches?.toString() ?? '',
@@ -118,7 +107,6 @@ function toDefaultValues(trainer: AdminTrainer): UpdateTrainerFormValues {
     })),
     source: trainer.source ?? undefined,
     notes: trainer.notes ?? '',
-    tags: trainer.tags,
   }
 }
 
@@ -126,6 +114,29 @@ function toNumberOrUndefined(value: string | undefined): number | undefined {
   if (!value) return undefined
   const parsed = Number(value)
   return Number.isNaN(parsed) ? undefined : parsed
+}
+
+/** An address whose required fields are all blank (the common "never touched" case, now allowed by `addressSchema`'s refine) shouldn't be sent at all — the backend's own address schema still requires every field when `address` is present. */
+function toAddressPayload(
+  address: UpdateTrainerFormValues['address'],
+): UpdateTrainerPayload['address'] {
+  if (
+    !address?.line1 &&
+    !address?.city &&
+    !address?.state &&
+    !address?.postalCode &&
+    !address?.country
+  ) {
+    return undefined
+  }
+  return {
+    line1: address.line1 ?? '',
+    line2: address.line2 ?? undefined,
+    city: address.city ?? '',
+    state: address.state ?? '',
+    postalCode: address.postalCode ?? '',
+    country: address.country ?? '',
+  }
 }
 
 function toPayload(values: UpdateTrainerFormValues): UpdateTrainerPayload {
@@ -137,29 +148,25 @@ function toPayload(values: UpdateTrainerFormValues): UpdateTrainerPayload {
     totalYearsExperience: toNumberOrUndefined(values.totalYearsExperience),
     teachingYearsExperience: toNumberOrUndefined(values.teachingYearsExperience),
     industryYearsExperience: toNumberOrUndefined(values.industryYearsExperience),
-    noticePeriodDays: toNumberOrUndefined(values.noticePeriodDays),
     maxConcurrentBatches: toNumberOrUndefined(values.maxConcurrentBatches),
     maxWeeklyTeachingHours: toNumberOrUndefined(values.maxWeeklyTeachingHours),
+    address: toAddressPayload(values.address),
     qualifications: values.qualifications.map((qualification) => ({
       degree: qualification.degree,
       institution: qualification.institution,
-      boardOrUniversity: qualification.boardOrUniversity ?? null,
-      fieldOfStudy: qualification.fieldOfStudy ?? null,
+      boardOrUniversity: qualification.boardOrUniversity,
+      fieldOfStudy: qualification.fieldOfStudy,
       yearOfCompletion: Number(qualification.yearOfCompletion),
-      gradeValue: qualification.gradeValue ?? null,
-      gradeType: qualification.gradeType ?? null,
-      documentUrl: null,
-      documentPublicId: null,
+      gradeValue: qualification.gradeValue,
+      gradeType: qualification.gradeType,
     })),
     certifications: values.certifications.map((certification) => ({
       name: certification.name,
       issuingOrganization: certification.issuingOrganization,
-      credentialId: certification.credentialId ?? null,
+      credentialId: certification.credentialId,
       issueDate: certification.issueDate.toISOString(),
-      expiryDate: certification.expiryDate ? certification.expiryDate.toISOString() : null,
-      verificationUrl: certification.verificationUrl ?? null,
-      documentUrl: null,
-      documentPublicId: null,
+      expiryDate: certification.expiryDate ? certification.expiryDate.toISOString() : undefined,
+      verificationUrl: certification.verificationUrl,
     })),
   }
 }
@@ -180,14 +187,6 @@ function certificationField(
   return `certifications.${index}.${key}`
 }
 
-function emergencyContactField(
-  index: number,
-  key: keyof UpdateTrainerFormValues['emergencyContacts'][number],
-): FieldPath<UpdateTrainerFormValues> {
-  // eslint-disable-next-line @typescript-eslint/restrict-template-expressions -- `index` is a numeric array index, never arbitrary content
-  return `emergencyContacts.${index}.${key}`
-}
-
 export function TrainerEditForm({
   trainer,
   onDone,
@@ -202,7 +201,6 @@ export function TrainerEditForm({
   })
   const qualifications = useFieldArray({ control: form.control, name: 'qualifications' })
   const certifications = useFieldArray({ control: form.control, name: 'certifications' })
-  const emergencyContacts = useFieldArray({ control: form.control, name: 'emergencyContacts' })
 
   useEffect(() => {
     form.reset(toDefaultValues(trainer))
@@ -245,9 +243,9 @@ export function TrainerEditForm({
           <h3 className="text-body-sm font-semibold">Personal information</h3>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <TextField control={form.control} name="firstName" label="First name" />
-            <TextField control={form.control} name="middleName" label="Middle name" />
             <TextField control={form.control} name="lastName" label="Last name" />
-            <TextField control={form.control} name="displayName" label="Display name" />
+          </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <DatePickerField
               control={form.control}
               name="dateOfBirth"
@@ -258,7 +256,7 @@ export function TrainerEditForm({
               control={form.control}
               name="gender"
               label="Gender"
-              options={GENDERS.map((value) => ({ value, label: value.replace(/_/g, ' ') }))}
+              options={GENDERS.map((value) => ({ value, label: formatEnumLabel(value) }))}
             />
             <TextField control={form.control} name="preferredLanguage" label="Preferred language" />
           </div>
@@ -301,8 +299,6 @@ export function TrainerEditForm({
             />
           </div>
           <TagsField control={form.control} name="expertiseAreas" label="Primary expertise" />
-          <TagsField control={form.control} name="skills" label="Skills" />
-          <TagsField control={form.control} name="technologies" label="Technologies" />
         </section>
 
         <Separator />
@@ -426,7 +422,7 @@ export function TrainerEditForm({
               label="Employment type"
               options={EMPLOYMENT_TYPES.map((value) => ({
                 value,
-                label: value.replace(/_/g, ' '),
+                label: formatEnumLabel(value),
               }))}
             />
             <SelectField
@@ -435,24 +431,18 @@ export function TrainerEditForm({
               label="Employment status"
               options={EMPLOYMENT_STATUSES.map((value) => ({
                 value,
-                label: value.replace(/_/g, ' '),
+                label: formatEnumLabel(value),
               }))}
             />
             <TextField control={form.control} name="employeeCode" label="Employee code" />
             <TextField control={form.control} name="workLocation" label="Work location" />
-            <TextField
-              control={form.control}
-              name="noticePeriodDays"
-              label="Notice period (days)"
-            />
           </div>
           <SelectField
             control={form.control}
             name="source"
             label="Source"
-            options={TRAINER_SOURCES.map((value) => ({ value, label: value.replace(/_/g, ' ') }))}
+            options={TRAINER_SOURCES.map((value) => ({ value, label: formatEnumLabel(value) }))}
           />
-          <TagsField control={form.control} name="tags" label="Tags" />
           <TextareaField control={form.control} name="notes" label="Internal notes" rows={4} />
         </section>
 
@@ -467,14 +457,14 @@ export function TrainerEditForm({
               label="Availability status"
               options={AVAILABILITY_STATUSES.map((value) => ({
                 value,
-                label: value.replace(/_/g, ' '),
+                label: formatEnumLabel(value),
               }))}
             />
             <SelectField
               control={form.control}
               name="teachingLevel"
               label="Teaching level"
-              options={TEACHING_LEVELS.map((value) => ({ value, label: value.replace(/_/g, ' ') }))}
+              options={TEACHING_LEVELS.map((value) => ({ value, label: formatEnumLabel(value) }))}
             />
           </div>
           <TagsField
@@ -489,69 +479,6 @@ export function TrainerEditForm({
         <section className="flex flex-col gap-4">
           <h3 className="text-body-sm font-semibold">Weekly availability</h3>
           <AvailabilityEditor<UpdateTrainerFormValues> control={form.control} />
-        </section>
-
-        <Separator />
-
-        <section className="flex flex-col gap-4">
-          <h3 className="text-body-sm font-semibold">Emergency contact</h3>
-          {emergencyContacts.fields.map((field, index) => (
-            <div key={field.id} className="border-border flex flex-col gap-3 rounded-lg border p-4">
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <TextField
-                  control={form.control}
-                  name={emergencyContactField(index, 'name')}
-                  label="Name"
-                />
-                <TextField
-                  control={form.control}
-                  name={emergencyContactField(index, 'relationship')}
-                  label="Relationship"
-                />
-                <TextField
-                  control={form.control}
-                  name={emergencyContactField(index, 'phone')}
-                  label="Phone"
-                />
-                <TextField
-                  control={form.control}
-                  name={emergencyContactField(index, 'email')}
-                  label="Email"
-                  type="email"
-                />
-              </div>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="text-destructive self-start"
-                onClick={() => {
-                  emergencyContacts.remove(index)
-                }}
-              >
-                Remove contact
-              </Button>
-            </div>
-          ))}
-          {emergencyContacts.fields.length < 5 && (
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="self-start"
-              onClick={() => {
-                emergencyContacts.append({
-                  name: '',
-                  phone: '',
-                  relationship: '',
-                  alternatePhone: '',
-                  email: '',
-                })
-              }}
-            >
-              Add emergency contact
-            </Button>
-          )}
         </section>
       </form>
     </Form>

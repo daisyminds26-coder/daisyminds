@@ -13,6 +13,7 @@ import { ConfirmDialog } from '@/shared/components/overlays/confirm-dialog'
 import { PageLoader } from '@/shared/components/feedback/page-loader'
 import { ErrorState } from '@/shared/components/feedback/error-state'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs'
+import { Card, CardContent } from '@/shared/components/ui/card'
 import { Form } from '@/shared/components/ui/form'
 import { TextField } from '@/shared/components/forms/text-field'
 import { TextareaField } from '@/shared/components/forms/textarea-field'
@@ -228,20 +229,24 @@ function BatchOperationalSummary({ batch }: { batch: AdminBatch }) {
   ]
 
   return (
-    <div className="grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-3 lg:grid-cols-4">
-      {fields.map((field) => (
-        <div key={field.label}>
-          <p className="text-caption text-muted-foreground">{field.label}</p>
-          <p className="text-body-sm font-medium">
-            {field.label === 'Primary trainer' ? (
-              <TrainerName trainerId={batch.primaryTrainerId} />
-            ) : (
-              field.value
-            )}
-          </p>
+    <Card>
+      <CardContent>
+        <div className="grid grid-cols-2 gap-x-4 gap-y-4 sm:grid-cols-3 lg:grid-cols-4">
+          {fields.map((field) => (
+            <div key={field.label}>
+              <p className="text-caption text-muted-foreground">{field.label}</p>
+              <p className="text-body-sm font-medium">
+                {field.label === 'Primary trainer' ? (
+                  <TrainerName trainerId={batch.primaryTrainerId} />
+                ) : (
+                  field.value
+                )}
+              </p>
+            </div>
+          ))}
         </div>
-      ))}
-    </div>
+      </CardContent>
+    </Card>
   )
 }
 
@@ -377,11 +382,15 @@ function TrainersTab({ batch }: { batch: AdminBatch }) {
     <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
       <div>
         <p className="text-body-sm mb-3 font-medium">Trainer summary</p>
-        <BatchTrainerPanel
-          batchId={batch.id}
-          primaryTrainerId={batch.primaryTrainerId}
-          assistantTrainerIds={batch.assistantTrainerIds}
-        />
+        <Card>
+          <CardContent>
+            <BatchTrainerPanel
+              batchId={batch.id}
+              primaryTrainerId={batch.primaryTrainerId}
+              assistantTrainerIds={batch.assistantTrainerIds}
+            />
+          </CardContent>
+        </Card>
       </div>
       <div className="flex flex-col gap-6">
         <Form {...form}>
@@ -456,73 +465,84 @@ function OperationsTab({ batch }: { batch: AdminBatch }) {
         </Button>
       </div>
 
-      <div className="flex flex-col gap-4">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div>
-            <p className="text-caption text-muted-foreground">Batch code</p>
-            <p className="text-body-sm font-mono">{batch.batchCode}</p>
-          </div>
-          <div>
-            <p className="text-caption text-muted-foreground">Course</p>
-            <p className="text-body-sm font-mono">{batch.courseId}</p>
-          </div>
-        </div>
-        <Form {...form}>
-          <form
-            onSubmit={(event) =>
-              void form.handleSubmit((values) => {
-                updateBatch.mutate(toSettingsPayload(values), {
-                  onSuccess: () => toast.success('Batch updated'),
-                  onError: (error) =>
-                    toast.error('Could not update batch', getSafeErrorMessage(error)),
-                })
-              })(event)
-            }
-            className="flex flex-col gap-4"
-            noValidate
-          >
-            <TextField control={form.control} name="name" label="Batch name" />
-            <TextField control={form.control} name="shortName" label="Short name" />
-            <TextareaField control={form.control} name="description" label="Description" rows={4} />
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <DatePickerField control={form.control} name="startDate" label="Start date" />
-              <DatePickerField control={form.control} name="endDate" label="End date" />
-              <DatePickerField
-                control={form.control}
-                name="enrollmentOpenDate"
-                label="Enrollment opens"
-              />
-              <DatePickerField
-                control={form.control}
-                name="enrollmentCloseDate"
-                label="Enrollment closes"
-              />
+      <Card>
+        <CardContent className="flex flex-col gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+              <p className="text-caption text-muted-foreground">Batch code</p>
+              <p className="text-body-sm font-mono">{batch.batchCode}</p>
             </div>
-            <TextField control={form.control} name="timezone" label="Timezone" />
-            <SelectField
-              control={form.control}
-              name="deliveryMode"
-              label="Delivery mode"
-              options={BATCH_DELIVERY_MODES.map((value) => ({ value, label: value }))}
-            />
-            <LocationFields<UpdateBatchFormValues> control={form.control} />
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <TextField control={form.control} name="maxStudents" label="Max students" />
-              <TextField control={form.control} name="minimumStudents" label="Minimum students" />
+            <div>
+              <p className="text-caption text-muted-foreground">Course</p>
+              <p className="text-body-sm font-mono">{batch.courseId}</p>
             </div>
-            <CheckboxField control={form.control} name="waitlistEnabled" label="Enable waitlist" />
-            <TextareaField
-              control={form.control}
-              name="internalNotes"
-              label="Internal notes"
-              rows={3}
-            />
-            <Button type="submit" disabled={updateBatch.isPending} className="w-fit">
-              {updateBatch.isPending ? 'Saving…' : 'Save changes'}
-            </Button>
-          </form>
-        </Form>
-      </div>
+          </div>
+          <Form {...form}>
+            <form
+              onSubmit={(event) =>
+                void form.handleSubmit((values) => {
+                  updateBatch.mutate(toSettingsPayload(values), {
+                    onSuccess: () => toast.success('Batch updated'),
+                    onError: (error) =>
+                      toast.error('Could not update batch', getSafeErrorMessage(error)),
+                  })
+                })(event)
+              }
+              className="flex flex-col gap-4"
+              noValidate
+            >
+              <TextField control={form.control} name="name" label="Batch name" />
+              <TextField control={form.control} name="shortName" label="Short name" />
+              <TextareaField
+                control={form.control}
+                name="description"
+                label="Description"
+                rows={4}
+              />
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <DatePickerField control={form.control} name="startDate" label="Start date" />
+                <DatePickerField control={form.control} name="endDate" label="End date" />
+                <DatePickerField
+                  control={form.control}
+                  name="enrollmentOpenDate"
+                  label="Enrollment opens"
+                />
+                <DatePickerField
+                  control={form.control}
+                  name="enrollmentCloseDate"
+                  label="Enrollment closes"
+                />
+              </div>
+              <TextField control={form.control} name="timezone" label="Timezone" />
+              <SelectField
+                control={form.control}
+                name="deliveryMode"
+                label="Delivery mode"
+                options={BATCH_DELIVERY_MODES.map((value) => ({ value, label: value }))}
+              />
+              <LocationFields<UpdateBatchFormValues> control={form.control} />
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <TextField control={form.control} name="maxStudents" label="Max students" />
+                <TextField control={form.control} name="minimumStudents" label="Minimum students" />
+              </div>
+              <CheckboxField
+                control={form.control}
+                name="waitlistEnabled"
+                label="Enable waitlist"
+              />
+              <TextareaField
+                control={form.control}
+                name="internalNotes"
+                label="Internal notes"
+                rows={3}
+              />
+              <Button type="submit" disabled={updateBatch.isPending} className="w-fit">
+                {updateBatch.isPending ? 'Saving…' : 'Save changes'}
+              </Button>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
 
       <div className="flex flex-col gap-2">
         <p className="text-body-sm font-medium">Other modules</p>
@@ -754,7 +774,15 @@ export default function BatchDetailPage() {
           </TabsContent>
           <TabsContent value="audit">
             {activeTab === 'audit' && (
-              <BatchAuditTimeline batchId={batch.id} page={auditPage} onPageChange={setAuditPage} />
+              <Card>
+                <CardContent>
+                  <BatchAuditTimeline
+                    batchId={batch.id}
+                    page={auditPage}
+                    onPageChange={setAuditPage}
+                  />
+                </CardContent>
+              </Card>
             )}
           </TabsContent>
         </Tabs>

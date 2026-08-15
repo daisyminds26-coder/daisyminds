@@ -1,3 +1,4 @@
+import { formatEnumLabel } from '@/shared/lib/utils'
 import { SearchBox } from '@/shared/components/data-display/search-box'
 import { FilterBar, type FilterDef } from '@/shared/components/data-display/filter-bar'
 import { LIVE_CLASS_STATUSES, type LiveClassStatus } from '@/features/live-classes/types'
@@ -24,7 +25,7 @@ export function LiveClassesFilterBar({
       onChange: (value) => {
         onStatusChange(value as LiveClassStatus | undefined)
       },
-      options: LIVE_CLASS_STATUSES.map((value) => ({ value, label: value.replace(/_/g, ' ') })),
+      options: LIVE_CLASS_STATUSES.map((value) => ({ value, label: formatEnumLabel(value) })),
     },
   ]
 

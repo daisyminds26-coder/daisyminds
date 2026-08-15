@@ -1,3 +1,4 @@
+import { formatEnumLabel } from '@/shared/lib/utils'
 import { useEffect } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useFieldArray, useForm } from 'react-hook-form'
@@ -50,10 +51,9 @@ function toDefaultValues(student: AdminStudent): UpdateStudentFormValues {
             name: contact.name,
             phone: contact.phone,
             relationship: contact.relationship,
-            alternatePhone: contact.alternatePhone ?? '',
             email: contact.email ?? '',
           }))
-        : [{ name: '', phone: '', relationship: '', alternatePhone: '', email: '' }],
+        : [{ name: '', phone: '', relationship: '', email: '' }],
     educationRecords: student.educationRecords.map((record) => ({
       degree: record.degree,
       institution: record.institution,
@@ -180,7 +180,7 @@ export function StudentEditForm({
               control={form.control}
               name="gender"
               label="Gender"
-              options={GENDERS.map((value) => ({ value, label: value.replace(/_/g, ' ') }))}
+              options={GENDERS.map((value) => ({ value, label: formatEnumLabel(value) }))}
             />
             <TextField control={form.control} name="preferredLanguage" label="Preferred language" />
           </div>
@@ -191,7 +191,7 @@ export function StudentEditForm({
         <section className="flex flex-col gap-4">
           <h3 className="text-body-sm font-semibold">Contact information</h3>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <TextField control={form.control} name="phone" label="Primary phone" />
+            <TextField control={form.control} name="phone" label="Phone" />
             <div className="sm:col-span-2">
               <TextField control={form.control} name="address.line1" label="Address line 1" />
             </div>
@@ -229,11 +229,6 @@ export function StudentEditForm({
                 />
                 <TextField
                   control={form.control}
-                  name={emergencyContactField(index, 'alternatePhone')}
-                  label="Alternate phone"
-                />
-                <TextField
-                  control={form.control}
                   name={emergencyContactField(index, 'email')}
                   label="Email"
                   type="email"
@@ -265,7 +260,6 @@ export function StudentEditForm({
                   name: '',
                   phone: '',
                   relationship: '',
-                  alternatePhone: '',
                   email: '',
                 })
               }}
@@ -354,7 +348,7 @@ export function StudentEditForm({
               control={form.control}
               name="source"
               label="Source"
-              options={STUDENT_SOURCES.map((value) => ({ value, label: value.replace(/_/g, ' ') }))}
+              options={STUDENT_SOURCES.map((value) => ({ value, label: formatEnumLabel(value) }))}
             />
           </div>
           <TagsField control={form.control} name="tags" label="Tags" />

@@ -1,3 +1,4 @@
+import { formatEnumLabel } from '@/shared/lib/utils'
 import { USER_STATUSES } from '@/features/auth/types'
 import { SearchBox } from '@/shared/components/data-display/search-box'
 import { FilterBar, type FilterDef } from '@/shared/components/data-display/filter-bar'
@@ -72,7 +73,7 @@ export function TrainersFilterBar({
       onChange: (value) => {
         onStatusChange(value as AccountStatus | undefined)
       },
-      options: USER_STATUSES.map((value) => ({ value, label: value.replace(/_/g, ' ') })),
+      options: USER_STATUSES.map((value) => ({ value, label: formatEnumLabel(value) })),
     },
     {
       id: 'employmentStatus',
@@ -81,7 +82,7 @@ export function TrainersFilterBar({
       onChange: (value) => {
         onEmploymentStatusChange(value as EmploymentStatus | undefined)
       },
-      options: EMPLOYMENT_STATUSES.map((value) => ({ value, label: value.replace(/_/g, ' ') })),
+      options: EMPLOYMENT_STATUSES.map((value) => ({ value, label: formatEnumLabel(value) })),
     },
     {
       id: 'employmentType',
@@ -90,7 +91,7 @@ export function TrainersFilterBar({
       onChange: (value) => {
         onEmploymentTypeChange(value as EmploymentType | undefined)
       },
-      options: EMPLOYMENT_TYPES.map((value) => ({ value, label: value.replace(/_/g, ' ') })),
+      options: EMPLOYMENT_TYPES.map((value) => ({ value, label: formatEnumLabel(value) })),
     },
     {
       id: 'availabilityStatus',
@@ -99,7 +100,7 @@ export function TrainersFilterBar({
       onChange: (value) => {
         onAvailabilityStatusChange(value as AvailabilityStatus | undefined)
       },
-      options: AVAILABILITY_STATUSES.map((value) => ({ value, label: value.replace(/_/g, ' ') })),
+      options: AVAILABILITY_STATUSES.map((value) => ({ value, label: formatEnumLabel(value) })),
     },
   ]
 

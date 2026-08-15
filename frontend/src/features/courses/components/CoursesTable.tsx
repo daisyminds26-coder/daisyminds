@@ -1,3 +1,4 @@
+import { formatEnumLabel } from '@/shared/lib/utils'
 import { formatDistanceToNow } from 'date-fns'
 import {
   Archive,
@@ -119,7 +120,7 @@ export function CoursesTable({
       id: 'level',
       header: 'Level',
       cell: (row) => (
-        <span className="text-body-sm text-muted-foreground">{row.level.replace(/_/g, ' ')}</span>
+        <span className="text-body-sm text-muted-foreground">{formatEnumLabel(row.level)}</span>
       ),
     },
     {
@@ -127,7 +128,7 @@ export function CoursesTable({
       header: 'Delivery',
       cell: (row) => (
         <span className="text-body-sm text-muted-foreground">
-          {row.deliveryMode.replace(/_/g, ' ')}
+          {formatEnumLabel(row.deliveryMode)}
         </span>
       ),
     },

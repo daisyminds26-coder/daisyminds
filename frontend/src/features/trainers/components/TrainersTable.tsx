@@ -105,7 +105,9 @@ export function TrainersTable({
             <span className="text-body-sm hover:text-primary-foreground/80 block font-medium hover:underline">
               {fullName(row)}
             </span>
-            <span className="text-caption text-muted-foreground block">{row.email}</span>
+            {row.designation && (
+              <span className="text-caption text-muted-foreground block">{row.designation}</span>
+            )}
           </span>
         </button>
       ),
@@ -114,29 +116,6 @@ export function TrainersTable({
       id: 'trainerId',
       header: 'Trainer ID',
       cell: (row) => <span className="text-body-sm font-mono">{row.trainerId}</span>,
-    },
-    {
-      id: 'designation',
-      header: 'Designation',
-      cell: (row) => (
-        <span className="text-body-sm text-muted-foreground">{row.designation ?? '—'}</span>
-      ),
-    },
-    {
-      id: 'department',
-      header: 'Department',
-      cell: (row) => (
-        <span className="text-body-sm text-muted-foreground">{row.department ?? '—'}</span>
-      ),
-    },
-    {
-      id: 'expertise',
-      header: 'Expertise',
-      cell: (row) => (
-        <span className="text-body-sm text-muted-foreground">
-          {row.expertiseAreas.slice(0, 2).join(', ') || '—'}
-        </span>
-      ),
     },
     {
       id: 'experience',

@@ -1,4 +1,4 @@
-import { HelpCircle } from 'lucide-react'
+import { HelpCircle, Pencil } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 import { DataTable, type DataTableColumn } from '@/shared/components/data-display/data-table'
@@ -54,10 +54,12 @@ export function QuestionsTable({ rows, isLoading, errorMessage, onRetry }: Quest
     {
       id: 'actions',
       header: '',
-      className: 'text-right',
+      className: 'w-10 text-right',
       cell: (row) => (
-        <Button asChild variant="ghost" size="sm">
-          <Link to={`/admin/question-bank/${row.id}`}>Edit</Link>
+        <Button asChild variant="ghost" size="icon-sm" aria-label={`Edit ${row.questionCode}`}>
+          <Link to={`/admin/question-bank/${row.id}`} title="Edit">
+            <Pencil className="size-4" />
+          </Link>
         </Button>
       ),
     },

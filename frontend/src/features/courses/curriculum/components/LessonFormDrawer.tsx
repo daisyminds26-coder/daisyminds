@@ -8,7 +8,7 @@ import { Drawer } from '@/shared/components/overlays/drawer'
 import { Button, buttonVariants } from '@/shared/components/ui/button'
 import { Form } from '@/shared/components/ui/form'
 import { Alert, AlertDescription } from '@/shared/components/ui/alert'
-import { cn } from '@/shared/lib/utils'
+import { cn, formatEnumLabel } from '@/shared/lib/utils'
 import { TextField } from '@/shared/components/forms/text-field'
 import { TextareaField } from '@/shared/components/forms/textarea-field'
 import { SelectField } from '@/shared/components/forms/select-field'
@@ -163,7 +163,7 @@ export function LessonFormDrawer({
             control={form.control}
             name="lessonType"
             label="Lesson type"
-            options={LESSON_TYPES.map((value) => ({ value, label: value.replace(/_/g, ' ') }))}
+            options={LESSON_TYPES.map((value) => ({ value, label: formatEnumLabel(value) }))}
           />
           <TextField
             control={form.control}

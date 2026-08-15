@@ -44,7 +44,6 @@ import { listCourses } from '@/features/courses/api/courses.api'
 import { PrimaryTrainerField } from '@/features/batches/components/PrimaryTrainerField'
 import { AssistantTrainersField } from '@/features/batches/components/AssistantTrainersField'
 import { WeeklyScheduleEditor } from '@/features/batches/components/WeeklyScheduleEditor'
-import { CalendarExceptionsEditor } from '@/features/batches/components/CalendarExceptionsEditor'
 import { LocationFields } from '@/features/batches/components/LocationFields'
 import { useCreateBatch } from '@/features/batches/hooks/use-create-batch'
 import { BATCH_DELIVERY_MODES } from '@/features/batches/types'
@@ -63,7 +62,6 @@ const STEPS: StepperStep[] = [
   { id: 'timetable', label: 'Weekly Timetable' },
   { id: 'delivery', label: 'Delivery & Location' },
   { id: 'capacity', label: 'Capacity' },
-  { id: 'exceptions', label: 'Calendar Exceptions' },
   { id: 'review', label: 'Review' },
 ]
 
@@ -238,7 +236,6 @@ export function BatchCreateWizard({ onDone }: { onDone: (batchId: string) => voi
     timetable: ['weeklySchedule'],
     delivery: ['deliveryMode'],
     capacity: ['maxStudents'],
-    exceptions: ['calendarExceptions'],
     review: [],
   }
 
@@ -371,10 +368,6 @@ export function BatchCreateWizard({ onDone }: { onDone: (batchId: string) => voi
                 description="Allow students to join a waitlist once max capacity is reached."
               />
             </div>
-          )}
-
-          {currentStep?.id === 'exceptions' && (
-            <CalendarExceptionsEditor<CreateBatchFormValues> control={form.control} />
           )}
 
           {currentStep?.id === 'review' && (

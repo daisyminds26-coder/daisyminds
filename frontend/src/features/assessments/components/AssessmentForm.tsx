@@ -6,11 +6,13 @@ import { useNavigate } from 'react-router-dom'
 import { Button } from '@/shared/components/ui/button'
 import { Card, CardContent } from '@/shared/components/ui/card'
 import { Checkbox } from '@/shared/components/ui/checkbox'
+import { Form } from '@/shared/components/ui/form'
 import { Label } from '@/shared/components/ui/label'
 import { ListSkeleton } from '@/shared/components/feedback/skeletons'
 import { TextField } from '@/shared/components/forms/text-field'
 import { TextareaField } from '@/shared/components/forms/textarea-field'
 import { SelectField } from '@/shared/components/forms/select-field'
+import { DateTimePickerField } from '@/shared/components/forms/date-time-picker-field'
 import { toast } from '@/shared/lib/toast'
 import { getSafeErrorMessage } from '@/features/auth/utils/error-messages'
 import { useCoursesList } from '@/features/courses/hooks/use-courses-list'
@@ -144,151 +146,160 @@ export function AssessmentForm({ existing, onDone }: AssessmentFormProps) {
 
   const isPending = createAssessment.isPending || updateAssessment.isPending
 
+  function onInvalid() {
+    toast.error('Check the highlighted fields', 'Some required fields are missing or invalid.')
+  }
+
   return (
-    <form
-      onSubmit={(event) => void form.handleSubmit(handleSubmit)(event)}
-      className="flex flex-col gap-6"
-    >
-      <Card>
-        <CardContent className="grid grid-cols-1 gap-4 pt-6 sm:grid-cols-2">
-          <SelectField
-            control={form.control}
-            name="assessmentType"
-            label="Type"
-            options={[
-              { value: 'QUIZ', label: 'Quiz' },
-              { value: 'EXAM', label: 'Examination' },
-            ]}
-          />
-          <TextField control={form.control} name="title" label="Title" />
-          <SelectField
-            control={form.control}
-            name="courseId"
-            label="Course"
-            options={(coursesQuery.data?.data ?? []).map((course) => ({
-              value: course.id,
-              label: course.title,
-            }))}
-          />
-          <div className="flex flex-col gap-1.5">
-            <Label>Target batches</Label>
-            {batchesQuery.isLoading ? (
-              <ListSkeleton rows={2} />
-            ) : (
-              <div className="border-border max-h-48 overflow-y-auto rounded-lg border">
-                {(batchesQuery.data?.data ?? []).map((batch) => {
-                  // eslint-disable-next-line react-hooks/incompatible-library -- see `CreateEnrollllmentWizard.tsx`'s identical comment
-                  const selected = form.watch('batchIds')
-                  const checked = selected.includes(batch.id)
-                  return (
-                    <label
-                      key={batch.id}
-                      className="border-border flex items-center gap-3 border-b p-2.5 last:border-b-0"
-                    >
-                      <Checkbox
-                        checked={checked}
-                        onCheckedChange={(value) => {
-                          if (value) form.setValue('batchIds', [...selected, batch.id])
-                          else
-                            form.setValue(
-                              'batchIds',
-                              selected.filter((id) => id !== batch.id),
-                            )
-                        }}
-                      />
-                      <span className="text-body-sm">{batch.name}</span>
-                    </label>
-                  )
-                })}
-              </div>
-            )}
-            {form.formState.errors.batchIds && (
-              <p className="text-caption text-destructive">
-                {form.formState.errors.batchIds.message}
-              </p>
-            )}
-          </div>
-          <div className="sm:col-span-2">
-            <TextareaField
+    <Form {...form}>
+      <form
+        onSubmit={(event) => void form.handleSubmit(handleSubmit, onInvalid)(event)}
+        className="flex flex-col gap-6"
+      >
+        <Card>
+          <CardContent className="grid grid-cols-1 gap-4 pt-6 sm:grid-cols-2">
+            <SelectField
               control={form.control}
-              name="description"
-              label="Description (optional)"
-              rows={2}
+              name="assessmentType"
+              label="Type"
+              options={[
+                { value: 'QUIZ', label: 'Quiz' },
+                { value: 'EXAM', label: 'Examination' },
+              ]}
             />
-          </div>
-          <div className="sm:col-span-2">
-            <TextareaField
+            <TextField control={form.control} name="title" label="Title" />
+            <SelectField
               control={form.control}
-              name="instructions"
-              label="Instructions shown to students (optional)"
-              rows={3}
+              name="courseId"
+              label="Course"
+              options={(coursesQuery.data?.data ?? []).map((course) => ({
+                value: course.id,
+                label: course.title,
+              }))}
             />
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardContent className="grid grid-cols-1 gap-4 pt-6 sm:grid-cols-2">
-          <TextField control={form.control} name="timezone" label="Timezone (IANA)" />
-          <TextField control={form.control} name="durationMinutes" label="Duration (minutes)" />
-          <TextField control={form.control} name="openAt" label="Opens at (optional)" type="text" />
-          <TextField
-            control={form.control}
-            name="closeAt"
-            label="Closes at (optional)"
-            type="text"
-          />
-          <TextField control={form.control} name="maxAttempts" label="Max attempts" />
-          <TextField
-            control={form.control}
-            name="passingPercentage"
-            label="Passing percentage (optional)"
-          />
-          <p className="text-caption text-muted-foreground sm:col-span-2">
-            Opens/closes at use your browser&apos;s local time — e.g. 2026-08-20T09:00.
-          </p>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardContent className="grid grid-cols-1 gap-3 pt-6 sm:grid-cols-2">
-          {(
-            [
-              ['shuffleQuestions', 'Shuffle question order per attempt'],
-              ['shuffleOptions', 'Shuffle option order per attempt'],
-              ['negativeMarkingEnabled', 'Enable negative marking'],
-              [
-                'showResultImmediately',
-                'Show result immediately after submit (if no manual grading pending)',
-              ],
-              ['showCorrectAnswersAfterResult', 'Show correct answers once the result is visible'],
-              [
-                'allowReviewAfterSubmit',
-                'Allow students to review their own answers after submitting',
-              ],
-            ] as const
-          ).map(([name, label]) => (
-            <label key={name} className="flex items-start gap-3">
-              <Checkbox
-                checked={form.watch(name)}
-                onCheckedChange={(checked) => {
-                  form.setValue(name, checked === true)
-                }}
+            <div className="flex flex-col gap-1.5">
+              <Label>Target batches</Label>
+              {batchesQuery.isLoading ? (
+                <ListSkeleton rows={2} />
+              ) : (
+                <div className="border-border max-h-48 overflow-y-auto rounded-lg border">
+                  {(batchesQuery.data?.data ?? []).map((batch) => {
+                    // eslint-disable-next-line react-hooks/incompatible-library -- see `CreateEnrollllmentWizard.tsx`'s identical comment
+                    const selected = form.watch('batchIds')
+                    const checked = selected.includes(batch.id)
+                    return (
+                      <label
+                        key={batch.id}
+                        className="border-border flex items-center gap-3 border-b p-2.5 last:border-b-0"
+                      >
+                        <Checkbox
+                          checked={checked}
+                          onCheckedChange={(value) => {
+                            if (value) form.setValue('batchIds', [...selected, batch.id])
+                            else
+                              form.setValue(
+                                'batchIds',
+                                selected.filter((id) => id !== batch.id),
+                              )
+                          }}
+                        />
+                        <span className="text-body-sm">{batch.name}</span>
+                      </label>
+                    )
+                  })}
+                </div>
+              )}
+              {form.formState.errors.batchIds && (
+                <p className="text-caption text-destructive">
+                  {form.formState.errors.batchIds.message}
+                </p>
+              )}
+            </div>
+            <div className="sm:col-span-2">
+              <TextareaField
+                control={form.control}
+                name="description"
+                label="Description (optional)"
+                rows={2}
               />
-              <span className="text-body-sm">{label}</span>
-            </label>
-          ))}
-        </CardContent>
-      </Card>
+            </div>
+            <div className="sm:col-span-2">
+              <TextareaField
+                control={form.control}
+                name="instructions"
+                label="Instructions shown to students (optional)"
+                rows={3}
+              />
+            </div>
+          </CardContent>
+        </Card>
 
-      <div className="flex justify-end gap-2">
-        <Button type="button" variant="outline" onClick={() => void navigate('/admin/assessments')}>
-          Cancel
-        </Button>
-        <Button type="submit" disabled={isPending}>
-          {isPending ? 'Saving…' : existing ? 'Save changes' : 'Create assessment'}
-        </Button>
-      </div>
-    </form>
+        <Card>
+          <CardContent className="grid grid-cols-1 gap-4 pt-6 sm:grid-cols-2">
+            <TextField control={form.control} name="timezone" label="Timezone (IANA)" />
+            <TextField control={form.control} name="durationMinutes" label="Duration (minutes)" />
+            <DateTimePickerField control={form.control} name="openAt" label="Opens at (optional)" />
+            <DateTimePickerField
+              control={form.control}
+              name="closeAt"
+              label="Closes at (optional)"
+            />
+            <TextField control={form.control} name="maxAttempts" label="Max attempts" />
+            <TextField
+              control={form.control}
+              name="passingPercentage"
+              label="Passing percentage (optional)"
+            />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="grid grid-cols-1 gap-3 pt-6 sm:grid-cols-2">
+            {(
+              [
+                ['shuffleQuestions', 'Shuffle question order per attempt'],
+                ['shuffleOptions', 'Shuffle option order per attempt'],
+                ['negativeMarkingEnabled', 'Enable negative marking'],
+                [
+                  'showResultImmediately',
+                  'Show result immediately after submit (if no manual grading pending)',
+                ],
+                [
+                  'showCorrectAnswersAfterResult',
+                  'Show correct answers once the result is visible',
+                ],
+                [
+                  'allowReviewAfterSubmit',
+                  'Allow students to review their own answers after submitting',
+                ],
+              ] as const
+            ).map(([name, label]) => (
+              <label key={name} className="flex items-start gap-3">
+                <Checkbox
+                  checked={form.watch(name)}
+                  onCheckedChange={(checked) => {
+                    form.setValue(name, checked === true)
+                  }}
+                />
+                <span className="text-body-sm">{label}</span>
+              </label>
+            ))}
+          </CardContent>
+        </Card>
+
+        <div className="flex justify-end gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => void navigate('/admin/assessments')}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" disabled={isPending}>
+            {isPending ? 'Saving…' : existing ? 'Save changes' : 'Create assessment'}
+          </Button>
+        </div>
+      </form>
+    </Form>
   )
 }

@@ -117,7 +117,7 @@ export function BatchHealthPanel({ batch }: { batch: AdminBatch }) {
       : 'ok'
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="border-border bg-card flex flex-col gap-3 rounded-xl border p-4">
       <div className="flex items-center justify-between">
         <p className="text-body-sm font-medium">Operational health</p>
         <StatusBadge label={OVERALL_LABEL[overall]} tone={OVERALL_TONE[overall]} />
