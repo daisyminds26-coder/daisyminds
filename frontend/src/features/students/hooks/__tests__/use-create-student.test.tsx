@@ -33,7 +33,6 @@ function validPayload(overrides: Partial<CreateStudentPayload> = {}): CreateStud
       country: 'India',
     },
     emergencyContacts: [{ name: 'Parent', phone: '+91 90000 11111', relationship: 'Mother' }],
-    guardianAddressSameAsStudent: false,
     ...overrides,
   }
 }

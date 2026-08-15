@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useFieldArray, useForm, useWatch } from 'react-hook-form'
+import { useFieldArray, useForm } from 'react-hook-form'
 import type { FieldPath } from 'react-hook-form'
 
 import { Button } from '@/shared/components/ui/button'
@@ -8,7 +8,6 @@ import { Form } from '@/shared/components/ui/form'
 import { Separator } from '@/shared/components/ui/separator'
 import { TextField } from '@/shared/components/forms/text-field'
 import { SelectField } from '@/shared/components/forms/select-field'
-import { CheckboxField } from '@/shared/components/forms/checkbox-field'
 import { TextareaField } from '@/shared/components/forms/textarea-field'
 import { DatePickerField } from '@/shared/components/forms/date-picker-field'
 import { TagsField } from '@/features/students/components/TagsField'
@@ -58,15 +57,6 @@ function toDefaultValues(student: AdminStudent): UpdateStudentFormValues {
             email: contact.email ?? '',
           }))
         : [{ name: '', phone: '', relationship: '', alternatePhone: '', email: '' }],
-    guardianName: student.guardianName ?? '',
-    guardianPhone: student.guardianPhone ?? '',
-    guardianEmail: student.guardianEmail ?? '',
-    guardianRelationship: student.guardianRelationship ?? '',
-    guardianOccupation: student.guardianOccupation ?? '',
-    guardianAddressSameAsStudent: student.guardianAddressSameAsStudent,
-    guardianAddress: student.guardianAddress
-      ? toAddressFormValue(student.guardianAddress)
-      : undefined,
     educationRecords: student.educationRecords.map((record) => ({
       degree: record.degree,
       institution: record.institution,
@@ -140,10 +130,6 @@ export function StudentEditForm({
   })
   const emergencyContacts = useFieldArray({ control: form.control, name: 'emergencyContacts' })
   const educationRecords = useFieldArray({ control: form.control, name: 'educationRecords' })
-  const guardianSameAsStudent = useWatch({
-    control: form.control,
-    name: 'guardianAddressSameAsStudent',
-  })
 
   useEffect(() => {
     form.reset(toDefaultValues(student))
@@ -292,43 +278,6 @@ export function StudentEditForm({
             >
               Add another emergency contact
             </Button>
-          )}
-        </section>
-
-        <Separator />
-
-        <section className="flex flex-col gap-4">
-          <h3 className="text-body-sm font-semibold">Guardian information</h3>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <TextField control={form.control} name="guardianName" label="Guardian name" />
-            <TextField control={form.control} name="guardianRelationship" label="Relationship" />
-            <TextField control={form.control} name="guardianPhone" label="Phone" />
-            <TextField control={form.control} name="guardianEmail" label="Email" type="email" />
-            <TextField control={form.control} name="guardianOccupation" label="Occupation" />
-          </div>
-          <CheckboxField
-            control={form.control}
-            name="guardianAddressSameAsStudent"
-            label="Guardian address is the same as the student's address"
-          />
-          {!guardianSameAsStudent && (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div className="sm:col-span-2">
-                <TextField
-                  control={form.control}
-                  name="guardianAddress.line1"
-                  label="Guardian address line 1"
-                />
-              </div>
-              <TextField control={form.control} name="guardianAddress.city" label="City" />
-              <TextField control={form.control} name="guardianAddress.state" label="State" />
-              <TextField
-                control={form.control}
-                name="guardianAddress.postalCode"
-                label="Postal code"
-              />
-              <TextField control={form.control} name="guardianAddress.country" label="Country" />
-            </div>
           )}
         </section>
 

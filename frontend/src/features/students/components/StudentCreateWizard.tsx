@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useFieldArray, useForm, useWatch } from 'react-hook-form'
+import { useFieldArray, useForm } from 'react-hook-form'
 import type { FieldPath } from 'react-hook-form'
 
 import { Stepper, type StepperStep } from '@/shared/components/data-display/stepper'
@@ -28,7 +28,6 @@ const STEPS: StepperStep[] = [
   { id: 'account', label: 'Account' },
   { id: 'contact', label: 'Contact' },
   { id: 'emergency', label: 'Emergency' },
-  { id: 'guardian', label: 'Guardian' },
   { id: 'academic', label: 'Academic' },
   { id: 'admin', label: 'Admin' },
   { id: 'review', label: 'Review' },
@@ -48,12 +47,6 @@ const DEFAULT_VALUES: CreateStudentFormValues = {
   alternatePhone: '',
   address: { line1: '', line2: '', city: '', state: '', postalCode: '', country: 'India' },
   emergencyContacts: [{ name: '', phone: '', relationship: '', alternatePhone: '', email: '' }],
-  guardianName: '',
-  guardianPhone: '',
-  guardianEmail: '',
-  guardianRelationship: '',
-  guardianOccupation: '',
-  guardianAddressSameAsStudent: false,
   educationRecords: [],
   notes: '',
   tags: [],
@@ -111,10 +104,6 @@ export function StudentCreateWizard({ onDone }: { onDone: () => void }) {
   })
   const emergencyContacts = useFieldArray({ control: form.control, name: 'emergencyContacts' })
   const educationRecords = useFieldArray({ control: form.control, name: 'educationRecords' })
-  const guardianSameAsStudent = useWatch({
-    control: form.control,
-    name: 'guardianAddressSameAsStudent',
-  })
 
   const currentStep = STEPS[stepIndex]
   const isLastStep = stepIndex === STEPS.length - 1
@@ -124,7 +113,6 @@ export function StudentCreateWizard({ onDone }: { onDone: () => void }) {
     account: ['email', 'password', 'firstName', 'lastName', 'dateOfBirth', 'gender'],
     contact: ['phone', 'address'],
     emergency: ['emergencyContacts'],
-    guardian: [],
     academic: [],
     admin: [],
     review: [],
@@ -291,53 +279,6 @@ export function StudentCreateWizard({ onDone }: { onDone: () => void }) {
                 >
                   Add another emergency contact
                 </Button>
-              )}
-            </div>
-          )}
-
-          {currentStep?.id === 'guardian' && (
-            <div className="flex flex-col gap-4">
-              <p className="text-body-sm text-muted-foreground">
-                Optional — parent or guardian details.
-              </p>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <TextField control={form.control} name="guardianName" label="Guardian name" />
-                <TextField
-                  control={form.control}
-                  name="guardianRelationship"
-                  label="Relationship"
-                />
-                <TextField control={form.control} name="guardianPhone" label="Phone" />
-                <TextField control={form.control} name="guardianEmail" label="Email" type="email" />
-                <TextField control={form.control} name="guardianOccupation" label="Occupation" />
-              </div>
-              <CheckboxField
-                control={form.control}
-                name="guardianAddressSameAsStudent"
-                label="Guardian address is the same as the student's address"
-              />
-              {!guardianSameAsStudent && (
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <div className="sm:col-span-2">
-                    <TextField
-                      control={form.control}
-                      name="guardianAddress.line1"
-                      label="Guardian address line 1"
-                    />
-                  </div>
-                  <TextField control={form.control} name="guardianAddress.city" label="City" />
-                  <TextField control={form.control} name="guardianAddress.state" label="State" />
-                  <TextField
-                    control={form.control}
-                    name="guardianAddress.postalCode"
-                    label="Postal code"
-                  />
-                  <TextField
-                    control={form.control}
-                    name="guardianAddress.country"
-                    label="Country"
-                  />
-                </div>
               )}
             </div>
           )}

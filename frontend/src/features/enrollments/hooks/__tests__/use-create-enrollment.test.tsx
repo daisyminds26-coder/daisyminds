@@ -42,7 +42,6 @@ async function createFreshStudent() {
       country: 'India',
     },
     emergencyContacts: [{ name: 'Parent', phone: '+91 90000 11111', relationship: 'Mother' }],
-    guardianAddressSameAsStudent: false,
   })
 }
 

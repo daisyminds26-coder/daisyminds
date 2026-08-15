@@ -62,7 +62,6 @@ export function StudentDetailDrawer({ open, onOpenChange, student }: StudentDeta
           <TabsList className="flex-wrap">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="academic">Academic</TabsTrigger>
-            <TabsTrigger value="guardian">Guardian</TabsTrigger>
             <TabsTrigger value="enrolments">Enrolments</TabsTrigger>
             {isSuperAdmin && <TabsTrigger value="sessions">Sessions</TabsTrigger>}
             {isSuperAdmin && <TabsTrigger value="activity">Activity</TabsTrigger>}
@@ -169,31 +168,6 @@ export function StudentDetailDrawer({ open, onOpenChange, student }: StudentDeta
                   </p>
                 </div>
               ))
-            )}
-          </TabsContent>
-
-          <TabsContent value="guardian" className="flex flex-col gap-2 text-sm">
-            {student.guardianName ? (
-              <dl className="grid grid-cols-2 gap-3">
-                <div>
-                  <dt className="text-caption text-muted-foreground">Name</dt>
-                  <dd className="text-body-sm">{student.guardianName}</dd>
-                </div>
-                <div>
-                  <dt className="text-caption text-muted-foreground">Relationship</dt>
-                  <dd className="text-body-sm">{student.guardianRelationship ?? '—'}</dd>
-                </div>
-                <div>
-                  <dt className="text-caption text-muted-foreground">Phone</dt>
-                  <dd className="text-body-sm">{student.guardianPhone ?? '—'}</dd>
-                </div>
-                <div>
-                  <dt className="text-caption text-muted-foreground">Email</dt>
-                  <dd className="text-body-sm">{student.guardianEmail ?? '—'}</dd>
-                </div>
-              </dl>
-            ) : (
-              <EmptyState icon={Sparkles} title="No guardian details on file" />
             )}
           </TabsContent>
 

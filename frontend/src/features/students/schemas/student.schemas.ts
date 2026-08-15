@@ -77,13 +77,6 @@ export const studentProfileSchema = z.object({
     .array(emergencyContactSchema)
     .min(1, 'At least one emergency contact is required')
     .max(5),
-  guardianName: z.string().trim().max(200).optional().or(z.literal('')),
-  guardianPhone: phoneSchema.optional().or(z.literal('')),
-  guardianEmail: z.email('Enter a valid email').optional().or(z.literal('')),
-  guardianRelationship: z.string().trim().max(60).optional().or(z.literal('')),
-  guardianOccupation: z.string().trim().max(150).optional().or(z.literal('')),
-  guardianAddressSameAsStudent: z.boolean(),
-  guardianAddress: addressSchema.optional(),
   educationRecords: z.array(educationRecordSchema).max(20),
   admissionDate: z.date().optional(),
   source: z.enum(STUDENT_SOURCES).optional(),

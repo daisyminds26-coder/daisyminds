@@ -76,13 +76,6 @@ export interface StudentProfileFields {
   alternatePhone?: string
   address: AddressInput
   emergencyContacts: EmergencyContactInput[]
-  guardianName?: string
-  guardianPhone?: string
-  guardianEmail?: string
-  guardianRelationship?: string
-  guardianOccupation?: string
-  guardianAddressSameAsStudent?: boolean
-  guardianAddress?: AddressInput
   educationRecords?: EducationRecordInput[]
   admissionDate?: string
   source?: StudentSource
