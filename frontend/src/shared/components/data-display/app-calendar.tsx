@@ -12,7 +12,13 @@ export function AppCalendar({ selected, onSelect, className }: AppCalendarProps)
   return (
     <Card className={className}>
       <CardContent className="flex justify-center p-2">
-        <Calendar mode="single" selected={selected} onSelect={onSelect} className="p-0" />
+        <Calendar
+          mode="single"
+          captionLayout="dropdown"
+          selected={selected}
+          onSelect={onSelect}
+          className="p-0"
+        />
       </CardContent>
     </Card>
   )

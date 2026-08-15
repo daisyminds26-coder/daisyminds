@@ -67,6 +67,7 @@ export function DatePickerField<TFieldValues extends FieldValues>({
               <PopoverContent className="w-auto p-0" align="start">
                 <Calendar
                   mode="single"
+                  captionLayout="dropdown"
                   selected={selected}
                   onSelect={field.onChange}
                   startMonth={fromDate}
