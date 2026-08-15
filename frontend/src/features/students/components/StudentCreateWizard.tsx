@@ -166,6 +166,8 @@ export function StudentCreateWizard({ onDone }: { onDone: () => void }) {
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <TextField control={form.control} name="firstName" label="First name" />
                 <TextField control={form.control} name="lastName" label="Last name" />
+              </div>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <DatePickerField
                   control={form.control}
                   name="dateOfBirth"
